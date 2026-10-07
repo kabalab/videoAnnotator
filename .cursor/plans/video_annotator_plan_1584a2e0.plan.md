@@ -4,31 +4,31 @@ overview: A static, no-build site in plain HTML/CSS/JS (native ES modules) that 
 todos:
   - id: p1-foundation
     content: "Phase 1: scaffold structure, tokens/theme CSS, env.js + config.js, store.js, router.js, schema/validate, repository with httpSource, visibility stripping, sample data, .vscode Live Server ignore, .nojekyll, .gitignore"
-    status: pending
+    status: completed
   - id: p1-fsa
     content: "Phase 1: fsaSource + handleStore (connect/verify/permission), per-file write queue, lastModified conflict check, fallback with error banner, draftStore and exporter"
-    status: pending
+    status: completed
   - id: p2-library
     content: "Phase 2: library view, thumbnails, unregistered-file scan, add-video and edit-video dialogs (existing file, streamed copy, YouTube-only) with a Backup YouTube link field (URL parsing, thumbnail preview, test, offset)"
-    status: pending
+    status: completed
   - id: p2-player
     content: "Phase 2: player shell + html5/youtube adapters, sourceResolver with automatic fallback to the YouTube backup (on error or stall, keeping position) and a manual Local/YouTube switch, custom controls, keyboard shortcuts"
-    status: pending
+    status: completed
   - id: p3-notes
     content: "Phase 3: notes panel (timeline/general), note editor drawer, auto-timestamp, edit/delete with undo, jumpHistory + Go Back, seek-bar note ticks, deep links"
-    status: pending
+    status: completed
   - id: p4-descriptors
     content: "Phase 4: tag/marker chips, pickers with inline create, descriptor manager (colors, rename, delete with reference handling), markers view"
-    status: pending
+    status: completed
   - id: p5-search
     content: "Phase 5: search index, filter registry, search view with grouped cross-video results and URL state"
-    status: pending
+    status: completed
   - id: p6-modes
     content: "Phase 6: edit/view toggle, public preview (?env=public), verify no edit UI or writes on PUBLIC, private indicators"
-    status: pending
+    status: completed
   - id: p7-polish
     content: "Phase 7: responsive layouts, fullscreen/theater overlay with quick-note panel, empty/error states, data issues panel, accessibility, external videos folder option, README"
-    status: pending
+    status: in_progress
 isProject: false
 ---
 

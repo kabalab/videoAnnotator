@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "tags": [
+    {
+      "id": "important",
+      "name": "Important",
+      "color": "#4f7cff",
+      "description": "Key moments worth coming back to."
+    },
+    {
+      "id": "question",
+      "name": "Question",
+      "color": "#e0a43b",
+      "description": "Something to look up or ask about."
+    },
+    {
+      "id": "interesting",
+      "name": "Interesting",
+      "color": "#2fb8c9",
+      "description": ""
+    },
+    {
+      "id": "funny",
+      "name": "Funny",
+      "color": "#e86fb0",
+      "description": ""
+    },
+    {
+      "id": "problem",
+      "name": "Problem",
+      "color": "#e5484d",
+      "description": "Mistakes, glitches or things that don't add up."
+    },
+    {
+      "id": "tutorial",
+      "name": "Tutorial",
+      "color": "#3fb27f",
+      "description": "Technique or how-to worth reusing."
+    }
+  ],
+  "markers": [
+    {
+      "id": "first-watch",
+      "name": "First Watch",
+      "description": "Notes taken the first time through.",
+      "date": "",
+      "order": 1
+    },
+    {
+      "id": "second-watch",
+      "name": "Second Watch",
+      "description": "Notes from a re-watch.",
+      "date": "",
+      "order": 2
+    },
+    {
+      "id": "april-2026",
+      "name": "April 2026",
+      "description": "",
+      "date": "2026-04-01",
+      "order": 3
+    },
+    {
+      "id": "october-2026",
+      "name": "October 2026",
+      "description": "",
+      "date": "2026-10-01",
+      "order": 4
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  // The app writes these folders while you edit. Without this, Live Server reloads the page on every save.
+  "liveServer.settings.ignoreFiles": [
+    ".vscode/**",
+    "**/*.scss",
+    "**/*.sass",
+    "**/*.ts",
+    "data/**",
+    "videos/**"
+  ]
+}

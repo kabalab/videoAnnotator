@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0e1014">
+  <title>Video Annotator</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232f5bd3'/%3E%3Cpath d='M12 9.5v13l11-6.5z' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/player.css">
+  <link rel="stylesheet" href="css/views.css">
+</head>
+<body>
+  <div id="app" class="app">
+    <header id="topbar" class="topbar"></header>
+    <div id="banners" class="banners" aria-live="polite"></div>
+    <main id="view" class="view" tabindex="-1">
+      <div class="boot-loading" aria-label="Loading"><span class="spinner"></span></div>
+    </main>
+  </div>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script>
+    // ES modules and fetch() are blocked on file:// pages, so explain instead of showing a blank screen.
+    if (location.protocol === 'file:') {
+      document.getElementById('view').innerHTML =
+        '<section class="fatal"><h1>Open this through Live Server</h1>' +
+        '<p>Browsers block loading the app\u2019s data and scripts from a <code>file://</code> page.</p>' +
+        '<ol><li>Open the project folder in VS Code or Cursor.</li>' +
+        '<li>Right-click <code>index.html</code> and choose <strong>Open with Live Server</strong>.</li>' +
+        '<li>Use the address it opens (usually <code>http://127.0.0.1:5500</code>), ideally in Chrome or Edge for direct saving.</li></ol></section>';
+    }
+  </script>
+  <script type="module" src="js/main.js"></script>
+  <noscript><p class="fatal">This site needs JavaScript to play videos and show notes.</p></noscript>
+</body>
+</html>

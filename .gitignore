@@ -1,0 +1,8 @@
+# Large local video files stay out of git. Public visitors watch the YouTube backup instead.
+videos/*
+!videos/.gitkeep
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
