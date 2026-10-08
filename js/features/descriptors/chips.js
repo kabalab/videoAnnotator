@@ -53,7 +53,7 @@ export function markerChip(id, { onRemove, onClick, active, count, href } = {}) 
       href: href && !onRemove ? href : null,
       type: interactive && !href ? 'button' : null,
       'aria-pressed': interactive && !href && active !== undefined ? String(!!active) : null,
-      title: marker ? marker.description || `Marker: ${marker.name}${marker.date ? ` (${marker.date})` : ''}` : `Marker "${id}" isn't defined in descriptors.json`,
+      title: marker ? marker.description || `Marker: ${marker.name}` : `Marker "${id}" isn't defined in descriptors.json`,
       onclick: interactive && !href ? onClick : null,
     },
     icon('flag', 'chip-icon'),

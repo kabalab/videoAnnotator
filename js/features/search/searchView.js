@@ -1,7 +1,7 @@
 import { fill, h, plural } from '../../core/dom.js';
 import { store, getVideo } from '../../core/store.js';
 import { navigate, videoHref } from '../../core/router.js';
-import { formatTime } from '../../core/time.js';
+import { displayTimeTokens, formatTime } from '../../core/time.js';
 import { icon } from '../../ui/icons.js';
 import { noteChips, privateBadge } from '../descriptors/chips.js';
 import { videoThumb } from '../library/libraryView.js';
@@ -19,7 +19,7 @@ function highlight(text, terms) {
 }
 
 function snippetAround(text, terms, max = 220) {
-  const flat = String(text || '').replace(/\s+/g, ' ').trim();
+  const flat = displayTimeTokens(text).replace(/\s+/g, ' ').trim();
   if (flat.length <= max) return flat;
   const lower = flat.toLowerCase();
   const idx = terms.reduce((best, t) => {

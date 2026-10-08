@@ -32,7 +32,7 @@ mark {
 
 .tile-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
   gap: 24px 18px;
 }
 
@@ -332,6 +332,10 @@ mark {
   padding: 10px 8px 4px;
 }
 
+.notes-tabpanel {
+  min-height: 0;
+}
+
 .notes-list {
   position: relative;
   margin: 0;
@@ -403,6 +407,25 @@ button.note-time:hover {
   color: #fff;
 }
 
+.time-ref {
+  display: inline;
+  margin: 0 1px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--accent-softer);
+  color: var(--accent-text);
+  font: 600 0.92em var(--mono);
+  font-variant-numeric: tabular-nums;
+  vertical-align: baseline;
+  cursor: pointer;
+}
+
+button.time-ref:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
 .note-body {
   flex: 1;
   min-width: 0;
@@ -449,8 +472,16 @@ button.note-time:hover {
   border-radius: 0;
 }
 
+.notes-panel-compact .notes-tabpanel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .notes-panel-compact .notes-list {
   flex: 1;
+  min-height: 0;
   overflow: auto;
 }
 
@@ -821,11 +852,6 @@ button.note-time:hover {
   white-space: nowrap;
 }
 
-.marker-item-date {
-  font-size: 12px;
-  color: var(--text-faint);
-}
-
 .marker-item-count {
   padding: 1px 8px;
   border-radius: var(--radius-pill);
@@ -915,20 +941,41 @@ button.note-time:hover {
 
 .dm-row {
   display: grid;
-  align-items: center;
+  align-items: start;
   gap: 8px;
   padding: 6px;
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--bg-raised);
+  min-width: 0;
 }
 
-.dm-list-tag .dm-row {
-  grid-template-columns: auto minmax(110px, 1fr) minmax(120px, 1.6fr) auto auto;
-}
-
+.dm-list-tag .dm-row,
 .dm-list-marker .dm-row {
-  grid-template-columns: auto minmax(110px, 1fr) 150px 72px minmax(110px, 1.3fr) auto auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+}
+
+.dm-row .input {
+  min-width: 0;
+}
+
+.dm-description {
+  grid-column: 2 / -1;
+  width: 100%;
+  height: auto;
+  min-height: 32px;
+  padding: 6px 10px;
+  line-height: 1.45;
+  resize: none;
+  overflow: hidden;
+  white-space: pre-wrap;
+  font-size: 13.5px;
+}
+
+.dm-flag,
+.dm-count,
+.dm-row > .icon-btn {
+  align-self: center;
 }
 
 .dm-flag {
@@ -1029,12 +1076,6 @@ button.note-time:hover {
   .dm-list-tag .dm-row,
   .dm-list-marker .dm-row {
     grid-template-columns: auto minmax(0, 1fr) auto auto;
-  }
-
-  .dm-description,
-  .dm-date,
-  .dm-order {
-    grid-column: 2 / -1;
   }
 }
 

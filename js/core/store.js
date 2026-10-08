@@ -64,13 +64,7 @@ export function getMarker(id) {
 }
 
 export function sortedMarkers() {
-  return [...state.descriptors.markers].sort((a, b) => {
-    const oa = Number.isFinite(a.order) ? a.order : Infinity;
-    const ob = Number.isFinite(b.order) ? b.order : Infinity;
-    if (oa !== ob) return oa - ob;
-    if ((a.date || '') !== (b.date || '')) return (a.date || '').localeCompare(b.date || '');
-    return a.name.localeCompare(b.name);
-  });
+  return [...state.descriptors.markers].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export function sortedTags() {

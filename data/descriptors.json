@@ -22,7 +22,7 @@
     {
       "id": "funny",
       "name": "Funny",
-      "color": "#e86fb0",
+      "color": "#e32b8d",
       "description": ""
     },
     {
@@ -43,7 +43,7 @@
       "id": "first-watch",
       "name": "First Watch",
       "description": "Notes taken the first time through.",
-      "date": "",
+      "date": "2026-10-13",
       "order": 1
     },
     {

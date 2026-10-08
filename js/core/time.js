@@ -34,3 +34,39 @@ export function parseTime(input) {
 export function formatDuration(seconds) {
   return Number.isFinite(seconds) && seconds > 0 ? formatTime(seconds) : '';
 }
+
+// Show \t(56:30) as 56:30 in plain-text snippets. Unparseable tokens stay as written.
+export function displayTimeTokens(text) {
+  return String(text || '').replace(/\\t\(([^)]+)\)/g, (full, inner) => {
+    const seconds = parseTime(String(inner).trim());
+    return seconds == null ? full : formatTime(seconds);
+  });
+}
+
+// \t(now) becomes \t(m:ss) using nowSeconds. A finished \t(12:43) is normalized in place.
+// cursor is the caret; it is shifted so it stays at the same spot in the text.
+export function expandTimeTokens(text, cursor, nowSeconds) {
+  let value = String(text || '');
+  let next = Number.isFinite(cursor) ? cursor : value.length;
+  const nowToken = `\\t(${formatTime(nowSeconds)})`;
+  const nows = [...value.matchAll(/\\t\(\s*now\s*\)/gi)];
+  for (let i = nows.length - 1; i >= 0; i--) {
+    const match = nows[i];
+    value = value.slice(0, match.index) + nowToken + value.slice(match.index + match[0].length);
+    const delta = nowToken.length - match[0].length;
+    if (next > match.index) next = Math.max(match.index, next + delta);
+  }
+  const atCursor = value.slice(0, next).match(/\\t\(([^)]*)\)$/);
+  if (atCursor && !/^now$/i.test(atCursor[1].trim())) {
+    const seconds = parseTime(atCursor[1].trim());
+    if (seconds != null) {
+      const replacement = `\\t(${formatTime(seconds)})`;
+      if (replacement !== atCursor[0]) {
+        const start = next - atCursor[0].length;
+        value = value.slice(0, start) + replacement + value.slice(next);
+        next = start + replacement.length;
+      }
+    }
+  }
+  return { value, cursor: next };
+}

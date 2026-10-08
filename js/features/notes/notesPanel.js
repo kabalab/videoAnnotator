@@ -11,8 +11,10 @@ export function createNotesPanel({ onJump, onOpen, onAdd, compact = false, onClo
   let currentId = null;
   let lastTime = 0;
 
+  const prefix = compact ? 'quick-' : 'page-';
   const list = h('ol', { class: 'notes-list' });
-  const el = h('section', { class: ['notes-panel', compact && 'notes-panel-compact'], 'aria-label': 'Notes' });
+  const panelBody = h('div', { class: 'notes-tabpanel' }, list);
+  const el = h('section', { class: ['notes-panel', compact && 'notes-panel-compact'], 'aria-label': compact ? 'Quick notes' : 'Notes' });
 
   const passes = (n) =>
     (!filter.tags.size || n.tags.some((t) => filter.tags.has(t))) && (!filter.markers.size || n.markers.some((m) => filter.markers.has(m)));
@@ -34,24 +36,50 @@ export function createNotesPanel({ onJump, onOpen, onAdd, compact = false, onClo
     const general = video.notes.filter((n) => n.type === 'generic');
     if (tab === null) tab = timestamps.length || !general.length ? 'timeline' : 'general';
 
+    const tabIds = ['timeline', 'general'];
     const tabButton = (id, label, count) =>
       h(
         'button',
-        { class: ['tab', tab === id && 'is-active'], type: 'button', role: 'tab', 'aria-selected': String(tab === id), onclick: () => { tab = id; render(); } },
+        {
+          class: ['tab', tab === id && 'is-active'],
+          type: 'button',
+          role: 'tab',
+          id: `${prefix}tab-${id}`,
+          'aria-selected': String(tab === id),
+          'aria-controls': `${prefix}panel`,
+          tabindex: tab === id ? '0' : '-1',
+          onclick: () => { tab = id; render(); },
+        },
         label,
         h('span', { class: 'tab-count' }, count),
       );
 
+    const tabs = h('div', { class: 'tabs', role: 'tablist', 'aria-label': 'Note types' }, tabButton('timeline', 'Timeline', timestamps.length), tabButton('general', 'General', general.length));
+    tabs.addEventListener('keydown', (e) => {
+      const i = tabIds.indexOf(tab);
+      let next = null;
+      if (e.key === 'ArrowRight') next = tabIds[(i + 1) % tabIds.length];
+      else if (e.key === 'ArrowLeft') next = tabIds[(i - 1 + tabIds.length) % tabIds.length];
+      else if (e.key === 'Home') next = tabIds[0];
+      else if (e.key === 'End') next = tabIds[tabIds.length - 1];
+      else return;
+      e.preventDefault();
+      e.stopPropagation();
+      tab = next;
+      render();
+      el.querySelector('[role="tab"][aria-selected="true"]')?.focus();
+    });
+
     const header = h(
       'header',
       { class: 'notes-header' },
-      h('div', { class: 'tabs', role: 'tablist' }, tabButton('timeline', 'Timeline', timestamps.length), tabButton('general', 'General', general.length)),
+      tabs,
       h(
         'div',
         { class: 'notes-actions' },
         editable && h('button', { class: 'btn btn-primary btn-sm', type: 'button', title: 'Add a timestamp note at the current time (N)', onclick: () => onAdd('timestamp') }, icon('clock'), h('span', {}, 'Timestamp')),
         editable && h('button', { class: 'btn btn-secondary btn-sm', type: 'button', title: 'Add a general note (G)', onclick: () => onAdd('generic') }, icon('note'), h('span', {}, 'Note')),
-        compact && onClose && h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Hide notes', onclick: onClose }, icon('x')),
+        compact && onClose && h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Hide notes', title: 'Hide notes (C)', onclick: onClose }, icon('x')),
       ),
     );
 
@@ -74,6 +102,9 @@ export function createNotesPanel({ onJump, onOpen, onAdd, compact = false, onClo
     const source = tab === 'timeline' ? timestamps : general;
     const shown = source.filter(passes);
     list.replaceChildren(...shown.map((n) => renderNoteItem(n, { onJump, onOpen, editable, compact })));
+    panelBody.id = `${prefix}panel`;
+    panelBody.setAttribute('role', 'tabpanel');
+    panelBody.setAttribute('aria-labelledby', `${prefix}tab-${tab}`);
 
     let empty = null;
     if (!shown.length) {
@@ -83,8 +114,9 @@ export function createNotesPanel({ onJump, onOpen, onAdd, compact = false, onClo
       else text = editable ? 'No general notes yet. Use them for summaries, context or thoughts about the whole video.' : 'No general notes.';
       empty = h('p', { class: 'notes-empty' }, text);
     }
+    panelBody.replaceChildren(...[empty, list].filter(Boolean));
 
-    fill(el, header, filterRow, empty, list);
+    fill(el, header, filterRow, panelBody);
     currentId = null;
     setCurrentTime(lastTime);
   }

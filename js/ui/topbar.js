@@ -43,8 +43,8 @@ export function createTopbar(el) {
     }
   });
 
-  const navLibrary = h('a', { class: 'nav-link', href: '#/' }, icon('grid'), h('span', {}, 'Library'));
-  const navMarkers = h('a', { class: 'nav-link', href: '#/markers' }, icon('flag'), h('span', {}, 'Markers'));
+  const navLibrary = h('a', { class: 'nav-link', href: '#/', 'aria-label': 'Library' }, icon('grid'), h('span', {}, 'Library'));
+  const navMarkers = h('a', { class: 'nav-link', href: '#/markers', 'aria-label': 'Markers' }, icon('flag'), h('span', {}, 'Markers'));
   const right = h('div', { class: 'topbar-right' });
 
   el.replaceChildren(
@@ -102,7 +102,7 @@ export function createTopbar(el) {
     const active = state.uiMode === mode;
     return h(
       'button',
-      { type: 'button', class: active ? 'is-active' : '', 'aria-pressed': String(active), onclick: () => setUiMode(mode), title: mode === 'edit' ? 'Editing mode' : 'View mode: read-only, private notes still shown' },
+      { type: 'button', class: active ? 'is-active' : '', 'aria-pressed': String(active), 'aria-label': label, onclick: () => setUiMode(mode), title: mode === 'edit' ? 'Editing mode' : 'View mode: read-only, private notes still shown' },
       icon(iconName),
       h('span', {}, label),
     );
@@ -123,8 +123,14 @@ export function createTopbar(el) {
 
   return {
     setRoute(route) {
-      navLibrary.classList.toggle('is-active', route.name === 'library' || route.name === 'video');
-      navMarkers.classList.toggle('is-active', route.name === 'markers');
+      const onLibrary = route.name === 'library' || route.name === 'video';
+      navLibrary.classList.toggle('is-active', onLibrary);
+      if (onLibrary) navLibrary.setAttribute('aria-current', 'page');
+      else navLibrary.removeAttribute('aria-current');
+      const onMarkers = route.name === 'markers';
+      navMarkers.classList.toggle('is-active', onMarkers);
+      if (onMarkers) navMarkers.setAttribute('aria-current', 'page');
+      else navMarkers.removeAttribute('aria-current');
       if (route.name === 'search') {
         if (document.activeElement !== input) input.value = route.query.q || '';
       } else if (document.activeElement !== input) input.value = '';

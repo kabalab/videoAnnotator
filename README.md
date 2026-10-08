@@ -98,7 +98,7 @@ Videos without a YouTube link, and private videos, don't appear on the public si
 - **Tags** are colored labels. **Markers** are viewing sessions like "First watch" or "October 2026"; the **Markers** page lists every note from a session across all videos.
 - **Search** (`/`) looks through every video's notes, titles and descriptions. Filter by video, type, tag, marker and visibility. Filters are kept in the URL, so results can be bookmarked.
 - **Deleting** a note shows an **Undo** button for a few seconds. The deletion is written to the file immediately, and Undo writes the note back.
-- **Fullscreen** (`F`) keeps notes available in a side panel; press `N` to add one without leaving fullscreen. If the browser blocks fullscreen, a theater mode fills the window instead.
+- **Fullscreen** (`F`) keeps a quick-notes panel beside the video, or along the bottom when the player is narrow. Press `C` to show or hide that panel, and `N` to add a note without leaving fullscreen. The **Notes** button in the controls does the same thing. If the browser blocks fullscreen, theater mode fills the window and keeps that panel.
 - **Settings → Data issues** lists anything in the JSON files that couldn't be read. Broken items are kept untouched in the file rather than deleted.
 
 ### Keyboard shortcuts (video page)
@@ -112,6 +112,7 @@ Videos without a YouTube link, and private videos, don't appear on the public si
 | `G` | New general note |
 | `B` | Go back to where you were before the last jump |
 | `F` | Fullscreen (notes panel available) |
+| `C` | Show or hide the notes panel (fullscreen or theater) |
 | `M` | Mute |
 | `/` | Focus search (any page) |
 | `Ctrl+Enter` | Save the note being edited |
@@ -126,7 +127,7 @@ All data is plain JSON in `data/`. Files are written with stable key order and 2
 `data/library.json` lists which videos exist, in display order:
 
 ```json
-{ "schemaVersion": 1, "videos": ["sample-bbb", "sample-sintel"] }
+{ "schemaVersion": 1, "videos": ["sample-bbb", "sample-spring"] }
 ```
 
 `data/videos/<id>.json` holds one video and its notes:

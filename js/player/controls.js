@@ -13,7 +13,7 @@ function iconButton(name, label, onClick, className = '') {
 }
 
 function labeledButton(name, text, title, onClick, className = '') {
-  return h('button', { class: `ctl-btn ctl-labeled ${className}`.trim(), type: 'button', title, onclick: onClick }, icon(name), h('span', { class: 'ctl-text' }, text));
+  return h('button', { class: `ctl-btn ctl-labeled ${className}`.trim(), type: 'button', title, 'aria-label': title, onclick: onClick }, icon(name), h('span', { class: 'ctl-text' }, text));
 }
 
 // p: callbacks provided by playerShell.
@@ -35,7 +35,7 @@ export function createControls(p) {
   const goBack = h('button', { class: 'ctl-goback', type: 'button', hidden: true, title: 'Return to where you were before the jump (B)', onclick: p.goBack }, icon('back'), goBackText);
 
   const sourceSelect = h('select', { class: 'ctl-select ctl-source', 'aria-label': 'Video source', title: 'Switch between the local file and the YouTube backup', hidden: true, onchange: (e) => p.switchSource(e.target.value) });
-  const notesBtn = labeledButton('list', 'Notes', 'Show notes', p.toggleOverlayNotes, 'ctl-immersive-only');
+  const notesBtn = labeledButton('list', 'Notes', 'Show notes (C)', p.toggleOverlayNotes, 'ctl-immersive-only');
   const addTsBtn = labeledButton('clock', 'Timestamp', 'Add a timestamp note at the current time (N)', () => p.addNote('timestamp'), 'ctl-accent');
   const addNoteBtn = labeledButton('note', 'Note', 'Add a general note (G)', () => p.addNote('generic'));
   const rateSelect = h('select', { class: 'ctl-select ctl-rate', 'aria-label': 'Playback speed', title: 'Playback speed', onchange: (e) => p.setRate(Number(e.target.value)) });
@@ -53,7 +53,7 @@ export function createControls(p) {
   const tooltip = h('div', { class: 'seek-tooltip', hidden: true }, tooltipTime, tooltipLabel);
   const seek = h(
     'div',
-    { class: 'seek', role: 'slider', tabindex: '0', 'aria-label': 'Seek', 'aria-valuemin': '0', 'aria-valuemax': '0', 'aria-valuenow': '0' },
+    { class: 'seek', role: 'slider', tabindex: '0', 'aria-label': 'Seek', 'aria-orientation': 'horizontal', 'aria-valuemin': '0', 'aria-valuemax': '0', 'aria-valuenow': '0' },
     h('div', { class: 'seek-track' }, seekBuffer, seekHover, seekProgress),
     ticksEl,
     seekThumb,
@@ -79,7 +79,11 @@ export function createControls(p) {
     tooltipLabel.textContent = near ? near.label : '';
     tooltip.classList.toggle('has-label', !!near);
     tooltip.hidden = false;
-    tooltip.style.left = `${Math.min(Math.max(f * 100, 4), 96)}%`;
+    tooltip.style.left = '0px';
+    const pad = 8;
+    const tipW = tooltip.offsetWidth;
+    const left = Math.max(pad, Math.min(f * r.width - tipW / 2, r.width - tipW - pad));
+    tooltip.style.left = `${left}px`;
     seekHover.style.width = `${f * 100}%`;
   }
 
@@ -200,6 +204,13 @@ export function createControls(p) {
     setEditable(editable) {
       addTsBtn.hidden = !editable;
       addNoteBtn.hidden = !editable;
+    },
+    setNotesOpen(on) {
+      notesBtn.classList.toggle('is-active', on);
+      notesBtn.setAttribute('aria-pressed', String(on));
+      const label = on ? 'Hide notes (C)' : 'Show notes (C)';
+      notesBtn.title = label;
+      notesBtn.setAttribute('aria-label', label);
     },
     setImmersive(on) {
       if (p.fullscreenSupported) fsBtn.setIcon(on ? 'exitFullscreen' : 'fullscreen');

@@ -9,8 +9,9 @@
     "youtube": "aqz-KE-bpKQ",
     "offsetSeconds": 0
   },
+  "duration": 635,
   "createdAt": "2026-04-03T18:00:00Z",
-  "updatedAt": "2026-10-07T19:00:00Z",
+  "updatedAt": "2026-10-08T06:31:33Z",
   "notes": [
     {
       "id": "n_bbb_summary",
@@ -18,8 +19,12 @@
       "timestamp": null,
       "title": "Summary",
       "content": "A short film in three acts.\n\nThe first act sets up the peaceful meadow and the bunny's morning routine.\n\nThe second act introduces the three rodents and escalates their bullying.\n\nThe final act is the payoff: an elaborate set of traps.",
-      "tags": ["important"],
-      "markers": ["first-watch"],
+      "tags": [
+        "important"
+      ],
+      "markers": [
+        "first-watch"
+      ],
       "visibility": "public",
       "createdAt": "2026-04-03T18:05:00Z",
       "updatedAt": "2026-04-03T18:05:00Z"
@@ -30,8 +35,13 @@
       "timestamp": 25,
       "title": "",
       "content": "Opening shot of the meadow. The soft morning light sets the tone for the whole film.",
-      "tags": ["interesting"],
-      "markers": ["first-watch", "april-2026"],
+      "tags": [
+        "interesting"
+      ],
+      "markers": [
+        "first-watch",
+        "april-2026"
+      ],
       "visibility": "public",
       "createdAt": "2026-04-03T18:06:00Z",
       "updatedAt": "2026-04-03T18:06:00Z"
@@ -42,8 +52,13 @@
       "timestamp": 72,
       "title": "",
       "content": "The bunny wakes up and climbs out of his burrow. Great squash-and-stretch animation here.",
-      "tags": ["tutorial", "interesting"],
-      "markers": ["first-watch"],
+      "tags": [
+        "tutorial",
+        "interesting"
+      ],
+      "markers": [
+        "first-watch"
+      ],
       "visibility": "public",
       "createdAt": "2026-04-03T18:08:00Z",
       "updatedAt": "2026-04-03T18:08:00Z"
@@ -54,8 +69,13 @@
       "timestamp": 135,
       "title": "",
       "content": "The three rodents show up. Why does each one have such a different personality? Look up the character design notes.",
-      "tags": ["question"],
-      "markers": ["first-watch", "april-2026"],
+      "tags": [
+        "question"
+      ],
+      "markers": [
+        "first-watch",
+        "april-2026"
+      ],
       "visibility": "public",
       "createdAt": "2026-04-03T18:10:00Z",
       "updatedAt": "2026-04-03T18:10:00Z"
@@ -66,8 +86,12 @@
       "timestamp": 230,
       "title": "",
       "content": "Personal reminder: show this scene to the class next week. This note is private, so the public site doesn't display it.",
-      "tags": ["important"],
-      "markers": ["second-watch"],
+      "tags": [
+        "important"
+      ],
+      "markers": [
+        "second-watch"
+      ],
       "visibility": "private",
       "createdAt": "2026-10-02T17:00:00Z",
       "updatedAt": "2026-10-02T17:00:00Z"
@@ -78,8 +102,14 @@
       "timestamp": 330,
       "title": "Trap montage",
       "content": "The bunny starts building his traps. The pacing speeds up noticeably from here.",
-      "tags": ["important", "funny"],
-      "markers": ["second-watch", "october-2026"],
+      "tags": [
+        "important",
+        "funny"
+      ],
+      "markers": [
+        "second-watch",
+        "october-2026"
+      ],
       "visibility": "public",
       "createdAt": "2026-10-02T17:05:00Z",
       "updatedAt": "2026-10-02T17:05:00Z"
@@ -90,11 +120,27 @@
       "timestamp": 470,
       "title": "",
       "content": "The payoff. Every trap set up earlier gets used.",
-      "tags": ["funny"],
-      "markers": ["second-watch"],
+      "tags": [
+        "funny"
+      ],
+      "markers": [
+        "second-watch"
+      ],
       "visibility": "public",
       "createdAt": "2026-10-02T17:09:00Z",
       "updatedAt": "2026-10-02T17:09:00Z"
+    },
+    {
+      "id": "n_kgyvosrfy7",
+      "type": "generic",
+      "timestamp": null,
+      "title": "asd",
+      "content": "\\t(2:42) \\t(3",
+      "tags": [],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-08T06:10:44Z",
+      "updatedAt": "2026-10-08T06:31:33Z"
     }
   ]
 }

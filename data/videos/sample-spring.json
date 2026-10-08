@@ -9,8 +9,9 @@
     "youtube": "WhWc3b3KhnY",
     "offsetSeconds": 0
   },
+  "duration": 465,
   "createdAt": "2026-04-10T18:00:00Z",
-  "updatedAt": "2026-10-07T19:00:00Z",
+  "updatedAt": "2026-10-08T04:38:53Z",
   "notes": [
     {
       "id": "n_spr_context",
@@ -18,11 +19,15 @@
       "timestamp": null,
       "title": "Context",
       "content": "Made by Blender Studio in 2019, alongside the development of Blender 2.80. The production files were released publicly.\n\nWorth rewatching to follow how the colors change from winter to spring.",
-      "tags": ["interesting"],
-      "markers": ["april-2026"],
+      "tags": [
+        "interesting"
+      ],
+      "markers": [
+        "april-2026"
+      ],
       "visibility": "public",
       "createdAt": "2026-04-10T18:02:00Z",
-      "updatedAt": "2026-04-10T18:02:00Z"
+      "updatedAt": "2026-10-08T04:38:53Z"
     },
     {
       "id": "n_spr_private_thoughts",
@@ -31,7 +36,9 @@
       "title": "My thoughts",
       "content": "Private general note. It's only visible when the site runs locally.\n\nThe ending hit harder the second time.",
       "tags": [],
-      "markers": ["second-watch"],
+      "markers": [
+        "second-watch"
+      ],
       "visibility": "private",
       "createdAt": "2026-10-05T18:00:00Z",
       "updatedAt": "2026-10-05T18:00:00Z"
@@ -42,8 +49,13 @@
       "timestamp": 40,
       "title": "",
       "content": "Opening landscape. The fog and snow effects are impressive for an open project.",
-      "tags": ["interesting", "tutorial"],
-      "markers": ["first-watch"],
+      "tags": [
+        "interesting",
+        "tutorial"
+      ],
+      "markers": [
+        "first-watch"
+      ],
       "visibility": "public",
       "createdAt": "2026-04-10T18:05:00Z",
       "updatedAt": "2026-04-10T18:05:00Z"
@@ -54,8 +66,13 @@
       "timestamp": 110,
       "title": "",
       "content": "The girl and her dog set out. Their relationship is set up without a single line of dialogue.",
-      "tags": ["important"],
-      "markers": ["first-watch", "april-2026"],
+      "tags": [
+        "important"
+      ],
+      "markers": [
+        "first-watch",
+        "april-2026"
+      ],
       "visibility": "public",
       "createdAt": "2026-04-10T18:08:00Z",
       "updatedAt": "2026-04-10T18:08:00Z"
@@ -66,8 +83,13 @@
       "timestamp": 200,
       "title": "",
       "content": "The spirits appear. Are they a threat or a test? Check on the second watch.",
-      "tags": ["question", "important"],
-      "markers": ["first-watch"],
+      "tags": [
+        "question",
+        "important"
+      ],
+      "markers": [
+        "first-watch"
+      ],
       "visibility": "public",
       "createdAt": "2026-04-10T18:11:00Z",
       "updatedAt": "2026-04-10T18:11:00Z"
@@ -78,8 +100,13 @@
       "timestamp": 310,
       "title": "",
       "content": "Possible lighting jump between these two shots. Private note to double-check.",
-      "tags": ["problem"],
-      "markers": ["second-watch", "october-2026"],
+      "tags": [
+        "problem"
+      ],
+      "markers": [
+        "second-watch",
+        "october-2026"
+      ],
       "visibility": "private",
       "createdAt": "2026-10-05T18:10:00Z",
       "updatedAt": "2026-10-05T18:10:00Z"
@@ -90,8 +117,13 @@
       "timestamp": 390,
       "title": "The ending",
       "content": "Winter turns to spring. Answers the question from 3:20.",
-      "tags": ["important"],
-      "markers": ["second-watch", "october-2026"],
+      "tags": [
+        "important"
+      ],
+      "markers": [
+        "second-watch",
+        "october-2026"
+      ],
       "visibility": "public",
       "createdAt": "2026-10-05T18:14:00Z",
       "updatedAt": "2026-10-05T18:14:00Z"

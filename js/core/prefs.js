@@ -6,6 +6,7 @@ const DEFAULTS = {
   volume: 1,
   muted: false,
   rate: 1,
+  lastMarkers: [],
 };
 
 export function getPref(key) {

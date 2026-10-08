@@ -77,7 +77,7 @@ export async function initPersistence() {
 }
 
 function setExternal(kind) {
-  store.set({ external: { kind, name: fsa?.externalName || '' } }, 'persistence');
+  store.set({ external: { kind, name: fsa?.externalName || '' } }, ['persistence', 'external']);
 }
 
 // ---------------------------------------------------------------- loading
@@ -437,11 +437,9 @@ function cleanDescriptor(kind, input) {
   const item = { ...input, name, description: String(input.description || '') };
   if (kind === 'tag') {
     item.color = /^#[0-9a-f]{6}$/i.test(input.color || '') ? input.color.toLowerCase() : '#8a94a6';
-  } else {
-    item.date = String(input.date || '');
-    if (input.order === '' || input.order == null || !Number.isFinite(Number(input.order))) delete item.order;
-    else item.order = Number(input.order);
   }
+  delete item.date;
+  delete item.order;
   return item;
 }
 
@@ -462,8 +460,12 @@ export async function saveDescriptor(kind, input) {
     list.push(item);
   } else {
     const i = list.findIndex((x) => x.id === item.id);
-    if (i >= 0) list[i] = { ...list[i], ...item };
-    else list.push(item);
+    if (i >= 0) {
+      const merged = { ...list[i], ...item };
+      delete merged.date;
+      delete merged.order;
+      list[i] = merged;
+    } else list.push(item);
   }
   state.descriptors = { ...state.descriptors, [key]: list };
   store.emit('descriptors');
@@ -474,7 +476,6 @@ export async function saveDescriptor(kind, input) {
 export function createDescriptor(kind, name) {
   const base = { name };
   if (kind === 'tag') base.color = nextTagColor();
-  else base.order = state.descriptors.markers.reduce((m, x) => Math.max(m, Number.isFinite(x.order) ? x.order : 0), 0) + 1;
   return saveDescriptor(kind, base);
 }
 

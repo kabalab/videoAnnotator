@@ -83,6 +83,25 @@ export function openDescriptorManager(initialTab = 'tag') {
     });
   }
 
+  function descriptionInput(item) {
+    const area = h('textarea', {
+      class: 'input dm-description',
+      rows: '1',
+      placeholder: 'Description (optional)',
+      'aria-label': `Description for ${item.name}`,
+      dataset: { fk: `${item.id}:description` },
+      onchange: (e) => save({ ...item, description: e.target.value }),
+    });
+    area.value = item.description ?? '';
+    const fit = () => {
+      area.style.height = 'auto';
+      area.style.height = `${area.scrollHeight + 2}px`;
+    };
+    area.addEventListener('input', fit);
+    requestAnimationFrame(fit);
+    return area;
+  }
+
   function row(item, count) {
     const isTag = tab === 'tag';
     return h(
@@ -90,11 +109,9 @@ export function openDescriptorManager(initialTab = 'tag') {
       { class: 'dm-row' },
       isTag ? colorPicker(item) : h('span', { class: 'dm-flag' }, icon('flag')),
       textInput(item, 'name', 'Name', { required: true }),
-      !isTag && textInput(item, 'date', 'Date', { type: 'date' }),
-      !isTag && textInput(item, 'order', 'Order', { type: 'number', step: '1', class: 'input input-sm dm-order' }),
-      textInput(item, 'description', 'Description (optional)'),
       h('span', { class: 'dm-count', title: 'Notes using it' }, plural(count, 'note')),
       h('button', { class: 'icon-btn icon-btn-sm', type: 'button', 'aria-label': `Delete ${item.name}`, title: 'Delete', onclick: () => remove(item, count) }, icon('trash')),
+      descriptionInput(item),
     );
   }
 
@@ -145,7 +162,7 @@ export function openDescriptorManager(initialTab = 'tag') {
         { class: 'muted dm-explain' },
         tab === 'tag'
           ? 'Tags describe what a note is about (Important, Question\u2026). A note can have several, and each tag has its own color.'
-          : 'Markers record the viewing or session a note was made in (First Watch, April 2026\u2026). Order and date control how they\u2019re listed.',
+          : 'Markers record the viewing or session a note was made in (First Watch, April 2026\u2026).',
       ),
       !descriptorsAvailable() && h('p', { class: 'form-error' }, 'descriptors.json couldn\u2019t be loaded, so changes can\u2019t be saved until it\u2019s fixed.'),
       list.length ? h('ul', { class: ['dm-list', `dm-list-${tab}`] }, list.map((item) => row(item, counts.get(item.id) || 0))) : h('p', { class: 'muted' }, `No ${NOUN[tab]}s yet.`),

@@ -37,6 +37,7 @@ export function mountVideoView(container, route) {
   const page = h('div', { class: 'video-page' });
   const playerWrap = h('div', { class: 'player-wrap' });
   const lower = h('div', { class: 'video-lower' });
+  const scrim = h('button', { class: 'editor-scrim', type: 'button', 'aria-label': 'Close note editor', tabindex: '-1' });
   container.append(page);
 
   const player = createPlayer({
@@ -76,11 +77,16 @@ export function mountVideoView(container, route) {
   });
 
   lower.append(panel.el);
-  page.append(playerWrap, header.el, lower);
+  page.append(playerWrap, header.el, lower, scrim);
+  scrim.addEventListener('click', () => editor.close());
 
   // ---- immersive overlay: the editor or a compact notes list sits inside the player
   let overlayMode = null;
   let overlayNotes = null;
+
+  function syncScrim() {
+    page.classList.toggle('editor-docked', editor.isOpen() && !player.isImmersive());
+  }
 
   function setOverlay(mode) {
     overlayMode = mode;
@@ -91,11 +97,14 @@ export function mountVideoView(container, route) {
       overlayNotes.setCurrentTime(player.getTime());
       player.setOverlay(overlayNotes.el);
     } else player.setOverlay(null);
+    player.setNotesOpen(mode === 'notes');
+    syncScrim();
   }
 
   function placeEditor() {
     if (!editor.isOpen()) {
       if (overlayMode === 'editor') setOverlay(null);
+      syncScrim();
       return;
     }
     if (player.isImmersive()) {
@@ -103,12 +112,14 @@ export function mountVideoView(container, route) {
     } else {
       if (overlayMode === 'editor') setOverlay(null);
       if (editor.el.parentNode !== lower) lower.append(editor.el);
+      syncScrim();
     }
   }
 
   function addNote(type) {
     if (!canEdit()) return;
-    editor.open(null, { type, timestamp: type === 'timestamp' ? player.getTime() : null });
+    const time = player.getTime();
+    editor.open(null, { type, timestamp: type === 'timestamp' ? time : null, createdVideoTime: time });
     page.classList.add('editor-open');
     placeEditor();
   }
@@ -124,12 +135,18 @@ export function mountVideoView(container, route) {
     page.classList.remove('editor-open');
     if (overlayMode === 'editor') setOverlay(null);
     editor.el.remove();
+    syncScrim();
+  }
+
+  function highlightNote(noteId) {
+    const inQuickNotes = player.isImmersive() && overlayMode === 'notes';
+    (inQuickNotes ? overlayNotes : panel).highlight(noteId);
   }
 
   function jumpToNote(note) {
     if (note.type !== 'timestamp') return;
     player.jumpTo(note.timestamp);
-    if (!player.isImmersive()) panel.highlight(note.id);
+    highlightNote(note.id);
   }
 
   function updateTicks() {
@@ -155,10 +172,15 @@ export function mountVideoView(container, route) {
   });
   player.on('ready', ({ duration, kind }) => repo.updateDuration(id, duration, kind));
   player.on('add-note', addNote);
-  player.on('tick', (noteId) => {
-    if (!player.isImmersive()) panel.highlight(noteId);
-  });
-  player.on('toggle-overlay-notes', () => setOverlay(overlayMode === 'notes' ? null : 'notes'));
+  player.on('tick', highlightNote);
+  function toggleOverlayNotes() {
+    if (overlayMode === 'notes') setOverlay(null);
+    else {
+      if (editor.isOpen()) editor.close();
+      setOverlay('notes');
+    }
+  }
+  player.on('toggle-overlay-notes', toggleOverlayNotes);
   player.on('immersive', (on) => {
     if (!on && overlayMode === 'notes') setOverlay(null);
     placeEditor();
@@ -185,6 +207,9 @@ export function mountVideoView(container, route) {
       player.setEditable(canEdit());
       if (!canEdit() && editor.isOpen()) editor.close();
       render();
+    }),
+    store.on('external', () => {
+      if (getVideo(id)?.sources.local) player.reloadSources(getVideo(id));
     }),
   ];
 
@@ -231,6 +256,11 @@ export function mountVideoView(container, route) {
       case 'f':
       case 'F':
         player.toggleImmersive();
+        break;
+      case 'c':
+      case 'C':
+        if (!player.isImmersive()) return;
+        toggleOverlayNotes();
         break;
       case 'm':
       case 'M':

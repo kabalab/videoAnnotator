@@ -1,10 +1,9 @@
 import { fill, h, hashHue, plural } from '../../core/dom.js';
-import { store, state, canEdit, showPrivate, sortedMarkers } from '../../core/store.js';
-import { videoHref, href } from '../../core/router.js';
+import { store, state, canEdit, showPrivate } from '../../core/store.js';
+import { videoHref } from '../../core/router.js';
 import { formatDuration } from '../../core/time.js';
-import { usageCounts } from '../../data/repository.js';
 import { icon } from '../../ui/icons.js';
-import { markerChip, privateBadge } from '../descriptors/chips.js';
+import { privateBadge } from '../descriptors/chips.js';
 import { youtubeThumbnail } from './youtubeUrl.js';
 import { openAddVideoDialog } from './addVideoDialog.js';
 
@@ -83,17 +82,6 @@ export function mountLibraryView(container) {
           editing && h('button', { class: 'btn btn-primary', type: 'button', onclick: () => openAddVideoDialog() }, icon('plus'), 'Add video'),
         );
 
-    const counts = usageCounts('marker');
-    const markers = sortedMarkers().filter((m) => counts.get(m.id));
-    const markerRow = markers.length
-      ? h(
-          'section',
-          { class: 'library-section' },
-          h('div', { class: 'section-head' }, h('h2', { class: 'section-title' }, 'Browse by marker'), h('a', { class: 'section-link', href: href('/markers') }, 'All markers', icon('chevronRight'))),
-          h('div', { class: 'chips chips-lg' }, markers.map((m) => markerChip(m.id, { href: href(`/markers/${encodeURIComponent(m.id)}`), count: counts.get(m.id) }))),
-        )
-      : null;
-
     const unregistered = editing && state.unregistered.length
       ? h(
           'section',
@@ -108,7 +96,6 @@ export function mountLibraryView(container) {
                 { class: 'file-row' },
                 icon('film'),
                 h('span', { class: 'file-name' }, f.name),
-                f.location === 'external' && h('span', { class: 'badge' }, 'External folder'),
                 h('button', { class: 'btn btn-secondary btn-sm', type: 'button', onclick: () => openAddVideoDialog({ local: `videos/${f.name}` }) }, icon('plus'), 'Add to library'),
               ),
             ),
@@ -116,7 +103,7 @@ export function mountLibraryView(container) {
         )
       : null;
 
-    fill(root, header, grid, markerRow, unregistered);
+    fill(root, header, grid, unregistered);
   }
 
   const offs = ['data', 'descriptors', 'mode', 'unregistered'].map((e) => store.on(e, render));

@@ -61,7 +61,7 @@ export function createPlayer({ video, isLocal, editable = false, startTime = 0, 
     fullscreenSupported: fs.supported(),
   });
 
-  const root = h('div', { class: 'player', 'aria-label': `Video player: ${video.title}` }, stage, clickLayer, loading, bigPlay, notice, errorBox, overlay, controls.el);
+  const root = h('div', { class: 'player', role: 'region', 'aria-label': `Video player: ${video.title}` }, stage, clickLayer, loading, bigPlay, notice, errorBox, overlay, controls.el);
   controls.setEditable(canEditNow);
   controls.setVolume(prefs.volume, prefs.muted);
   controls.setDuration(lastDuration);
@@ -194,9 +194,11 @@ export function createPlayer({ video, isLocal, editable = false, startTime = 0, 
     root.dataset.source = src.kind;
 
     let a;
+    let localVia = null;
     try {
       if (src.kind === 'local') {
         const resolved = await resolveLocalUrl(src.path);
+        localVia = resolved.via;
         if (token !== loadToken) {
           if (resolved.revoke) URL.revokeObjectURL(resolved.url);
           return;
@@ -225,6 +227,7 @@ export function createPlayer({ video, isLocal, editable = false, startTime = 0, 
       controls.setRates(rates, rates.includes(prefs.rate) ? prefs.rate : 1);
       em.emit('ready', { duration: lastDuration, kind: src.kind });
       if (play) a.play();
+      if (!reason && localVia === 'external videos folder') showNotice('Playing from your external videos folder.');
     });
     a.on('time', (t) => {
       if (token !== loadToken) return;
@@ -363,6 +366,7 @@ export function createPlayer({ video, isLocal, editable = false, startTime = 0, 
       root.classList.toggle('has-overlay', !!node);
       wake();
     },
+    setNotesOpen: (on) => controls.setNotesOpen(on),
     overlayNode: () => overlay.firstElementChild,
     destroy() {
       loadToken++;

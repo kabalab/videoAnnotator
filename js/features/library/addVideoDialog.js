@@ -66,8 +66,9 @@ export function openVideoDialog({ mode, video = null, preset = {} }) {
 
   if (connected) {
     repo.listVideoFiles().then((files) => {
-      for (const f of files) fileSelect.append(h('option', { value: `videos/${f.name}` }, f.location === 'external' ? `${f.name} (external folder)` : f.name));
+      for (const f of files) fileSelect.append(h('option', { value: `videos/${f.name}` }, f.name));
       if (!files.length) fileSelect.options[0].textContent = 'No video files in videos/ yet';
+      if (init.local && localInput.value === init.local && [...fileSelect.options].some((o) => o.value === init.local)) fileSelect.value = init.local;
     });
   }
   fileSelect.addEventListener('change', () => {

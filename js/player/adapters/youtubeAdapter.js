@@ -60,7 +60,15 @@ export function createYoutubeAdapter(mount, { videoId, offset = 0, startTime = 0
   let state = { volume: 1, muted: false, rate: 1 };
 
   const toLocal = (t) => Math.max(0, t - offset);
-  const getTime = () => (ready ? toLocal(yt.getCurrentTime() || 0) : lastTime);
+  const getTime = () => {
+    if (!ready || !yt?.getCurrentTime) return lastTime;
+    const reported = yt.getCurrentTime();
+    if (!Number.isFinite(reported)) return lastTime;
+    const t = toLocal(reported);
+    // While paused, the iframe API often reports 0 even though playback is further along.
+    if (paused && t < 0.25 && lastTime > 0.75) return lastTime;
+    return t;
+  };
   const getDuration = () => (ready ? toLocal(yt.getDuration() || 0) : 0);
 
   loadApi()

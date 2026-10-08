@@ -88,7 +88,6 @@ export function createDescriptorPicker({ kind, label }) {
             : [
                 kind === 'tag' ? h('span', { class: 'chip-dot', style: { '--chip': o.item.color } }) : icon('flag', 'picker-flag'),
                 h('span', { class: 'picker-option-name' }, o.item.name),
-                o.item.date && h('span', { class: 'muted' }, o.item.date),
               ],
         ),
       ),

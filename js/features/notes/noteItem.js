@@ -13,7 +13,11 @@ export function renderNoteItem(note, { onJump, onOpen, editable, compact = false
     'div',
     { class: 'note-body' },
     note.title && h('div', { class: 'note-title' }, note.title),
-    note.content.trim() && richText(note.content, { className: `rich-text note-content${compact ? ' is-clamped' : ''}` }),
+    note.content.trim() &&
+      richText(note.content, {
+        className: `rich-text note-content${compact ? ' is-clamped' : ''}`,
+        onTime: onJump ? (seconds) => onJump({ id: note.id, type: 'timestamp', timestamp: seconds }) : undefined,
+      }),
     meta.length ? h('div', { class: 'note-meta' }, meta) : null,
   );
 
@@ -28,8 +32,9 @@ export function renderNoteItem(note, { onJump, onOpen, editable, compact = false
       activate();
     });
     body.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && e.target === body) {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target === body) {
         e.preventDefault();
+        e.stopPropagation();
         activate();
       }
     });

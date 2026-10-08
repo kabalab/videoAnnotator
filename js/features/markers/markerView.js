@@ -7,13 +7,6 @@ import { search } from '../search/searchIndex.js';
 import { renderResults } from '../search/searchView.js';
 import { openDescriptorManager } from '../descriptors/descriptorManager.js';
 
-function formatDate(s) {
-  const m = String(s || '').match(/^(\d{4})-(\d{2})(?:-(\d{2}))?$/);
-  if (!m) return s || '';
-  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3] || 1));
-  return d.toLocaleDateString(undefined, m[3] ? { year: 'numeric', month: 'short', day: 'numeric' } : { year: 'numeric', month: 'long' });
-}
-
 export function mountMarkerView(container, route) {
   let selectedId = route.params.id || null;
   const root = h('div', { class: 'page markers-page' });
@@ -34,7 +27,7 @@ export function mountMarkerView(container, route) {
               'a',
               { class: ['marker-item', m.id === selectedId && 'is-active'], href: href(`/markers/${encodeURIComponent(m.id)}`), 'aria-current': m.id === selectedId ? 'page' : null },
               icon('flag', 'marker-item-icon'),
-              h('span', { class: 'marker-item-text' }, h('span', { class: 'marker-item-name' }, m.name), m.date && h('span', { class: 'marker-item-date' }, formatDate(m.date))),
+              h('span', { class: 'marker-item-text' }, h('span', { class: 'marker-item-name' }, m.name)),
               h('span', { class: 'marker-item-count' }, counts.get(m.id) || 0),
             ),
           )
@@ -49,7 +42,7 @@ export function mountMarkerView(container, route) {
           'header',
           { class: 'marker-head' },
           h('h2', { class: 'marker-title' }, icon('flag'), selected.name),
-          h('p', { class: 'muted' }, [selected.date && formatDate(selected.date), plural(results.length, 'note')].filter(Boolean).join(' \u00b7 ')),
+          h('p', { class: 'muted' }, plural(results.length, 'note')),
           selected.description && h('p', { class: 'marker-desc' }, selected.description),
         ),
         renderResults(results, { emptyText: 'No notes use this marker yet.' }),

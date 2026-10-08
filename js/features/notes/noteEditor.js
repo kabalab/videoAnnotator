@@ -1,27 +1,20 @@
 import { h, autoGrow } from '../../core/dom.js';
 import { getMarker } from '../../core/store.js';
-import { formatTime, parseTime } from '../../core/time.js';
+import { expandTimeTokens, formatTime, parseTime } from '../../core/time.js';
 import { getPref, setPref } from '../../core/prefs.js';
 import { icon } from '../../ui/icons.js';
 import { segmented } from '../../ui/segmented.js';
 import { createDescriptorPicker } from '../descriptors/descriptorPicker.js';
 
-const LAST_MARKERS = 'va.lastMarkers';
+const LAST_MARKERS = 'lastMarkers';
 
 function lastMarkers() {
-  try {
-    return (JSON.parse(sessionStorage.getItem(LAST_MARKERS)) || []).filter((id) => getMarker(id));
-  } catch {
-    return [];
-  }
+  const raw = getPref(LAST_MARKERS);
+  return (Array.isArray(raw) ? raw : []).filter((id) => getMarker(id));
 }
 
 function rememberMarkers(ids) {
-  try {
-    sessionStorage.setItem(LAST_MARKERS, JSON.stringify(ids));
-  } catch {
-    // Only a convenience default.
-  }
+  setPref(LAST_MARKERS, ids);
 }
 
 export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, onTypingStart }) {
@@ -31,6 +24,10 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
   let busy = false;
   let initialTime = null;
   let initialText = '';
+  let originalContent = '';
+  // Video time when a new note was opened. \t(now) uses this, not the playhead at the keystroke.
+  let createdVideoTime = null;
+  let expandTimer = 0;
 
   const heading = h('h2', { class: 'editor-title' });
   const typeSeg = segmented({
@@ -127,13 +124,51 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
   };
   content.addEventListener('focus', typingStart);
   titleInput.addEventListener('focus', typingStart);
+  content.addEventListener('input', scheduleExpand);
   tsInput.addEventListener('input', () => {
     tsError.hidden = true;
   });
 
+  function secondsForNow() {
+    if (isNew && createdVideoTime != null) return createdVideoTime;
+    const live = getCurrentTime();
+    return Number.isFinite(live) ? live : 0;
+  }
+
+  function applyTimeExpansion() {
+    const { value, cursor } = expandTimeTokens(content.value, content.selectionStart, secondsForNow());
+    if (value === content.value) return;
+    content.value = value;
+    const pos = Math.max(0, Math.min(cursor, value.length));
+    content.setSelectionRange(pos, pos);
+    fit();
+  }
+
+  // Apply after the input event. Setting the value during input can be overwritten, which left \t(now) in the note.
+  function scheduleExpand() {
+    const raw = content.value;
+    const cursor = content.selectionStart;
+    const seconds = secondsForNow();
+    clearTimeout(expandTimer);
+    expandTimer = setTimeout(() => {
+      if (content.value !== raw) return;
+      const { value, cursor: next } = expandTimeTokens(raw, cursor, seconds);
+      if (value === raw) return;
+      content.value = value;
+      const pos = Math.max(0, Math.min(next, value.length));
+      content.setSelectionRange(pos, pos);
+      fit();
+    }, 0);
+  }
+
   function syncType() {
     const ts = typeSeg.value === 'timestamp';
     tsRow.hidden = !ts;
+    content.placeholder = ts
+      ? 'Write your note\u2026 Leave a blank line between paragraphs.'
+      : isNew
+        ? 'Write your note\u2026 Type \\t(now) for the time you started this note, or \\t(56:30) for another time.'
+        : 'Write your note\u2026 Type \\t(now) or \\t(56:30) to insert a time you can click.';
     if (isNew) heading.textContent = ts ? 'New timestamp note' : 'New general note';
   }
 
@@ -159,6 +194,8 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
 
   async function save() {
     if (busy) return;
+    clearTimeout(expandTimer);
+    if (isNew || content.value !== originalContent) applyTimeExpansion();
     formError.hidden = true;
     const type = typeSeg.value;
     let timestamp = null;
@@ -184,7 +221,7 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
     saveBtn.disabled = true;
     try {
       await onSave(input);
-      if (isNew) rememberMarkers(input.markers);
+      rememberMarkers(input.markers);
       close();
     } catch (e) {
       showError(e.message, e.field);
@@ -209,6 +246,7 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
 
   function close() {
     if (!open) return;
+    clearTimeout(expandTimer);
     open = false;
     el.classList.remove('is-open');
     onClose?.();
@@ -219,6 +257,7 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
     isOpen: () => open,
     isEditing: (noteId) => open && original?.id === noteId,
     open(existing, defaults = {}) {
+      clearTimeout(expandTimer);
       original = existing ? { ...existing } : null;
       isNew = !existing;
       const base = existing || {
@@ -232,12 +271,15 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
       };
       heading.textContent = 'Edit note';
       typeSeg.set(base.type);
+      const startedAt = defaults.createdVideoTime ?? getCurrentTime();
+      createdVideoTime = existing ? null : Number.isFinite(startedAt) ? startedAt : 0;
       initialTime = base.type === 'timestamp' ? base.timestamp : null;
       initialText = initialTime != null ? formatTime(initialTime) : '';
       tsInput.value = initialText;
       tsError.hidden = true;
       titleInput.value = base.title || '';
-      content.value = base.content || '';
+      originalContent = base.content || '';
+      content.value = originalContent;
       tagPicker.setValue(base.tags);
       markerPicker.setValue(base.markers);
       visSeg.set(base.visibility);

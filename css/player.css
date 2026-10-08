@@ -9,6 +9,8 @@
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), var(--shadow);
   user-select: none;
   -webkit-user-select: none;
+  container-type: inline-size;
+  container-name: player;
 }
 
 .player-stage,
@@ -206,6 +208,10 @@
   right: min(420px, 100%);
 }
 
+.player.has-overlay .player-notice {
+  right: calc(min(420px, 100%) + 12px);
+}
+
 .seek {
   position: relative;
   height: 18px;
@@ -316,26 +322,28 @@
   bottom: 22px;
   left: 0;
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  max-width: 340px;
+  max-width: min(340px, calc(100% - 16px));
   padding: 4px 9px;
   background: rgba(14, 16, 20, 0.94);
   border: 1px solid var(--border-strong);
   border-radius: 7px;
   font-size: 12px;
-  white-space: nowrap;
-  transform: translateX(-50%);
+  white-space: normal;
   pointer-events: none;
 }
 
 .seek-tooltip-time {
+  flex: none;
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .seek-tooltip-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-width: 0;
+  overflow-wrap: anywhere;
   color: var(--text-dim);
 }
 
@@ -347,14 +355,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .ctl-group {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 2px;
   min-width: 0;
+  max-width: 100%;
 }
 
 .ctl-group-right {
@@ -411,12 +422,20 @@
   background: var(--accent-hover);
 }
 
+.ctl-labeled.is-active {
+  background: rgba(255, 255, 255, 0.22);
+}
+
 .ctl-immersive-only {
   display: none;
 }
 
 .player.is-immersive .ctl-immersive-only {
   display: inline-flex;
+}
+
+.player.is-immersive .ctl-immersive-only .ctl-text {
+  display: inline;
 }
 
 .ctl-volume-wrap {
@@ -565,6 +584,52 @@
   from {
     opacity: 0;
     transform: translateX(16px);
+  }
+}
+
+@keyframes overlay-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+/* On a narrow player the side panel would cover the video, so it docks to the bottom instead. */
+@container player (max-width: 760px) {
+  .player.has-overlay .player-stage,
+  .player.has-overlay .player-click-layer {
+    top: 0;
+    right: 0;
+    bottom: 46%;
+    left: 0;
+    width: auto;
+    height: auto;
+  }
+
+  .player.has-overlay .player-controls {
+    right: 0;
+    bottom: 46%;
+  }
+
+  .player.has-overlay .player-bigplay {
+    left: 50%;
+    top: 27%;
+  }
+
+  .player.has-overlay .player-notice {
+    right: 12px;
+  }
+
+  .player.has-overlay .player-overlay {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 46%;
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    animation-name: overlay-up;
   }
 }
 

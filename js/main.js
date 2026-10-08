@@ -83,6 +83,8 @@ function renderFatal() {
   );
 }
 
+let hasRouted = false;
+
 function renderRoute(route) {
   if (state.fatal) {
     renderFatal();
@@ -92,6 +94,7 @@ function renderRoute(route) {
   const key = route.name === 'video' ? `video:${route.params.id}` : route.name;
   if (current?.key === key && current.view.update) {
     current.view.update(route);
+    hasRouted = true;
     return;
   }
   current?.view.destroy?.();
@@ -99,6 +102,9 @@ function renderRoute(route) {
   const mount = MOUNTS[route.name] || mountNotFound;
   current = { key, view: mount(viewEl, route) || {} };
   window.scrollTo({ top: 0, behavior: 'instant' });
+  const keepFocus = document.activeElement?.closest?.('.search, dialog');
+  if (hasRouted && !keepFocus) viewEl.focus({ preventScroll: true });
+  hasRouted = true;
 }
 
 // ------------------------------------------------------------------ banners & feedback

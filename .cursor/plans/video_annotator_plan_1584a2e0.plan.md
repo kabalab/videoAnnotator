@@ -28,7 +28,7 @@ todos:
     status: completed
   - id: p7-polish
     content: "Phase 7: responsive layouts, fullscreen/theater overlay with quick-note panel, empty/error states, data issues panel, accessibility, external videos folder option, README"
-    status: in_progress
+    status: completed
 isProject: false
 ---
 

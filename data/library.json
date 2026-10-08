@@ -2,6 +2,8 @@
   "schemaVersion": 1,
   "videos": [
     "sample-bbb",
-    "sample-spring"
+    "sample-spring",
+    "nyc23-session-1-overflow",
+    "nyc23-session-2"
   ]
 }

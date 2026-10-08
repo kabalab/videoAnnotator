@@ -1,6 +1,7 @@
 import { config } from '../../config.js';
 import { h } from '../../core/dom.js';
 import { state } from '../../core/store.js';
+import { videoHref } from '../../core/router.js';
 import { icon } from '../../ui/icons.js';
 
 // Load-time issues come from validate.js; reference issues are computed live because tags and markers change.
@@ -26,6 +27,13 @@ export function collectIssues() {
   return list;
 }
 
+function issuePath(path) {
+  const m = String(path).match(/^data\/videos\/([^/]+)\.json$/);
+  const code = h('code', { class: 'issue-path' }, path);
+  if (m && state.videos.has(m[1])) return h('a', { href: videoHref(m[1]) }, code);
+  return code;
+}
+
 export function renderIssues() {
   const list = collectIssues();
   if (!list.length) return h('p', { class: 'muted' }, 'No problems found in the data files.');
@@ -41,7 +49,7 @@ export function renderIssues() {
       h(
         'div',
         { class: 'issue-group' },
-        h('code', { class: 'issue-path' }, path),
+        issuePath(path),
         h(
           'ul',
           { class: 'issue-list' },

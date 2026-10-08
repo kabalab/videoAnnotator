@@ -1,3 +1,5 @@
+import { formatTime, parseTime } from './time.js';
+
 const PROPS = new Set(['value', 'checked', 'selected', 'indeterminate', 'textContent']);
 
 // Tiny element builder. User content always goes in as text nodes, never as HTML.
@@ -39,25 +41,52 @@ export function fill(el, ...children) {
   return el;
 }
 
-const URL_RE = /(https?:\/\/[^\s<>"]+)/g;
-
-function linkify(line) {
+function linkify(line, onTime) {
   const out = [];
   let last = 0;
-  for (const m of line.matchAll(URL_RE)) {
-    let url = m[0];
-    const trail = url.match(/[.,;:!?)\]]+$/);
-    if (trail) url = url.slice(0, -trail[0].length);
+  for (const m of line.matchAll(/\\t\(([^)]+)\)|(https?:\/\/[^\s<>"]+)/g)) {
     if (m.index > last) out.push(line.slice(last, m.index));
-    out.push(h('a', { href: url, target: '_blank', rel: 'noopener noreferrer' }, url));
-    last = m.index + url.length;
+    let consumed = m[0].length;
+    if (m[1] != null) {
+      const seconds = parseTime(m[1].trim());
+      if (seconds == null) out.push(m[0]);
+      else if (onTime) {
+        const label = formatTime(seconds);
+        out.push(
+          h(
+            'button',
+            {
+              class: 'time-ref',
+              type: 'button',
+              title: `Jump to ${label}`,
+              onclick: (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onTime(seconds);
+              },
+            },
+            label,
+          ),
+        );
+      } else out.push(formatTime(seconds));
+    } else {
+      let url = m[0];
+      const trail = url.match(/[.,;:!?)\]]+$/);
+      if (trail) {
+        url = url.slice(0, -trail[0].length);
+        consumed = url.length;
+      }
+      out.push(h('a', { href: url, target: '_blank', rel: 'noopener noreferrer' }, url));
+    }
+    last = m.index + consumed;
   }
   if (last < line.length) out.push(line.slice(last));
   return out;
 }
 
 // Plain text -> paragraphs (blank line) and line breaks, with URLs as links.
-export function richText(text, { className = 'rich-text' } = {}) {
+// \t(56:30) becomes a jump button when onTime is provided.
+export function richText(text, { className = 'rich-text', onTime } = {}) {
   const wrap = h('div', { class: className });
   const paragraphs = String(text || '').replace(/\r\n?/g, '\n').split(/\n\s*\n/);
   for (const para of paragraphs) {
@@ -65,7 +94,7 @@ export function richText(text, { className = 'rich-text' } = {}) {
     const p = h('p');
     para.split('\n').forEach((line, i) => {
       if (i) p.append(h('br'));
-      append(p, linkify(line));
+      append(p, linkify(line, onTime));
     });
     wrap.append(p);
   }

@@ -415,6 +415,10 @@ body.mode-view .segmented.mode-toggle button.is-active {
   animation: fade-up var(--dur-slow) var(--ease);
 }
 
+.editor-scrim {
+  display: none;
+}
+
 .player-wrap {
   width: min(100%, calc(var(--player-max-h) * 16 / 9));
   margin: 0 auto;
@@ -461,6 +465,17 @@ body.mode-view .segmented.mode-toggle button.is-active {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .video-page.editor-docked .editor-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 390;
+    padding: 0;
+    border: 0;
+    background: rgba(6, 8, 12, 0.55);
+    cursor: pointer;
+  }
+
   .video-lower > .editor {
     position: fixed;
     left: 0;
@@ -468,15 +483,23 @@ body.mode-view .segmented.mode-toggle button.is-active {
     bottom: 0;
     top: auto;
     z-index: 400;
-    max-height: 80vh;
+    max-height: min(80vh, 640px);
+    padding-bottom: env(safe-area-inset-bottom);
     border-radius: 16px 16px 0 0;
     border-bottom: 0;
     box-shadow: 0 -18px 48px rgba(0, 0, 0, 0.55);
     animation: sheet-in var(--dur-slow) var(--ease);
   }
 
-  .video-page.editor-open {
-    padding-bottom: 70vh;
+  .video-lower > .editor::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    margin: 8px auto 0;
+    border-radius: 4px;
+    background: var(--border-strong);
+    flex: none;
   }
 }
 
