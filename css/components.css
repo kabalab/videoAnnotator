@@ -699,6 +699,73 @@ dialog.modal[open] {
   font-size: 13.5px;
 }
 
+.help-lead {
+  margin: 0 0 18px;
+  color: var(--text-dim);
+}
+
+.help-section + .help-section {
+  margin-top: 22px;
+}
+
+.help-section h3 {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+}
+
+.help-list {
+  margin: 0;
+  padding-left: 1.15em;
+  color: var(--text-dim);
+}
+
+.help-list li + li {
+  margin-top: 6px;
+}
+
+.help-shortcuts {
+  display: grid;
+  gap: 8px;
+}
+
+.help-shortcut {
+  display: grid;
+  grid-template-columns: minmax(150px, 240px) 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.help-keys,
+.help-combo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.help-or,
+.help-plus {
+  color: var(--text-faint);
+  font-size: 12px;
+}
+
+.help-action {
+  color: var(--text-dim);
+}
+
+.help-note {
+  margin: 12px 0 0;
+  color: var(--text-faint);
+  font-size: 13px;
+}
+
+@media (max-width: 560px) {
+  .help-shortcut {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
+
 /* ---------- progress ---------- */
 
 .progress {

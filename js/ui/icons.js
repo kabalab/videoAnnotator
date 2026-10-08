@@ -24,6 +24,7 @@ const PATHS = {
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   warning: '<path d="M12 4.2l8.6 15a.8.8 0 0 1-.7 1.2H4.1a.8.8 0 0 1-.7-1.2z"/><path d="M12 10v4M12 17.2v.3"/>',
   info: '<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.2M12 7.8v.3"/>',
+  help: '<circle cx="12" cy="12" r="8.5"/><path d="M9.5 9.2a2.5 2.5 0 0 1 4.2 1.8c0 1.4-1.5 1.8-2.2 2.5-.3.3-.5.7-.5 1.2V15.2"/><path d="M12 17.6v.3"/>',
   grid: '<rect x="3.5" y="4" width="7.5" height="7" rx="1.4"/><rect x="13" y="4" width="7.5" height="7" rx="1.4"/><rect x="3.5" y="13" width="7.5" height="7" rx="1.4"/><rect x="13" y="13" width="7.5" height="7" rx="1.4"/>',
   list: '<path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.8" cy="6.5" r="1" fill="currentColor"/><circle cx="4.8" cy="12" r="1" fill="currentColor"/><circle cx="4.8" cy="17.5" r="1" fill="currentColor"/>',
   download: '<path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/>',

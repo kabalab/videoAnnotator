@@ -372,6 +372,74 @@ mark {
   box-shadow: inset 3px 0 0 var(--accent-hover);
 }
 
+.note.is-next {
+  background: var(--warning-soft);
+  box-shadow: inset 3px 0 0 var(--warning);
+}
+
+.note.is-next .note-body::before {
+  content: 'Next';
+  align-self: flex-start;
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  background: rgba(224, 164, 59, 0.18);
+  color: var(--warning);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.notes-next {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: calc(100% - 8px);
+  margin: 4px;
+  padding: 8px 10px;
+  border: 1px solid rgba(224, 164, 59, 0.35);
+  border-radius: 8px;
+  background: var(--warning-soft);
+  color: var(--text);
+  text-align: left;
+}
+
+.notes-next[hidden] {
+  display: none;
+}
+
+.notes-next:hover {
+  border-color: var(--warning);
+}
+
+.notes-next-label {
+  flex: none;
+  color: var(--warning);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.notes-next-time {
+  flex: none;
+  color: var(--warning);
+  font: 600 13px/1 var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.notes-next-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notes-panel-compact .notes-next {
+  margin: 2px 4px;
+  padding: 6px 8px;
+}
+
 .note.is-flash {
   animation: flash 1.6s ease;
 }
@@ -1136,6 +1204,15 @@ button.time-ref:hover {
 
 .settings-actions .muted {
   font-size: 13px;
+}
+
+.settings-subhead {
+  margin: 4px 0 0;
+  font-weight: 650;
+}
+
+.change-code {
+  word-break: break-all;
 }
 
 .draft-list {

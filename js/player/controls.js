@@ -21,6 +21,7 @@ export function createControls(p) {
   let duration = 0;
   let dragging = false;
   let ticks = [];
+  let nextNoteId = null;
   let lastLiveSeek = 0;
 
   const playBtn = iconButton('play', 'Play (Space)', p.togglePlay, 'ctl-play');
@@ -132,10 +133,10 @@ export function createControls(p) {
         .filter((t) => t.time <= duration + 1)
         .map((t) =>
           h('button', {
-            class: 'seek-tick',
+            class: ['seek-tick', t.noteId === nextNoteId && 'is-next'],
             type: 'button',
             style: { left: `${Math.min(100, (t.time / duration) * 100)}%`, '--tick': t.color },
-            'aria-label': `Jump to ${formatTime(t.time)}: ${t.label}`,
+            'aria-label': `${t.noteId === nextNoteId ? 'Next note. ' : ''}Jump to ${formatTime(t.time)}: ${t.label}`,
             onpointerdown: (e) => e.stopPropagation(),
             onclick: (e) => {
               e.stopPropagation();
@@ -195,6 +196,12 @@ export function createControls(p) {
     },
     setTicks(list) {
       ticks = list;
+      renderTicks();
+    },
+    setNextTick(noteId) {
+      const id = noteId || null;
+      if (id === nextNoteId) return;
+      nextNoteId = id;
       renderTicks();
     },
     setGoBack(time) {

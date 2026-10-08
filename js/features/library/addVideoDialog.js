@@ -126,8 +126,8 @@ export function openVideoDialog({ mode, video = null, preset = {} }) {
         'p',
         { class: 'field-hint' },
         'Put the file in the project\u2019s videos folder and type its name above. ',
-        state.persistence.kind !== 'fallback' && h('button', { class: 'link-btn', type: 'button', onclick: () => openSettings({ focus: 'folder' }) }, 'Connect the project folder'),
-        state.persistence.kind !== 'fallback' && ' to browse or copy files from here.',
+        state.env.isLocal && state.persistence.kind !== 'fallback' && h('button', { class: 'link-btn', type: 'button', onclick: () => openSettings({ focus: 'folder' }) }, 'Connect the project folder'),
+        state.env.isLocal && state.persistence.kind !== 'fallback' && ' to browse or copy files from here.',
       );
 
   // ---- backup YouTube link

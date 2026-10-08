@@ -255,6 +255,11 @@ body.mode-view .segmented.mode-toggle button.is-active {
   padding-top: 12px;
 }
 
+body.player-fullscreen .unsaved-pill,
+body.player-fullscreen #banners {
+  display: none;
+}
+
 .banner {
   display: flex;
   align-items: flex-start;

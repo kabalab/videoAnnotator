@@ -1,5 +1,5 @@
 import { fill, h, plural } from '../../core/dom.js';
-import { store, state } from '../../core/store.js';
+import { store, state, editorCodeMatches, grantEditorSession, revokeEditorSession } from '../../core/store.js';
 import { publicPreviewUrl } from '../../core/env.js';
 import { getPref, setPref } from '../../core/prefs.js';
 import * as repo from '../../data/repository.js';
@@ -40,6 +40,63 @@ export async function writeDraftsAction() {
   }
 }
 
+async function signInAction(code) {
+  if (!editorCodeMatches(code)) {
+    toast('That code is not right.', { kind: 'error' });
+    return;
+  }
+  grantEditorSession();
+  try {
+    await repo.loadAll();
+    toast('Signed in. Editing stays on in this browser.', { kind: 'success' });
+  } catch (e) {
+    toast(e.message, { kind: 'error', duration: 8000 });
+  }
+}
+
+async function signOutAction() {
+  revokeEditorSession();
+  try {
+    await repo.loadAll();
+    toast('Signed out.', { kind: 'info' });
+  } catch (e) {
+    toast(e.message, { kind: 'error', duration: 8000 });
+  }
+}
+
+async function copyChangeCode() {
+  let code = '';
+  try {
+    code = repo.exportChangeCode();
+  } catch (e) {
+    toast(e.message, { kind: 'error', duration: 6000 });
+    return;
+  }
+  const box = document.querySelector('[data-change-code="export"]');
+  if (box) {
+    box.hidden = false;
+    box.value = code;
+    box.focus();
+    box.select();
+  }
+  try {
+    await navigator.clipboard.writeText(code);
+    toast('Change code copied.', { kind: 'success' });
+  } catch {
+    toast('Clipboard is blocked. Select the code below and copy it.', { kind: 'warning', duration: 6000 });
+  }
+}
+
+async function importChangeCode(value) {
+  try {
+    const count = await repo.importChangeCode(value);
+    const wrote = state.persistence.kind === 'fsa-connected';
+    toast(wrote ? `Imported ${plural(count, 'file')} and wrote them to the project.` : `Imported ${plural(count, 'file')}. They are applied in this browser.`, { kind: 'success', duration: 5000 });
+  } catch (e) {
+    toast(e.message, { kind: 'error', duration: 8000 });
+  }
+}
+
 async function guarded(fn, okMessage) {
   try {
     await fn();
@@ -68,7 +125,7 @@ export function openSettings({ focus } = {}) {
   });
   openInstance = modal;
   const render = () => fill(content, sections());
-  for (const e of ['persistence', 'drafts', 'issues', 'data', 'descriptors']) offs.push(store.on(e, render));
+  for (const e of ['persistence', 'drafts', 'issues', 'data', 'descriptors', 'mode']) offs.push(store.on(e, render));
   render();
   if (focus) requestAnimationFrame(() => content.querySelector(`[data-section="${focus}"]`)?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
 }
@@ -88,6 +145,10 @@ function sections() {
     out.push(folderSection());
     if (repo.fsaAvailable() && state.persistence.kind === 'fsa-connected') out.push(externalSection());
     out.push(draftsSection(), issuesSection(), preferencesSection());
+  } else if (state.editorSession) {
+    out.push(draftsSection(), issuesSection(), preferencesSection());
+  } else if (!env.previewPublic) {
+    out.push(editorAccessSection());
   }
   out.push(privacySection());
   return out;
@@ -96,14 +157,25 @@ function sections() {
 function environmentSection() {
   const env = state.env;
   const where = env.hostname || 'file';
+  const rule = `${where} \u00b7 matched rule: ${env.rule}`;
+  const session = !!state.editorSession;
+  let tone = 'idle';
+  let title = 'Public site: read-only';
+  let detail = rule;
+  if (env.isLocal) {
+    tone = 'ok';
+    title = 'Running locally: editing is available';
+  } else if (session) {
+    tone = 'ok';
+    title = 'Signed in: editing is on in this browser';
+    detail = `${rule}. Folder linking stays off on the public site.`;
+  } else if (env.previewPublic) {
+    title = 'Previewing the public site';
+  }
   return section(
     'environment',
     'Environment',
-    statusLine(
-      env.isLocal ? 'ok' : 'idle',
-      env.isLocal ? 'Running locally: editing is available' : env.previewPublic ? 'Previewing the public site' : 'Public site: read-only',
-      `${where} \u00b7 matched rule: ${env.rule}`,
-    ),
+    statusLine(tone, title, detail),
     env.isLocal &&
       h(
         'div',
@@ -111,6 +183,32 @@ function environmentSection() {
         h('a', { class: 'btn btn-secondary btn-sm', href: publicPreviewUrl(), target: '_blank', rel: 'noopener' }, icon('eye'), 'Preview public site'),
         h('span', { class: 'muted' }, 'Opens a tab showing exactly what GitHub Pages visitors see.'),
       ),
+    session && h('div', { class: 'settings-actions' }, h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: signOutAction }, 'Sign out')),
+  );
+}
+
+function editorAccessSection() {
+  const input = h('input', {
+    class: 'input',
+    type: 'password',
+    autocomplete: 'off',
+    spellcheck: 'false',
+    placeholder: 'Editor code',
+    'aria-label': 'Editor code',
+  });
+  const submit = () => signInAction(input.value);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      submit();
+    }
+  });
+  return section(
+    'editor-access',
+    'Editor access',
+    h('p', { class: 'muted' }, 'Enter the editor code to turn on editing in this browser. You stay signed in on this site. Folder linking stays off.'),
+    input,
+    h('div', { class: 'settings-actions' }, h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: submit }, 'Sign in')),
   );
 }
 
@@ -177,42 +275,77 @@ function externalSection() {
 
 function draftsSection() {
   const drafts = state.drafts;
-  if (!drafts.length) return section('drafts', 'Unsaved drafts', h('p', { class: 'muted' }, 'None. Everything is in the project files.'));
   const connected = state.persistence.kind === 'fsa-connected';
+  const remote = !state.env.isLocal;
+  const importBox = h('textarea', {
+    class: 'input textarea mono change-code',
+    rows: '3',
+    spellcheck: 'false',
+    placeholder: 'Paste a change code',
+    'aria-label': 'Change code to import',
+  });
   return section(
     'drafts',
-    `Unsaved drafts (${drafts.length})`,
-    h('p', { class: 'muted' }, 'These changes are only stored in this browser. Downloaded files land in your Downloads folder: move each one to the path shown, replacing the old file. A draft clears itself once the project file matches it.'),
+    drafts.length ? `Unsaved drafts (${drafts.length})` : 'Unsaved drafts',
     h(
-      'ul',
-      { class: 'draft-list' },
-      drafts.map((d) =>
-        h(
-          'li',
-          { class: 'draft' },
-          h('div', {}, h('code', {}, d.path), h('span', { class: 'muted' }, d.deleted ? ' \u00b7 delete this file' : ` \u00b7 ${new Date(d.savedAt).toLocaleString()}`)),
-          d.deleted ? h('span', { class: 'muted' }, 'Remove manually') : h('button', { class: 'btn btn-secondary btn-sm', type: 'button', onclick: () => repo.downloadDraft(d.path) }, icon('download'), 'Download'),
-        ),
-      ),
+      'p',
+      { class: 'muted' },
+      remote
+        ? 'Changes stay in this browser. Copy a change code to move them, or paste a code to reapply them here. A project folder cannot be connected from the public site.'
+        : 'These changes are only stored in this browser. Downloaded files land in your Downloads folder: move each one to the path shown, replacing the old file. A draft clears itself once the project file matches it.',
     ),
+    drafts.length
+      ? h(
+          'ul',
+          { class: 'draft-list' },
+          drafts.map((d) =>
+            h(
+              'li',
+              { class: 'draft' },
+              h('div', {}, h('code', {}, d.path), h('span', { class: 'muted' }, d.deleted ? ' \u00b7 delete this file' : ` \u00b7 ${new Date(d.savedAt).toLocaleString()}`)),
+              d.deleted ? h('span', { class: 'muted' }, 'Remove manually') : h('button', { class: 'btn btn-secondary btn-sm', type: 'button', onclick: () => repo.downloadDraft(d.path) }, icon('download'), 'Download'),
+            ),
+          ),
+        )
+      : h('p', { class: 'muted' }, 'None right now.'),
+    drafts.length
+      ? h(
+          'div',
+          { class: 'settings-actions' },
+          connected && h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: writeDraftsAction }, 'Write all to project files'),
+          drafts.some((d) => !d.deleted) && h('button', { class: 'btn btn-secondary btn-sm', type: 'button', onclick: () => repo.downloadAllDrafts() }, icon('download'), 'Download all'),
+          h(
+            'button',
+            {
+              class: 'btn btn-ghost btn-sm btn-danger-text',
+              type: 'button',
+              onclick: async () => {
+                const ok = await confirmDanger({ title: 'Discard all drafts?', message: `${plural(drafts.length, 'changed file')} will be lost. The project files stay as they are.`, confirmLabel: 'Discard drafts' });
+                if (ok) guarded(repo.discardDrafts, 'Drafts discarded');
+              },
+            },
+            'Discard all',
+          ),
+        )
+      : null,
+    h('p', { class: 'settings-subhead' }, 'Change code'),
+    h('p', { class: 'muted' }, 'Copy a code for every unsaved change. Paste it later, in this browser or another one, to reapply those changes. Other drafts are left as they are. If a project folder is connected, importing also writes the files.'),
     h(
       'div',
       { class: 'settings-actions' },
-      connected && h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: writeDraftsAction }, 'Write all to project files'),
-      drafts.some((d) => !d.deleted) && h('button', { class: 'btn btn-secondary btn-sm', type: 'button', onclick: () => repo.downloadAllDrafts() }, icon('download'), 'Download all'),
-      h(
-        'button',
-        {
-          class: 'btn btn-ghost btn-sm btn-danger-text',
-          type: 'button',
-          onclick: async () => {
-            const ok = await confirmDanger({ title: 'Discard all drafts?', message: `${plural(drafts.length, 'changed file')} will be lost. The project files stay as they are.`, confirmLabel: 'Discard drafts' });
-            if (ok) guarded(repo.discardDrafts, 'Drafts discarded');
-          },
-        },
-        'Discard all',
-      ),
+      h('button', { class: 'btn btn-secondary btn-sm', type: 'button', disabled: !drafts.length, onclick: copyChangeCode }, 'Copy change code'),
     ),
+    h('textarea', {
+      class: 'input textarea mono change-code',
+      rows: '4',
+      readonly: true,
+      hidden: true,
+      spellcheck: 'false',
+      'aria-label': 'Exported change code',
+      dataset: { changeCode: 'export' },
+    }),
+    importBox,
+    h('div', { class: 'settings-actions' }, h('button', { class: 'btn btn-secondary btn-sm', type: 'button', onclick: () => importChangeCode(importBox.value) }, 'Import change code')),
   );
 }
 

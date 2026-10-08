@@ -1,6 +1,6 @@
 import { config } from '../../config.js';
 import { h, isTypingTarget, snippet } from '../../core/dom.js';
-import { store, state, canEdit, getVideo, getTag } from '../../core/store.js';
+import { store, state, canEdit, editorActive, getVideo, getTag } from '../../core/store.js';
 import { navigate } from '../../core/router.js';
 import { parseTime } from '../../core/time.js';
 import { getPref } from '../../core/prefs.js';
@@ -20,7 +20,7 @@ function mountMissing(container, id) {
       'section',
       { class: 'empty-page' },
       h('h1', {}, err ? 'This video couldn\u2019t be loaded' : 'Video not found'),
-      h('p', {}, err ? `${err.path}: ${err.message}` : state.env.isLocal ? `There is no video with the id "${id}" in the library.` : 'This video doesn\u2019t exist or isn\u2019t public.'),
+      h('p', {}, err ? `${err.path}: ${err.message}` : editorActive() ? `There is no video with the id "${id}" in the library.` : 'This video doesn\u2019t exist or isn\u2019t public.'),
       h('a', { class: 'btn btn-primary', href: '#/' }, 'Back to the library'),
     ),
   );
@@ -163,12 +163,14 @@ export function mountVideoView(container, route) {
     panel.update(video);
     overlayNotes?.update(video);
     updateTicks();
+    player.setNextTick(panel.nextNote()?.id ?? null);
     if (editor.isOpen()) editor.refresh();
   }
 
   player.on('time', (t) => {
     panel.setCurrentTime(t);
     if (overlayMode === 'notes') overlayNotes.setCurrentTime(t);
+    player.setNextTick(panel.nextNote()?.id ?? null);
   });
   player.on('ready', ({ duration, kind }) => repo.updateDuration(id, duration, kind));
   player.on('add-note', addNote);

@@ -1,5 +1,5 @@
 import { fill, h, hashHue, plural } from '../../core/dom.js';
-import { store, state, canEdit, showPrivate } from '../../core/store.js';
+import { store, state, canEdit, showPrivate, editorActive } from '../../core/store.js';
 import { videoHref } from '../../core/router.js';
 import { formatDuration } from '../../core/time.js';
 import { icon } from '../../ui/icons.js';
@@ -77,8 +77,8 @@ export function mountLibraryView(container) {
           'div',
           { class: 'empty-state' },
           icon('film', 'empty-icon'),
-          h('h2', {}, state.env.isLocal ? 'Your library is empty' : 'No videos yet'),
-          h('p', {}, state.env.isLocal ? 'Add a video from a file in the videos folder or from a YouTube link.' : 'Check back later.'),
+          h('h2', {}, editorActive() ? 'Your library is empty' : 'No videos yet'),
+          h('p', {}, editorActive() ? 'Add a video from a file in the videos folder or from a YouTube link.' : 'Check back later.'),
           editing && h('button', { class: 'btn btn-primary', type: 'button', onclick: () => openAddVideoDialog() }, icon('plus'), 'Add video'),
         );
 

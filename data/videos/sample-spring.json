@@ -11,7 +11,7 @@
   },
   "duration": 465,
   "createdAt": "2026-04-10T18:00:00Z",
-  "updatedAt": "2026-10-08T04:38:53Z",
+  "updatedAt": "2026-10-08T20:56:26Z",
   "notes": [
     {
       "id": "n_spr_context",
@@ -127,6 +127,21 @@
       "visibility": "public",
       "createdAt": "2026-10-05T18:14:00Z",
       "updatedAt": "2026-10-05T18:14:00Z"
+    },
+    {
+      "id": "n_1rwhl01f9d",
+      "type": "timestamp",
+      "timestamp": 163.9,
+      "title": "test",
+      "content": "",
+      "tags": [],
+      "markers": [
+        "first-watch",
+        "april-2026"
+      ],
+      "visibility": "public",
+      "createdAt": "2026-10-08T20:56:26Z",
+      "updatedAt": "2026-10-08T20:56:26Z"
     }
   ]
 }

@@ -1,6 +1,6 @@
 import { config } from './config.js';
 import { detectEnvironment, exitPreviewUrl } from './core/env.js';
-import { store, state, canEdit } from './core/store.js';
+import { store, state, canEdit, editorActive, storedEditorSessionMatches } from './core/store.js';
 import { startRouter, parseHash } from './core/router.js';
 import { h, plural } from './core/dom.js';
 import * as repo from './data/repository.js';
@@ -122,64 +122,79 @@ function syncBanners() {
       actions: [{ label: 'Exit preview', onClick: () => { window.location.href = exitPreviewUrl(); } }],
     });
   }
-  if (!env.isLocal) return;
+  if (!editorActive()) {
+    hideBanner('persist');
+    hideBanner('descriptors');
+    return;
+  }
 
-  const review = drafts ? { label: `Download changed files (${drafts})`, onClick: () => openSettings({ focus: 'drafts' }) } : null;
-  switch (p.kind) {
-    case 'fallback':
+  if (!env.isLocal) {
+    if (drafts) {
       showBanner('persist', {
         kind: 'warning',
-        title: 'Direct saving is unavailable.',
-        message: p.reason,
-        detail: `Edits are kept as drafts in this browser. Download the changed files and replace them in the project, or open ${window.location.origin}${window.location.pathname} in Chrome or Edge to save directly.`,
-        actions: [review].filter(Boolean),
-        dismissible: !drafts,
+        title: `${plural(drafts, 'changed file')} only in this browser.`,
+        message: 'Copy a change code from Settings when you want to reapply these edits later.',
+        actions: [{ label: 'Review', primary: true, onClick: () => openSettings({ focus: 'drafts' }) }],
       });
-      break;
-    case 'fsa-error':
-      showBanner('persist', {
-        kind: 'error',
-        title: 'Couldn\u2019t save to the project folder.',
-        message: p.reason,
-        detail: 'Your changes are kept as drafts in this browser until they can be written.',
-        actions: [{ label: 'Retry', primary: true, onClick: retryAction }, review].filter(Boolean),
-      });
-      break;
-    case 'fsa-disconnected':
-    case 'fsa-needs-permission': {
-      if (!canEdit() && !drafts) {
-        hideBanner('persist');
-        break;
-      }
-      const remembered = p.kind === 'fsa-needs-permission';
-      showBanner('persist', {
-        kind: drafts ? 'warning' : 'info',
-        title: remembered ? `Allow editing "${p.folder}".` : 'Connect your project folder.',
-        message: drafts
-          ? `${plural(drafts, 'changed file')} ${drafts === 1 ? 'is' : 'are'} only saved as drafts in this browser.`
-          : remembered
-            ? 'The browser needs one click per session before the app can save into your JSON files.'
-            : 'Connect the project folder once so notes are saved straight into the JSON files.',
-        actions: [{ label: remembered ? 'Allow access' : 'Connect folder', primary: true, onClick: connectAction }, review].filter(Boolean),
-        dismissible: !drafts,
-      });
-      break;
-    }
-    case 'fsa-connected':
-      if (drafts) {
+    } else hideBanner('persist');
+  } else {
+    const review = drafts ? { label: `Download changed files (${drafts})`, onClick: () => openSettings({ focus: 'drafts' }) } : null;
+    switch (p.kind) {
+      case 'fallback':
         showBanner('persist', {
           kind: 'warning',
-          title: `${plural(drafts, 'draft file')} not written yet.`,
-          message: 'Some changes are only stored in this browser.',
-          actions: [
-            { label: 'Write to project files', primary: true, onClick: writeDraftsAction },
-            { label: 'Review', onClick: () => openSettings({ focus: 'drafts' }) },
-          ],
+          title: 'Direct saving is unavailable.',
+          message: p.reason,
+          detail: `Edits are kept as drafts in this browser. Download the changed files and replace them in the project, or open ${window.location.origin}${window.location.pathname} in Chrome or Edge to save directly.`,
+          actions: [review].filter(Boolean),
+          dismissible: !drafts,
         });
-      } else hideBanner('persist');
-      break;
-    default:
-      hideBanner('persist');
+        break;
+      case 'fsa-error':
+        showBanner('persist', {
+          kind: 'error',
+          title: 'Couldn\u2019t save to the project folder.',
+          message: p.reason,
+          detail: 'Your changes are kept as drafts in this browser until they can be written.',
+          actions: [{ label: 'Retry', primary: true, onClick: retryAction }, review].filter(Boolean),
+        });
+        break;
+      case 'fsa-disconnected':
+      case 'fsa-needs-permission': {
+        if (!canEdit() && !drafts) {
+          hideBanner('persist');
+          break;
+        }
+        const remembered = p.kind === 'fsa-needs-permission';
+        showBanner('persist', {
+          kind: drafts ? 'warning' : 'info',
+          title: remembered ? `Allow editing "${p.folder}".` : 'Connect your project folder.',
+          message: drafts
+            ? `${plural(drafts, 'changed file')} ${drafts === 1 ? 'is' : 'are'} only saved as drafts in this browser.`
+            : remembered
+              ? 'The browser needs one click per session before the app can save into your JSON files.'
+              : 'Connect the project folder once so notes are saved straight into the JSON files.',
+          actions: [{ label: remembered ? 'Allow access' : 'Connect folder', primary: true, onClick: connectAction }, review].filter(Boolean),
+          dismissible: !drafts,
+        });
+        break;
+      }
+      case 'fsa-connected':
+        if (drafts) {
+          showBanner('persist', {
+            kind: 'warning',
+            title: `${plural(drafts, 'draft file')} not written yet.`,
+            message: 'Some changes are only stored in this browser.',
+            actions: [
+              { label: 'Write to project files', primary: true, onClick: writeDraftsAction },
+              { label: 'Review', onClick: () => openSettings({ focus: 'drafts' }) },
+            ],
+          });
+        } else hideBanner('persist');
+        break;
+      default:
+        hideBanner('persist');
+    }
   }
 
   const descErr = state.issues.find((i) => i.level === 'error' && i.path === config.paths.descriptors);
@@ -252,7 +267,8 @@ async function boot() {
   state.env = env;
   if (env.isFile) return;
 
-  state.uiMode = env.isLocal ? (readPref('va.uiMode') === 'view' ? 'view' : 'edit') : 'view';
+  state.editorSession = !env.isLocal && !env.previewPublic && storedEditorSessionMatches();
+  state.uiMode = editorActive() ? (readPref('va.uiMode') === 'view' ? 'view' : 'edit') : 'view';
   document.body.dataset.env = env.env.toLowerCase();
   syncModeClass();
   topbar = createTopbar(document.getElementById('topbar'));

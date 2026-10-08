@@ -15,6 +15,10 @@ export const config = {
   publicDomains: [],
   defaultEnv: 'PUBLIC',
 
+  // Change this to whatever you want. It is visible in this file.
+  // On GitHub Pages, Settings asks for this code. The right code turns on editing in that browser.
+  editorCode: 'k7Qm-4nWx-9pLd-2cHs',
+
   paths: {
     library: 'data/library.json',
     descriptors: 'data/descriptors.json',

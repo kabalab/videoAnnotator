@@ -317,6 +317,13 @@
   height: 17px;
 }
 
+.seek-tick.is-next {
+  width: 6px;
+  height: 18px;
+  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.6), 0 0 0 3px var(--warning);
+  z-index: 1;
+}
+
 .seek-tooltip {
   position: absolute;
   bottom: 22px;

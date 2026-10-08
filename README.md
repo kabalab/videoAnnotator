@@ -3,7 +3,7 @@
 A local-first website for taking timestamped notes on videos. Plain HTML, CSS and JavaScript with no build step, so the same folder runs on your computer and on GitHub Pages.
 
 - **Locally** you get full editing: add, edit and delete notes, manage tags and markers, add videos, and see private notes.
-- **On GitHub Pages** the site is a read-only viewer. Private notes and private videos are hidden, and videos play from their YouTube links.
+- **On GitHub Pages** the site is a read-only viewer until you sign in from **Settings** with the editor code. That code is `editorCode` in [`js/config.js`](js/config.js). Signing in turns on editing and private notes in that browser and keeps you signed in. It does not connect a project folder, and videos still play from their YouTube links.
 
 The environment is detected automatically from the address in the browser (see `envRules` in [`js/config.js`](js/config.js)). Unknown addresses default to the read-only public mode.
 
@@ -32,6 +32,8 @@ In Firefox, Safari, the built-in editor browser, or if writing fails, nothing is
 3. Open **Settings → Unsaved drafts** and click **Download** (or **Download all**). Each file downloads with a name like `sample-bbb.json`.
 4. Move each file to the path shown (for example `data/videos/sample-bbb.json`), replacing the old one.
 5. Reload. Drafts clear themselves once the project file matches.
+
+You can also copy every unsaved change as one **change code** from **Settings → Unsaved drafts**. Paste that code later in the same place to reapply the changes, including on another computer. Drafts that are not in the code stay as they are. If the project folder is connected when you import, the app writes those files. If writing fails, the changes stay as drafts in the browser.
 
 ## Videos
 
@@ -86,13 +88,13 @@ Some YouTube uploads (for example Blender's *Sintel* and *Tears of Steel*) refus
 2. In **Settings → Pages**, set **Source** to *Deploy from a branch*, pick your branch and the `/ (root)` folder.
 3. The included `.nojekyll` file makes Pages serve the files as-is.
 
-Videos without a YouTube link, and private videos, don't appear on the public site. Before pushing, use **Settings → Preview public site** (or add `?env=public` to the address) to see exactly what visitors will see.
+Videos without a YouTube link, and private videos, don't appear on the public site until someone signs in. Open **Settings**, enter the editor code from `editorCode` in [`js/config.js`](js/config.js), and editing works in that browser the way it does locally, except the project folder cannot be connected. Change the code in that file whenever you want; anyone who can read the repository can see it. Before pushing, use **Settings → Preview public site** (or add `?env=public` to the address) to see exactly what visitors will see. That preview stays read-only.
 
 > **Private notes are hidden, not secret.** They're filtered out of the public interface, but they're still in the JSON files that Pages serves. Anyone who opens `data/videos/….json` can read them. Don't put anything sensitive in a repository that's published.
 
 ## Using the app
 
-- **Edit / View** (top bar, local only): View mode hides the editing buttons for distraction-free watching. Private notes still show.
+- **Edit / View** (top bar, when running locally or signed in): View mode hides the editing buttons for distraction-free watching. Private notes still show. The unsaved count stays in the top bar and hides while the player is fullscreen.
 - **Timestamp notes** start at the current playback time. Click a time to jump; **Go back** returns to where you were before the jump.
 - **General notes** are about the whole video and support multiple paragraphs (leave a blank line).
 - **Tags** are colored labels. **Markers** are viewing sessions like "First watch" or "October 2026"; the **Markers** page lists every note from a session across all videos.
@@ -115,6 +117,7 @@ Videos without a YouTube link, and private videos, don't appear on the public si
 | `C` | Show or hide the notes panel (fullscreen or theater) |
 | `M` | Mute |
 | `/` | Focus search (any page) |
+| `?` | Open help (any page). Editing shortcuts are hidden in View mode and on the public site |
 | `Ctrl+Enter` | Save the note being edited |
 | `Esc` | Close the editor or dialog |
 

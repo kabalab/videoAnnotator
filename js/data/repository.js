@@ -1,10 +1,11 @@
 import { config } from '../config.js';
-import { store, state, canEdit, showPrivate, getVideo } from '../core/store.js';
+import { store, state, canEdit, showPrivate, getVideo, editorActive } from '../core/store.js';
 import { randomId, slugify, uniqueId } from '../core/ids.js';
 import { parseTime } from '../core/time.js';
 import { fetchText, parseJson, LoadError } from '../storage/httpSource.js';
 import { draftStore } from '../storage/draftStore.js';
 import { downloadText, downloadMany } from '../storage/exporter.js';
+import { encodeChangeCode, decodeChangeCode } from '../storage/changeCode.js';
 import { validateLibrary, validateDescriptors, validateVideo } from './validate.js';
 import { applyVisibility } from './visibility.js';
 import { serializeVideo, serializeDescriptors, serializeLibrary, toJsonText, nowIso, newVideo } from './schema.js';
@@ -108,7 +109,7 @@ async function readJson(path) {
   } catch (e) {
     error = e;
   }
-  if (state.env.isLocal) {
+  if (editorActive()) {
     const draft = draftStore.get(path);
     if (draft) {
       if (draft.deleted) {
@@ -177,7 +178,7 @@ export async function loadAll() {
   }
 
   store.set({ libraryIds, descriptors, videos, videoErrors, issues: showPrivate() ? issues : [], fatal }, ['data', 'descriptors', 'issues']);
-  if (state.env.isLocal) refreshDrafts();
+  if (editorActive()) refreshDrafts();
   scanUnregistered();
 }
 
@@ -186,7 +187,7 @@ export const descriptorsAvailable = () => !descriptorsBroken;
 // ---------------------------------------------------------------- saving
 
 function assertWritable() {
-  if (!state.env?.isLocal) throw new Error('Editing is turned off on the public site.');
+  if (!editorActive()) throw new Error('Editing is turned off on the public site.');
   if (state.uiMode !== 'edit') throw new Error('View mode is on. Switch to Edit mode to make changes.');
 }
 
@@ -578,6 +579,32 @@ export function downloadDraft(path) {
 
 export function downloadAllDrafts() {
   return downloadMany(draftStore.list().filter((d) => !d.deleted));
+}
+
+export function exportChangeCode() {
+  if (!editorActive()) throw new Error('Editing is turned off on the public site.');
+  const code = encodeChangeCode(draftStore.list());
+  if (!code) throw new Error('There are no unsaved changes to copy.');
+  return code;
+}
+
+// Merges the code into drafts, reloads so the changes show, and writes the files when a folder is connected.
+export async function importChangeCode(code) {
+  if (!editorActive()) throw new Error('Editing is turned off on the public site.');
+  const files = decodeChangeCode(code);
+  for (const f of files) {
+    if (f.deleted) draftStore.putDeleted(f.path);
+    else draftStore.put(f.path, f.text);
+  }
+  if (connected()) {
+    try {
+      await writeDraftsToFiles();
+    } catch (e) {
+      await loadAll();
+      throw e;
+    }
+  } else await loadAll();
+  return files.length;
 }
 
 // ---------------------------------------------------------------- video files

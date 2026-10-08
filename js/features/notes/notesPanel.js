@@ -1,5 +1,6 @@
 import { fill, h } from '../../core/dom.js';
 import { canEdit } from '../../core/store.js';
+import { formatTime } from '../../core/time.js';
 import { icon } from '../../ui/icons.js';
 import { tagChip, markerChip } from '../descriptors/chips.js';
 import { renderNoteItem } from './noteItem.js';
@@ -9,11 +10,17 @@ export function createNotesPanel({ onJump, onOpen, onAdd, compact = false, onClo
   let tab = null;
   const filter = { tags: new Set(), markers: new Set() };
   let currentId = null;
+  let markedNextId = null;
+  let nextNote = null;
   let lastTime = 0;
 
   const prefix = compact ? 'quick-' : 'page-';
   const list = h('ol', { class: 'notes-list' });
   const panelBody = h('div', { class: 'notes-tabpanel' }, list);
+  const nextBanner = h('button', { class: 'notes-next', type: 'button', hidden: true });
+  nextBanner.addEventListener('click', () => {
+    if (nextNote) onJump(nextNote);
+  });
   const el = h('section', { class: ['notes-panel', compact && 'notes-panel-compact'], 'aria-label': compact ? 'Quick notes' : 'Notes' });
 
   const passes = (n) =>
@@ -110,33 +117,95 @@ export function createNotesPanel({ onJump, onOpen, onAdd, compact = false, onClo
     if (!shown.length) {
       let text;
       if (source.length) text = 'No notes match the selected tags or markers.';
-      else if (tab === 'timeline') text = editable ? 'No timestamp notes yet. Press N or choose Timestamp to note the current moment.' : 'No timestamp notes.';
-      else text = editable ? 'No general notes yet. Use them for summaries, context or thoughts about the whole video.' : 'No general notes.';
+      else if (tab === 'timeline') text = editable ? 'No timestamp notes yet. Press N or choose Timestamp to note the current moment. Use them to store info about the specific moment.' : 'No timestamp notes.';
+      else text = editable ? 'No general notes yet. Press G or choose note to open a new one. Use them for summaries, context or thoughts about the whole video.' : 'No general notes.';
       empty = h('p', { class: 'notes-empty' }, text);
     }
     panelBody.replaceChildren(...[empty, list].filter(Boolean));
 
-    fill(el, header, filterRow, panelBody);
+    fill(el, header, filterRow, tab === 'timeline' && nextBanner, panelBody);
     currentId = null;
+    markedNextId = null;
     setCurrentTime(lastTime);
+  }
+
+  function notePreview(note) {
+    const title = note.title?.trim();
+    if (title) return title;
+    const content = (note.content || '').trim().replace(/\s+/g, ' ');
+    if (!content) return 'Timestamp note';
+    return content.length > 80 ? `${content.slice(0, 79)}\u2026` : content;
+  }
+
+  function timeUntilNext() {
+    return formatTime(Math.max(0, nextNote.timestamp - lastTime));
+  }
+
+  function paintNext() {
+    if (!nextNote || tab !== 'timeline') {
+      nextBanner.hidden = true;
+      nextBanner.replaceChildren();
+      nextBanner.removeAttribute('aria-label');
+      return;
+    }
+    const label = notePreview(nextNote);
+    const time = timeUntilNext();
+    nextBanner.hidden = false;
+    nextBanner.setAttribute('aria-label', `Next note in ${time}: ${label}. Jump there.`);
+    nextBanner.replaceChildren(
+      h('span', { class: 'notes-next-label' }, 'Next'),
+      h('span', { class: 'notes-next-time' }, time),
+      h('span', { class: 'notes-next-title' }, label),
+    );
+  }
+
+  function updateRemain() {
+    if (!nextNote || nextBanner.hidden) return;
+    const time = timeUntilNext();
+    const el = nextBanner.querySelector('.notes-next-time');
+    if (!el || el.textContent === time) return;
+    el.textContent = time;
+    const title = nextBanner.querySelector('.notes-next-title')?.textContent || notePreview(nextNote);
+    nextBanner.setAttribute('aria-label', `Next note in ${time}: ${title}. Jump there.`);
   }
 
   function setCurrentTime(t) {
     lastTime = t;
-    if (!video || tab !== 'timeline') return;
+    if (!video) {
+      nextNote = null;
+      paintNext();
+      return null;
+    }
     let id = null;
+    let upcoming = null;
     for (const n of sortedTimestamps()) {
       if (n.timestamp <= t + 0.25) id = n.id;
-      else break;
+      else {
+        upcoming = n;
+        break;
+      }
     }
-    if (id === currentId) return;
+    const nextChanged = upcoming?.id !== nextNote?.id;
+    nextNote = upcoming;
+    if (nextChanged) paintNext();
+    else updateRemain();
+    if (tab !== 'timeline') return nextNote;
+    const upcomingId = upcoming?.id ?? null;
+    if (id === currentId && upcomingId === markedNextId) return nextNote;
     list.querySelector('.note.is-current')?.classList.remove('is-current');
+    list.querySelector('.note.is-next')?.classList.remove('is-next');
     currentId = id;
-    if (!id) return;
-    const li = list.querySelector(`[data-id="${CSS.escape(id)}"]`);
-    if (!li) return;
-    li.classList.add('is-current');
-    if (!el.matches(':hover') && list.scrollHeight > list.clientHeight) scrollListTo(li, 'smooth');
+    markedNextId = upcomingId;
+    if (!nextChanged) paintNext();
+    if (id) {
+      const li = list.querySelector(`[data-id="${CSS.escape(id)}"]`);
+      if (li) {
+        li.classList.add('is-current');
+        if (!el.matches(':hover') && list.scrollHeight > list.clientHeight) scrollListTo(li, 'smooth');
+      }
+    }
+    if (upcomingId) list.querySelector(`[data-id="${CSS.escape(upcomingId)}"]`)?.classList.add('is-next');
+    return nextNote;
   }
 
   function scrollListTo(li, behavior = 'auto') {
@@ -168,6 +237,7 @@ export function createNotesPanel({ onJump, onOpen, onAdd, compact = false, onClo
       render();
     },
     setCurrentTime,
+    nextNote: () => nextNote,
     highlight,
   };
 }

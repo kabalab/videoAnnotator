@@ -1,9 +1,10 @@
 import { h, debounce, isTypingTarget } from '../core/dom.js';
-import { store, state, canEdit, setUiMode } from '../core/store.js';
+import { store, state, canEdit, editorActive, setUiMode } from '../core/store.js';
 import { navigate, parseHash } from '../core/router.js';
 import { icon } from './icons.js';
 import { openSettings } from '../features/settings/connectionPanel.js';
 import { openDescriptorManager } from '../features/descriptors/descriptorManager.js';
+import { openHelp } from './help.js';
 
 const STATUS = {
   'fsa-connected': { cls: 'ok', label: 'Saving to project folder' },
@@ -61,12 +62,12 @@ export function createTopbar(el) {
   function renderRight() {
     const env = state.env;
     const items = [];
-    if (env.isLocal) {
+    if (editorActive()) {
       if (state.drafts.length) {
         items.push(
           h(
             'button',
-            { class: 'pill pill-warning', type: 'button', onclick: () => openSettings({ focus: 'drafts' }), title: 'Changes that are only saved in this browser' },
+            { class: 'pill pill-warning unsaved-pill', type: 'button', onclick: () => openSettings({ focus: 'drafts' }), title: 'Changes that are only saved in this browser' },
             icon('warning'),
             `${state.drafts.length} unsaved`,
           ),
@@ -83,7 +84,9 @@ export function createTopbar(el) {
       if (canEdit()) {
         items.push(h('button', { class: 'icon-btn', type: 'button', title: 'Tags & markers', 'aria-label': 'Manage tags and markers', onclick: () => openDescriptorManager() }, icon('tag')));
       }
-      const status = STATUS[state.persistence.kind] || { cls: 'idle', label: 'Settings' };
+      const status = env.isLocal
+        ? STATUS[state.persistence.kind] || { cls: 'idle', label: 'Settings' }
+        : { cls: state.drafts.length ? 'warn' : 'ok', label: state.drafts.length ? 'Changes stay in this browser' : 'Signed in on the public site' };
       items.push(
         h(
           'button',
@@ -94,7 +97,11 @@ export function createTopbar(el) {
       );
     } else {
       items.push(h('span', { class: 'env-badge env-public', title: 'Read-only public view' }, icon('eye'), env.previewPublic ? 'Public preview' : 'Public'));
+      if (!env.previewPublic) {
+        items.push(h('button', { class: 'icon-btn', type: 'button', title: 'Settings', 'aria-label': 'Settings', onclick: () => openSettings() }, icon('settings')));
+      }
     }
+    items.push(h('button', { class: 'icon-btn', type: 'button', title: 'Help (?)', 'aria-label': 'Help', onclick: () => openHelp() }, icon('help')));
     right.replaceChildren(...items);
   }
 
@@ -109,10 +116,14 @@ export function createTopbar(el) {
   }
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === '/' && !e.ctrlKey && !e.metaKey && !isTypingTarget(e.target) && !document.querySelector('dialog[open]')) {
+    if (e.ctrlKey || e.metaKey || e.altKey || isTypingTarget(e.target) || document.querySelector('dialog[open]')) return;
+    if (e.key === '/') {
       e.preventDefault();
       input.focus();
       input.select();
+    } else if (e.key === '?') {
+      e.preventDefault();
+      openHelp();
     }
   });
 

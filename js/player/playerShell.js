@@ -277,6 +277,7 @@ export function createPlayer({ video, isLocal, editable = false, startTime = 0, 
     const immersive = isFs || theater;
     root.classList.toggle('is-fullscreen', isFs);
     root.classList.toggle('is-immersive', immersive);
+    document.body.classList.toggle('player-fullscreen', isFs);
     controls.setImmersive(immersive);
     setToastHost(isFs ? root : null);
     em.emit('immersive', immersive);
@@ -338,6 +339,7 @@ export function createPlayer({ video, isLocal, editable = false, startTime = 0, 
       loadSource(i, { time: api.getTime(), play: !api.isPaused() });
     },
     setTicks: (list) => controls.setTicks(list),
+    setNextTick: (noteId) => controls.setNextTick(noteId),
     setEditable(b) {
       canEditNow = b;
       controls.setEditable(b);
@@ -375,6 +377,7 @@ export function createPlayer({ video, isLocal, editable = false, startTime = 0, 
       document.removeEventListener('keydown', onDocKey);
       if (fs.isFullscreen(root)) fs.exit();
       if (theater) document.body.classList.remove('no-scroll');
+      document.body.classList.remove('player-fullscreen');
       setToastHost(null);
       clearTimeout(idleTimer);
       clearTimeout(clickTimer);
