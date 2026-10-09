@@ -11,6 +11,175 @@
   },
   "duration": 7855.1,
   "createdAt": "2026-10-08T04:33:42Z",
-  "updatedAt": "2026-10-08T22:25:52Z",
-  "notes": []
+  "updatedAt": "2026-10-09T03:52:55Z",
+  "notes": [
+    {
+      "id": "n_1ebu0jb12b",
+      "type": "timestamp",
+      "timestamp": 10,
+      "title": "NYC live starts",
+      "content": "Mostly just introduces NYC. Interviews a few students / intro video. Interviews pastor Shawn Evans (part of NYI council chair). Talked about why NYC happens and why it's a thing / why it's so important. Introduced Lamoras the preacher. Talks about participating in NYC; done just be a spectator actually pray with them worship be a part of it.",
+      "tags": [
+        "nyc-live"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T02:24:39Z",
+      "updatedAt": "2026-10-09T02:37:42Z"
+    },
+    {
+      "id": "n_1o5dn4u17a",
+      "type": "timestamp",
+      "timestamp": 918.3,
+      "title": "Intro video",
+      "content": "Intro into the service and hints at the what the service is going to be about. There is beauty is living water",
+      "tags": [
+        "intro-video"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T02:40:04Z",
+      "updatedAt": "2026-10-09T02:40:39Z"
+    },
+    {
+      "id": "n_13mhjwzl4n",
+      "type": "timestamp",
+      "timestamp": 998.8,
+      "title": "Worship starts",
+      "content": "",
+      "tags": [],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T02:42:02Z",
+      "updatedAt": "2026-10-09T02:42:02Z"
+    },
+    {
+      "id": "n_15iexas7sd",
+      "type": "timestamp",
+      "timestamp": 1058.1,
+      "title": "Grace Like a Wave by Elevation Worship",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T02:44:40Z",
+      "updatedAt": "2026-10-09T02:44:40Z"
+    },
+    {
+      "id": "n_1azxco33va",
+      "type": "timestamp",
+      "timestamp": 1266.2,
+      "title": "King of Kings by Hillsong Worship",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T02:48:28Z",
+      "updatedAt": "2026-10-09T02:48:28Z"
+    },
+    {
+      "id": "n_6gl0li1v6a",
+      "type": "timestamp",
+      "timestamp": 1512.3,
+      "title": "Intro to band",
+      "content": "The main singer kinda introduces the band and also is asking to get into a more serious version of worship. All of the co host pastors speak in between each of them there Is Cloud by Elevation Worship is sung. Brady Braatz (NYC live guy) does a small talk on remember your longing for relief. Shane Lima talks about the familiarity of pain. Antonio Marshall talked about soaking up God's abundance love. Stephanie Lobdell talks about the fear of the unknown, you may feel tossed but remember you are carried by the current of Christ flooded by the relentless love of God. Antonio Marshall talks again about receiving all that God has to offer. Then all the co host pastors pray together. Lastly they talk about why their band is called royal company, which is because when they are worshiping they are in the true presence of the one true king God.",
+      "tags": [
+        "important-piece",
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T02:56:40Z",
+      "updatedAt": "2026-10-09T03:27:02Z"
+    },
+    {
+      "id": "n_n1sxe21oq3",
+      "type": "timestamp",
+      "timestamp": 2322.8,
+      "title": "Take You at Your Word by Cody Carnes",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T03:23:35Z",
+      "updatedAt": "2026-10-09T03:23:35Z"
+    },
+    {
+      "id": "n_1u0ip5r1hr",
+      "type": "timestamp",
+      "timestamp": 2683.1,
+      "title": "Vidio prior to sermon starts",
+      "content": "Video with ?God or Jesus? speaking about how harsh the world is. How his love overflows for you, remember where your help come from, he is always there for you",
+      "tags": [
+        "intro-video"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T03:30:40Z",
+      "updatedAt": "2026-10-09T03:30:40Z"
+    },
+    {
+      "id": "n_19vp0d2fpf",
+      "type": "timestamp",
+      "timestamp": 2816,
+      "title": "Call me (I'm yours) by Royal company",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T03:32:36Z",
+      "updatedAt": "2026-10-09T03:32:36Z"
+    },
+    {
+      "id": "n_13keq9n1sv",
+      "type": "timestamp",
+      "timestamp": 3216,
+      "title": "Son of Suffering by Maverick City Music",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T03:38:55Z",
+      "updatedAt": "2026-10-09T03:38:55Z"
+    },
+    {
+      "id": "n_30yypnctm1",
+      "type": "timestamp",
+      "timestamp": 3670.2,
+      "title": "Phenomena (Da Da) by Hillsong Young & Free",
+      "content": "Song don't like to much",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T03:48:18Z",
+      "updatedAt": "2026-10-09T03:48:18Z"
+    },
+    {
+      "id": "n_37b10u13e8",
+      "type": "timestamp",
+      "timestamp": 4011.8,
+      "title": "LaMoris Crawford walks onstage",
+      "content": "starts with a one liner Jesus making it to the cross wasn't a tragedy it was an accomplishment.",
+      "tags": [
+        "start-of-sermon",
+        "one-liner"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T03:52:55Z",
+      "updatedAt": "2026-10-09T03:52:55Z"
+    }
+  ]
 }

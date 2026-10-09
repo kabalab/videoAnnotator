@@ -36,23 +36,32 @@
       "name": "NYC live",
       "color": "#3fb27f",
       "description": ""
+    },
+    {
+      "id": "intro-video",
+      "name": "Intro video",
+      "color": "#e86fb0",
+      "description": ""
     }
   ],
   "markers": [
     {
       "id": "orignal-23",
       "name": "Original 23",
-      "description": "Original notes from 2023"
+      "description": "Original notes from 2023",
+      "date": ""
     },
     {
       "id": "original-26",
       "name": "Original 26",
-      "description": "Original notes from 2026"
+      "description": "Original notes from 2026",
+      "date": ""
     },
     {
       "id": "rewatch-october-26",
       "name": "Rewatch October 26",
-      "description": ""
+      "description": "",
+      "date": ""
     }
   ]
 }
