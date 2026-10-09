@@ -1,10 +1,11 @@
 import { h, richText } from '../../core/dom.js';
-import { showPrivate } from '../../core/store.js';
+import { listVideos, showPrivate } from '../../core/store.js';
 import { formatTime } from '../../core/time.js';
 import { icon } from '../../ui/icons.js';
 import { noteChips, privateBadge } from '../descriptors/chips.js';
+import { mentionAt } from '../video/mentionLink.js';
 
-export function renderNoteItem(note, { onJump, onOpen, editable, compact = false }) {
+export function renderNoteItem(note, { onJump, onOpen, onVideoRef, onNote, notes = [], editable, compact = false }) {
   const isTs = note.type === 'timestamp';
   const brokenTime = showPrivate() && '__originalTimestamp' in note;
   const meta = [noteChips(note), note.visibility === 'private' && privateBadge(), brokenTime && h('span', { class: 'badge badge-warning' }, icon('warning'), 'Invalid timestamp in file')].filter(Boolean);
@@ -17,6 +18,13 @@ export function renderNoteItem(note, { onJump, onOpen, editable, compact = false
       richText(note.content, {
         className: `rich-text note-content${compact ? ' is-clamped' : ''}`,
         onTime: onJump ? (seconds) => onJump({ id: note.id, type: 'timestamp', timestamp: seconds }) : undefined,
+        onMention: (line, index) =>
+          mentionAt(line, index, {
+            notes: notes.filter((item) => item.id !== note.id),
+            videos: listVideos(),
+            onNote,
+            onVideo: onVideoRef,
+          }),
       }),
     meta.length ? h('div', { class: 'note-meta' }, meta) : null,
   );

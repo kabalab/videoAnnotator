@@ -1,10 +1,13 @@
 import { h, autoGrow } from '../../core/dom.js';
-import { getMarker } from '../../core/store.js';
-import { expandTimeTokens, formatTime, parseTime } from '../../core/time.js';
+import { getMarker, listVideos } from '../../core/store.js';
+import { formatTime, parseTime } from '../../core/time.js';
+import { attachComposerHighlight, watchTimeTokens } from '../video/composerLinks.js';
+import { matchNoteRef } from '../video/noteRefs.js';
 import { getPref, setPref } from '../../core/prefs.js';
 import { icon } from '../../ui/icons.js';
 import { segmented } from '../../ui/segmented.js';
 import { createDescriptorPicker } from '../descriptors/descriptorPicker.js';
+import { attachMentionMenu } from '../video/mentionMenu.js';
 
 const LAST_MARKERS = 'lastMarkers';
 
@@ -17,8 +20,9 @@ function rememberMarkers(ids) {
   setPref(LAST_MARKERS, ids);
 }
 
-export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, onTypingStart }) {
+export function createNoteEditor({ getCurrentTime, getNotes, onSave, onDelete, onClose, onTypingStart }) {
   let original = null;
+  let editingId = null;
   let isNew = true;
   let open = false;
   let busy = false;
@@ -27,7 +31,6 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
   let originalContent = '';
   // Video time when a new note was opened. @now uses this, not the playhead at the keystroke.
   let createdVideoTime = null;
-  let expandTimer = 0;
 
   const heading = h('h2', { class: 'editor-title' });
   const typeSeg = segmented({
@@ -63,6 +66,17 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
   const titleInput = h('input', { class: 'input', placeholder: 'Title (optional)', 'aria-label': 'Title (optional)', maxlength: '200' });
   const content = h('textarea', { class: 'input textarea editor-content', rows: '4', placeholder: 'Write your note\u2026 Leave a blank line between paragraphs.', 'aria-label': 'Note text' });
   const fit = autoGrow(content, 420);
+  const highlight = attachComposerHighlight(content, () => ({
+    notes: (getNotes?.() || []).filter((note) => note.id !== editingId),
+    videos: listVideos(),
+  }));
+  const mentionMenu = attachMentionMenu(content, {
+    getNotes: () => (getNotes?.() || []).filter((note) => note.id !== editingId),
+    getVideos: () => listVideos(),
+    sigils: '@#',
+    includeNow: () => `@${formatTime(secondsForNow())}`,
+  });
+  const refHint = h('span', { class: 'field-hint' }, 'Type @ to link a timestamp or general note on this video. Type #Lecture to link another video, then pick one of its timestamps or general notes.');
   const tagPicker = createDescriptorPicker({ kind: 'tag', label: 'Tags' });
   const markerPicker = createDescriptorPicker({
     kind: 'marker',
@@ -99,7 +113,7 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
       typeSeg.el,
       tsRow,
       titleInput,
-      content,
+      h('div', { class: 'field' }, highlight.el, refHint, mentionMenu),
       tagPicker.el,
       markerPicker.el,
       h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Visibility'), visSeg.el, visHint),
@@ -131,7 +145,6 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
   };
   content.addEventListener('focus', typingStart);
   titleInput.addEventListener('focus', typingStart);
-  content.addEventListener('input', scheduleExpand);
   tsInput.addEventListener('input', () => {
     tsError.hidden = true;
   });
@@ -142,40 +155,20 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
     return Number.isFinite(live) ? live : 0;
   }
 
-  function applyTimeExpansion() {
-    const { value, cursor } = expandTimeTokens(content.value, content.selectionStart, secondsForNow());
-    if (value === content.value) return;
-    content.value = value;
-    const pos = Math.max(0, Math.min(cursor, value.length));
-    content.setSelectionRange(pos, pos);
-    fit();
+  function keepNoteNamedNow(value, index) {
+    const notes = (getNotes?.() || []).filter((note) => note.id !== editingId);
+    const ref = matchNoteRef(value.slice(index), notes);
+    return ref?.kind === 'title' && value.slice(index, index + ref.length).toLowerCase() === '@now';
   }
 
-  // Apply after the input event. Setting the value during input can be overwritten, which left @now in the note.
-  function scheduleExpand() {
-    const raw = content.value;
-    const cursor = content.selectionStart;
-    const seconds = secondsForNow();
-    clearTimeout(expandTimer);
-    expandTimer = setTimeout(() => {
-      if (content.value !== raw) return;
-      const { value, cursor: next } = expandTimeTokens(raw, cursor, seconds);
-      if (value === raw) return;
-      content.value = value;
-      const pos = Math.max(0, Math.min(next, value.length));
-      content.setSelectionRange(pos, pos);
-      fit();
-    }, 0);
-  }
+  const timeWatch = watchTimeTokens(content, { getSeconds: secondsForNow, keepNow: keepNoteNamedNow, grow: fit });
 
   function syncType() {
     const ts = typeSeg.value === 'timestamp';
     tsRow.hidden = !ts;
     content.placeholder = ts
-      ? 'Write your note\u2026 Leave a blank line between paragraphs.'
-      : isNew
-        ? 'Write your note\u2026 Type @now for the time you started this note, or @10:40 for another time.'
-        : 'Write your note\u2026 Type @now or @10:40 to insert a time you can click.';
+      ? 'Write your note\u2026 Type @ to link a timestamp, or @10:40 for a time.'
+      : 'Write your note\u2026 Type @ to link a timestamp, @now for this moment, or @10:40 for another time.';
     if (isNew) heading.textContent = ts ? 'New timestamp note' : 'New general note';
   }
 
@@ -201,8 +194,10 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
 
   async function save() {
     if (busy) return;
-    clearTimeout(expandTimer);
-    if (isNew || content.value !== originalContent) applyTimeExpansion();
+    if (isNew || content.value !== originalContent) {
+      timeWatch.flush();
+      highlight.refresh();
+    }
     formError.hidden = true;
     const type = typeSeg.value;
     let timestamp = null;
@@ -253,7 +248,7 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
 
   function close() {
     if (!open) return;
-    clearTimeout(expandTimer);
+    timeWatch.cancel();
     open = false;
     el.classList.remove('is-open');
     onClose?.();
@@ -264,8 +259,9 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
     isOpen: () => open,
     isEditing: (noteId) => open && original?.id === noteId,
     open(existing, defaults = {}) {
-      clearTimeout(expandTimer);
+      timeWatch.cancel();
       original = existing ? { ...existing } : null;
+      editingId = existing?.id || null;
       isNew = !existing;
       const base = existing || {
         type: defaults.type || 'generic',
@@ -292,6 +288,7 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
       visSeg.set(base.visibility);
       deleteBtn.hidden = isNew;
       formError.hidden = true;
+      highlight.refresh();
       if (base.markers.length > 1) showError('A note can only have one marker. Remove the extras before saving.');
       pauseToggle.checked = getPref('pauseWhileTyping');
       syncType();

@@ -1,8 +1,10 @@
 import { formatTime, parseTime } from '../../core/time.js';
 
 // @0:25 links the timestamp note at that moment and is shown as its title.
-// @Summary links whichever note has that title. An @ inside a word (an email) is left alone.
+// @Summary links a note by its title. An untitled note can be linked by its first line, or by its id
+// when that line is shared or unsafe to write. An @ inside a word (an email) is left alone.
 const TIME_TOKEN = /^(\d{1,3}:\d{2}(?::\d{2})?(?:\.\d+)?)/;
+const TIME_EXACT = /^\d{1,3}:\d{2}(?::\d{2})?(?:\.\d+)?$/;
 
 function shortLine(text, max = 60) {
   const s = String(text || '').replace(/\s+/g, ' ').trim();
@@ -22,12 +24,41 @@ export function noteRefLabel(note) {
 
 export function canStartMention(prev) {
   if (!prev) return true;
-  return !/[\p{L}\p{N}_@]/u.test(prev);
+  return !/[\p{L}\p{N}_@#]/u.test(prev);
 }
 
 function boundaryAfter(text, length) {
   if (length >= text.length) return true;
   return !/^[\p{L}\p{N}]/u.test(text[length]);
+}
+
+function firstLine(note) {
+  return String(note?.content || '')
+    .split('\n')
+    .map((line) => line.trim())
+    .find(Boolean) || '';
+}
+
+function clipKey(text) {
+  const s = String(text || '').replace(/\s+/g, ' ').trim();
+  if (!s || /[@#\n]/.test(s)) return '';
+  return s.length > 80 ? s.slice(0, 80).trimEnd() : s;
+}
+
+// Words that can be written after @. A title wins. An untitled note uses its first line.
+export function noteTextKeys(note) {
+  const rawTitle = String(note?.title || '').trim();
+  if (rawTitle) {
+    const title = clipKey(rawTitle);
+    return title ? [title] : [];
+  }
+  const line = clipKey(firstLine(note));
+  return line ? [line] : [];
+}
+
+function noteIdKey(note) {
+  const id = String(note?.id || '').trim();
+  return id && !/[@#/\n]/.test(id) ? id : '';
 }
 
 // The note whose displayed clock time is the one the user typed. A titled note wins when several share that second.
@@ -48,37 +79,54 @@ export function findTimestampNote(notes, seconds) {
   return best;
 }
 
-function findTitleNote(notes, rest) {
+function findKeyedNote(notes, rest, keyFor) {
   let best = null;
   let bestLen = 0;
   for (const note of notes || []) {
-    const title = String(note.title || '').trim();
-    if (!title || title.length < bestLen || rest.length < title.length) continue;
-    if (rest.slice(0, title.length).toLowerCase() !== title.toLowerCase()) continue;
-    if (!boundaryAfter(rest, title.length)) continue;
-    if (title.length > bestLen) {
+    const key = keyFor(note);
+    if (!key || key.length < bestLen || rest.length < key.length) continue;
+    if (rest.slice(0, key.length).toLowerCase() !== key.toLowerCase()) continue;
+    if (!boundaryAfter(rest, key.length)) continue;
+    if (key.length > bestLen) {
       best = note;
-      bestLen = title.length;
+      bestLen = key.length;
     }
   }
   return best ? { note: best, length: bestLen } : null;
 }
 
+// The note or clock after a video slash: "#Lecture/Summary" or "#Lecture/0:25".
+// allowBareTime keeps a clock even when that video has no note at that moment.
+export function matchNoteBody(rest, notes, { allowBareTime = false } = {}) {
+  const time = String(rest || '').match(TIME_TOKEN);
+  const timeReady = time && boundaryAfter(rest, time[1].length) ? time : null;
+  let timeHit = null;
+  if (timeReady) {
+    const seconds = parseTime(timeReady[1]);
+    if (seconds != null) {
+      const note = findTimestampNote(notes, seconds);
+      if (note) timeHit = { length: timeReady[1].length, note, seconds: note.timestamp, kind: 'time' };
+    }
+  }
+  // A longer title or first line wins over a clock it happens to start with, such as "0:25 recap".
+  const titled = findKeyedNote(notes, rest, (note) => noteTextKeys(note)[0] || '');
+  if (titled && (!timeHit || titled.length > timeHit.length)) return { length: titled.length, note: titled.note, seconds: null, kind: 'title' };
+  if (timeHit) return timeHit;
+  const byId = findKeyedNote(notes, rest, noteIdKey);
+  if (byId) return { length: byId.length, note: byId.note, seconds: null, kind: 'title' };
+  if (allowBareTime && timeReady) {
+    const seconds = parseTime(timeReady[1]);
+    if (seconds != null) return { length: timeReady[1].length, note: null, seconds, kind: 'time' };
+  }
+  return null;
+}
+
 // text starts at the @. Returns null when nothing on this video matches, so the characters stay as typed.
 export function matchNoteRef(text, notes) {
   if (!text?.startsWith('@') || !notes?.length) return null;
-  const rest = text.slice(1);
-  const time = rest.match(TIME_TOKEN);
-  if (time) {
-    const seconds = parseTime(time[1]);
-    if (seconds != null) {
-      const note = findTimestampNote(notes, seconds);
-      if (note) return { length: 1 + time[1].length, note, kind: 'time' };
-    }
-  }
-  const titled = findTitleNote(notes, rest);
-  if (!titled) return null;
-  return { length: 1 + titled.length, note: titled.note, kind: 'title' };
+  const body = matchNoteBody(text.slice(1), notes);
+  if (!body?.note) return null;
+  return { length: 1 + body.length, note: body.note, kind: body.kind };
 }
 
 // Plain-text form used by search snippets: the title a reader would see, not the @ token.
@@ -109,39 +157,58 @@ export function displayNoteRefs(text, notes) {
   return out;
 }
 
-// What gets written into the description. Times stay as @m:ss so renaming the note still resolves.
+function textKeyTaken(key, note, notes) {
+  const lower = key.toLowerCase();
+  if (TIME_EXACT.test(key)) {
+    const seconds = parseTime(key);
+    const owner = seconds == null ? null : findTimestampNote(notes, seconds);
+    if (owner && owner.id !== note.id) return true;
+  }
+  return (notes || []).some((other) => {
+    if (!other || other.id === note.id) return false;
+    const otherKey = noteTextKeys(other)[0];
+    return !!otherKey && otherKey.toLowerCase() === lower;
+  });
+}
+
+// What gets written after @. A timestamp that owns its second stays @m:ss, so renaming it still resolves.
+// Anything else uses its title or first line. A shared or unsafe name falls back to the note id.
 export function mentionToken(note, notes) {
   if (note?.type === 'timestamp' && note.timestamp != null) {
     const winner = findTimestampNote(notes, Math.floor(note.timestamp));
     if (winner?.id === note.id) return `@${formatTime(note.timestamp)}`;
   }
-  const title = String(note?.title || '').trim();
-  return title ? `@${title}` : null;
+  const key = noteTextKeys(note)[0];
+  if (key && !textKeyTaken(key, note, notes)) return `@${key}`;
+  const id = noteIdKey(note);
+  return id ? `@${id}` : null;
 }
 
-// The @ being typed, if the caret is inside one. start is the index of that @.
+// The @ or # being typed, if the caret is inside one. start is the index of that sigil.
 export function mentionQuery(text, cursor) {
   const upto = String(text || '').slice(0, Number.isFinite(cursor) ? cursor : 0);
-  const m = upto.match(/(?:^|[\s([(])@([^@\n]*)$/);
+  const m = upto.match(/(?:^|[\s([(])([@#])([^@#\n]*)$/);
   if (!m) return null;
-  return { query: m[1], start: upto.length - m[1].length - 1 };
+  return { sigil: m[1], query: m[2], start: upto.length - m[2].length - 1 };
 }
 
 // True once the caret has moved past a finished reference, such as "@Summary " or "@0:25 and then".
 // A space that is still part of a longer title ("@Trap " while "Trap montage" exists) stays open.
 export function mentionClosed(text, cursor, notes) {
   const found = mentionQuery(text, cursor);
-  if (!found) return false;
+  if (!found || found.sigil !== '@') return false;
   const fromAt = String(text || '').slice(found.start, cursor);
   const match = matchNoteRef(fromAt, notes);
   if (!match || match.length >= fromAt.length) return false;
   if (!/^\s/.test(fromAt.slice(match.length))) return false;
   const typed = fromAt.slice(1).toLowerCase();
-  const longerTitle = (notes || []).some((note) => {
-    const title = String(note.title || '').trim().toLowerCase();
-    return title.startsWith(typed) && title.length > typed.length;
-  });
-  return !longerTitle;
+  const longer = (notes || []).some((note) =>
+    [noteTextKeys(note)[0], noteIdKey(note), note?.type === 'timestamp' && note.timestamp != null ? formatTime(note.timestamp) : ''].some((key) => {
+      const value = String(key || '').toLowerCase();
+      return value.startsWith(typed) && value.length > typed.length;
+    }),
+  );
+  return !longer;
 }
 
 export function mentionChoices(notes, query) {
@@ -167,8 +234,18 @@ export function mentionChoices(notes, query) {
       else continue;
     }
     seen.add(key);
-    ranked.push({ note, token, label, time, rank, order: note.type === 'timestamp' ? note.timestamp : 1e9 });
+    ranked.push({
+      note,
+      token,
+      label,
+      time,
+      rank,
+      order: note.type === 'timestamp' ? note.timestamp ?? 0 : 0,
+    });
   }
   ranked.sort((a, b) => a.rank - b.rank || a.order - b.order || a.label.localeCompare(b.label));
-  return ranked.slice(0, 12);
+  if (q) return ranked.slice(0, 24);
+  const times = ranked.filter((item) => item.time).slice(0, 16);
+  const general = ranked.filter((item) => !item.time).slice(0, 12);
+  return [...times, ...general];
 }

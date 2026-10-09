@@ -1,10 +1,17 @@
 import { h } from '../../core/dom.js';
 import { icon } from '../../ui/icons.js';
 import { mentionChoices, mentionClosed, mentionQuery } from './noteRefs.js';
+import { videoMentionChoices, videoMentionClosed } from './videoRefs.js';
 
-// Dropdown under the description field while the caret is in an @mention.
-export function attachMentionMenu(textarea, getNotes) {
-  const menu = h('ul', { class: 'picker-menu mention-menu', hidden: true, role: 'listbox', 'aria-label': 'Notes to link' });
+// Dropdown under a text field while the caret is in an @ note or a # video reference.
+// sigils limits which marks open the list. includeNow adds a clock-time row while typing @.
+export function attachMentionMenu(textarea, source) {
+  const getNotes = typeof source === 'function' ? source : source?.getNotes;
+  const getVideos = typeof source === 'function' ? null : source?.getVideos;
+  const sigils = typeof source === 'function' ? '@' : source?.sigils || '@#';
+  const includeNow = typeof source === 'function' ? null : source?.includeNow;
+  const menuId = `mention-${Math.random().toString(36).slice(2, 8)}`;
+  const menu = h('ul', { class: 'picker-menu mention-menu', hidden: true, role: 'listbox', 'aria-label': 'Links' });
   let items = [];
   let index = 0;
   let start = null;
@@ -50,27 +57,54 @@ export function attachMentionMenu(textarea, getNotes) {
     else if (itemRect.bottom > menuRect.bottom - pad) menu.scrollTop += itemRect.bottom - (menuRect.bottom - pad);
   }
 
+  function choicesFor(found) {
+    if (found.sigil === '#') return videoMentionChoices(getVideos?.() || [], found.query);
+    const items = mentionChoices(getNotes?.() || [], found.query).map((item) => ({
+      token: item.token,
+      label: item.label,
+      hint: item.time || 'General',
+      icon: item.time ? 'clock' : 'note',
+    }));
+    if (found.sigil === '@' && includeNow) {
+      const q = found.query.trim().toLowerCase();
+      const token = includeNow();
+      const clock = String(token || '').replace(/^@/, '').toLowerCase();
+      const wantsNow = q && ('now'.startsWith(q) || (clock && clock.startsWith(q)));
+      if (wantsNow && token && !items.some((item) => item.token.toLowerCase() === token.toLowerCase())) {
+        items.push({ token, label: 'This time', hint: clock || 'Clock', icon: 'clock' });
+      }
+    }
+    return items;
+  }
+
   function show() {
     if (pause) return;
     if (textarea.selectionStart !== textarea.selectionEnd) return hide();
-    const notes = getNotes() || [];
     const found = mentionQuery(textarea.value, textarea.selectionStart);
-    if (!found || !notes.length || mentionClosed(textarea.value, textarea.selectionStart, notes)) return hide();
-    if (found.query !== queryText) {
-      queryText = found.query;
+    if (!found || !sigils.includes(found.sigil)) return hide();
+    const notes = getNotes?.() || [];
+    const videos = getVideos?.() || [];
+    const closed = found.sigil === '#' ? videoMentionClosed(textarea.value, textarea.selectionStart, videos) : mentionClosed(textarea.value, textarea.selectionStart, notes);
+    if (closed) return hide();
+    if (found.sigil === '@' && !notes.length && !includeNow) return hide();
+    if (found.sigil === '#' && !videos.length) return hide();
+    const queryKey = `${found.sigil}${found.query}`;
+    if (queryKey !== queryText) {
+      queryText = queryKey;
       index = 0;
       menu.scrollTop = 0;
     }
     start = found.start;
-    items = mentionChoices(notes, found.query);
+    items = choicesFor(found);
     if (!items.length) return hide();
     if (index >= items.length) index = 0;
     const opening = menu.hidden;
     menu.hidden = false;
+    menu.setAttribute('aria-label', items.some((item) => item.icon === 'film') ? 'Videos to link' : 'Notes to link');
     textarea.setAttribute('aria-expanded', 'true');
     menu.replaceChildren(
       ...items.map((item, i) => {
-        const id = `mention-opt-${i}`;
+        const id = `${menuId}-opt-${i}`;
         if (i === index) textarea.setAttribute('aria-activedescendant', id);
         return h(
           'li',
@@ -84,9 +118,9 @@ export function attachMentionMenu(textarea, getNotes) {
               choose(i);
             },
           },
-          icon(item.time ? 'clock' : 'note'),
+          icon(item.icon || 'note'),
           h('span', { class: 'mention-label' }, item.label),
-          h('span', { class: 'muted' }, item.time || 'General'),
+          h('span', { class: 'muted' }, item.hint || ''),
         );
       }),
     );
@@ -96,8 +130,8 @@ export function attachMentionMenu(textarea, getNotes) {
 
   textarea.setAttribute('aria-autocomplete', 'list');
   textarea.setAttribute('aria-expanded', 'false');
-  textarea.setAttribute('aria-controls', 'mention-list');
-  menu.id = 'mention-list';
+  textarea.setAttribute('aria-controls', menuId);
+  menu.id = menuId;
 
   textarea.addEventListener('input', show);
   textarea.addEventListener('click', show);
@@ -111,7 +145,7 @@ export function attachMentionMenu(textarea, getNotes) {
       e.preventDefault();
       index = (index + (e.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length;
       show();
-    } else if (e.key === 'Enter' || e.key === 'Tab') {
+    } else if (e.key === 'Tab' || (e.key === 'Enter' && !e.ctrlKey && !e.metaKey)) {
       e.preventDefault();
       choose(index);
     } else if (e.key === 'Escape') {

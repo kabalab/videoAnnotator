@@ -1,24 +1,10 @@
 import { fill, h, richText } from '../../core/dom.js';
-import { canEdit, showPrivate } from '../../core/store.js';
-import { formatTime } from '../../core/time.js';
+import { canEdit, listVideos, showPrivate } from '../../core/store.js';
 import { icon } from '../../ui/icons.js';
 import { privateBadge } from '../descriptors/chips.js';
-import { canStartMention, matchNoteRef, noteRefLabel } from './noteRefs.js';
+import { mentionAt } from './mentionLink.js';
 
-function mentionAt(line, index, video, onNote) {
-  if (!canStartMention(index > 0 ? line[index - 1] : '')) return null;
-  const ref = matchNoteRef(line.slice(index), video.notes);
-  if (!ref) return null;
-  const time = ref.note.type === 'timestamp' && ref.note.timestamp != null ? formatTime(ref.note.timestamp) : '';
-  return {
-    length: ref.length,
-    label: noteRefLabel(ref.note),
-    title: time ? `Jump to ${time}` : 'Show this note',
-    onClick: () => onNote?.(ref.note),
-  };
-}
-
-export function createVideoHeader({ onEdit, onNote }) {
+export function createVideoHeader({ onEdit, onNote, onVideo, onTime }) {
   const el = h('section', { class: 'video-header' });
   let expanded = false;
   let current = null;
@@ -40,7 +26,8 @@ export function createVideoHeader({ onEdit, onNote }) {
       desc
         ? richText(desc, {
             className: `rich-text video-desc${long && !expanded ? ' is-clamped' : ''}`,
-            onMention: (line, index) => mentionAt(line, index, video, onNote),
+            onTime: onTime || undefined,
+            onMention: (line, index) => mentionAt(line, index, { notes: video.notes, videos: listVideos(), onNote, onVideo }),
           })
         : null,
       desc && long

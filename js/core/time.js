@@ -82,7 +82,8 @@ export function displayTimeTokens(text) {
 
 // @now becomes @m:ss using nowSeconds. A finished @10:40 is normalized in place.
 // Legacy \t(now) and \t(10:40) are rewritten to the @ form. The caret stays on the same spot.
-export function expandTimeTokens(text, cursor, nowSeconds) {
+// keepNow(value, index) leaves that @now alone, so a note titled "now" is not rewritten into a clock.
+export function expandTimeTokens(text, cursor, nowSeconds, keepNow) {
   let value = String(text || '');
   let next = Number.isFinite(cursor) ? cursor : value.length;
   const nowToken = `@${formatTime(nowSeconds)}`;
@@ -92,6 +93,7 @@ export function expandTimeTokens(text, cursor, nowSeconds) {
       if (match.index > 0 && STUCK_BEFORE.test(value[match.index - 1])) continue;
       const after = match.index + match[0].length;
       if (after < value.length && /[\p{L}\p{N}_]/u.test(value[after])) continue;
+      if (keepNow?.(value, match.index)) continue;
     }
     swaps.push([match.index, match.index + match[0].length, nowToken]);
   }

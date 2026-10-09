@@ -49,19 +49,25 @@ export function mountVideoView(container, route) {
   });
   playerWrap.append(player.el);
 
+  function openLocalNote(note) {
+    if (!note) return;
+    if (note.type === 'timestamp') jumpToNote(note);
+    else {
+      highlightNote(note.id);
+      if (!player.isImmersive()) panel.el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }
+
   const header = createVideoHeader({
-    onEdit: () => openEditVideoDialog(getVideo(id)),
-    onNote: (note) => {
-      if (note.type === 'timestamp') jumpToNote(note);
-      else {
-        panel.highlight(note.id);
-        panel.el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      }
-    },
+    onEdit: () => openEditVideoDialog(getVideo(id), { getCurrentTime: () => player.getTime() }),
+    onNote: openLocalNote,
+    onVideo: openVideoRef,
+    onTime: (seconds) => player.jumpTo(seconds),
   });
-  const panel = createNotesPanel({ onJump: jumpToNote, onOpen: openEditor, onAdd: addNote });
+  const panel = createNotesPanel({ onJump: jumpToNote, onOpen: openEditor, onAdd: addNote, onVideoRef: openVideoRef, onNote: openLocalNote });
   const editor = createNoteEditor({
     getCurrentTime: () => player.getTime(),
+    getNotes: () => getVideo(id)?.notes || [],
     onSave: async (input) => {
       const { note } = await repo.saveNote(id, input);
       requestAnimationFrame(() => panel.highlight(note.id));
@@ -101,7 +107,7 @@ export function mountVideoView(container, route) {
     overlayMode = mode;
     if (mode === 'editor') player.setOverlay(editor.el);
     else if (mode === 'notes') {
-      overlayNotes ||= createNotesPanel({ compact: true, onJump: jumpToNote, onOpen: openEditor, onAdd: addNote, onClose: () => setOverlay(null) });
+      overlayNotes ||= createNotesPanel({ compact: true, onJump: jumpToNote, onOpen: openEditor, onAdd: addNote, onVideoRef: openVideoRef, onNote: openLocalNote, onClose: () => setOverlay(null) });
       overlayNotes.update(video);
       overlayNotes.setCurrentTime(player.getTime());
       player.setOverlay(overlayNotes.el);
@@ -158,6 +164,22 @@ export function mountVideoView(container, route) {
     highlightNote(note.id);
   }
 
+  function openVideoRef(ref) {
+    const seconds = ref.note?.type === 'timestamp' ? ref.note.timestamp : ref.seconds;
+    if (ref.video.id === id) {
+      if (ref.note?.type === 'timestamp') jumpToNote(ref.note);
+      else if (ref.note) {
+        highlightNote(ref.note.id);
+        panel.el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      } else if (Number.isFinite(seconds)) player.jumpTo(seconds);
+      return;
+    }
+    navigate(`/video/${encodeURIComponent(ref.video.id)}`, {
+      t: Number.isFinite(seconds) ? Math.round(seconds * 10) / 10 : undefined,
+      note: ref.note?.id,
+    });
+  }
+
   function updateTicks() {
     player.setTicks(
       video.notes
@@ -196,7 +218,7 @@ export function mountVideoView(container, route) {
     if (!on && overlayMode === 'notes') setOverlay(null);
     placeEditor();
   });
-  player.on('edit-video', () => openEditVideoDialog(getVideo(id)));
+  player.on('edit-video', () => openEditVideoDialog(getVideo(id), { getCurrentTime: () => player.getTime() }));
 
   const offs = [
     store.on('data', (p) => {

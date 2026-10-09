@@ -44,13 +44,13 @@ export function fill(el, ...children) {
 function linkify(line, { onTime, onMention } = {}) {
   const out = [];
   let last = 0;
-  for (const m of line.matchAll(/\\t\(([^)]+)\)|https?:\/\/[^\s<>"]+|@/g)) {
+  for (const m of line.matchAll(/\\t\(([^)]+)\)|https?:\/\/[^\s<>"]+|[@#]/g)) {
     if (m.index < last) continue;
     if (m.index > last) out.push(line.slice(last, m.index));
     let consumed = m[0].length;
-    if (m[0] === '@') {
+    if (m[0] === '@' || m[0] === '#') {
       const mention = onMention?.(line, m.index) || null;
-      const clock = !mention && onTime ? matchClockToken(line, m.index) : null;
+      const clock = m[0] === '@' && !mention && onTime ? matchClockToken(line, m.index) : null;
       if (mention) {
         consumed = mention.length;
         out.push(
@@ -72,7 +72,7 @@ function linkify(line, { onTime, onMention } = {}) {
       } else if (clock) {
         consumed = clock.length;
         out.push(timeButton(clock.label, () => onTime(clock.seconds)));
-      } else out.push('@');
+      } else out.push(m[0]);
     } else if (m[1] != null) {
       const seconds = parseTime(m[1].trim());
       if (seconds == null) out.push(m[0]);
@@ -112,7 +112,7 @@ function timeButton(label, onTime) {
 
 // Plain text -> paragraphs (blank line) and line breaks, with URLs as links.
 // In note text, @10:40 (and a legacy \t(10:40)) becomes a jump button when onTime is provided.
-// onMention(line, index) may return { length, label, title, onClick } for an @ at that index.
+// onMention(line, index) may return { length, label, title, onClick } for an @ or # at that index.
 export function richText(text, { className = 'rich-text', onTime, onMention } = {}) {
   const wrap = h('div', { class: className });
   const paragraphs = String(text || '').replace(/\r\n?/g, '\n').split(/\n\s*\n/);

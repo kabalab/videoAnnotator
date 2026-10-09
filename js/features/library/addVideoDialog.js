@@ -1,5 +1,5 @@
 import { h, autoGrow } from '../../core/dom.js';
-import { state } from '../../core/store.js';
+import { state, listVideos } from '../../core/store.js';
 import { navigate } from '../../core/router.js';
 import * as repo from '../../data/repository.js';
 import { openModal, confirmDanger } from '../../ui/modal.js';
@@ -8,6 +8,9 @@ import { toast } from '../../ui/toast.js';
 import { icon } from '../../ui/icons.js';
 import { openSettings } from '../settings/connectionPanel.js';
 import { parseYouTubeId, youtubeThumbnail, youtubeWatchUrl } from './youtubeUrl.js';
+import { formatTime } from '../../core/time.js';
+import { attachComposerHighlight, watchTimeTokens } from '../video/composerLinks.js';
+import { matchNoteRef } from '../video/noteRefs.js';
 import { attachMentionMenu } from '../video/mentionMenu.js';
 
 function titleFromFile(path) {
@@ -31,7 +34,7 @@ export function openAddVideoDialog(preset = {}) {
 }
 
 // Shared by Add and Edit (editVideoDialog.js).
-export function openVideoDialog({ mode, video = null, preset = {} }) {
+export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTime = null }) {
   const isEdit = mode === 'edit';
   const init = isEdit
     ? { title: video.title, description: video.description, visibility: video.visibility, local: video.sources.local, youtube: video.sources.youtube, offsetSeconds: video.sources.offsetSeconds || 0 }
@@ -45,19 +48,40 @@ export function openVideoDialog({ mode, video = null, preset = {} }) {
     id: 'video-description',
     class: 'input textarea',
     rows: '3',
-    placeholder: 'What is this video about? Type @0:25 or @Summary to link a note. Leave a blank line between paragraphs.',
+    placeholder: 'What is this video about? Type @ for a time or a note, or # to link another video. Leave a blank line between paragraphs.',
   });
   descInput.value = init.description;
-  autoGrow(descInput, 260);
+  const fitDesc = autoGrow(descInput, 260);
+  const openedAt = (() => {
+    const t = getCurrentTime?.();
+    return Number.isFinite(t) ? t : null;
+  })();
+  const descNotes = () => (isEdit ? video.notes : []);
   const descHint = isEdit
-    ? 'Type @ to link a note. @0:25 is shown as that note\u2019s title. @Summary links a note by its title.'
-    : 'Leave a blank line between paragraphs. After the video has notes, @0:25 and @Summary can link them from here.';
-  const descMenu = isEdit ? attachMentionMenu(descInput, () => video.notes) : null;
+    ? 'Type @ to link a timestamp or general note, @now or @10:40 for a time you can click, or # to link another video.'
+    : 'Leave a blank line between paragraphs. Type @10:40 for a time you can click, or #Lecture to link another video. After this video has notes, @ can link them too.';
+  const descHighlight = attachComposerHighlight(descInput, () => ({ notes: descNotes(), videos: listVideos() }));
+  const descTimes = watchTimeTokens(descInput, {
+    getSeconds: () => (openedAt == null ? 0 : openedAt),
+    keepNow: (value, index) => {
+      if (openedAt == null) return true;
+      const ref = matchNoteRef(value.slice(index), descNotes());
+      return ref?.kind === 'title' && value.slice(index, index + ref.length).toLowerCase() === '@now';
+    },
+    grow: fitDesc,
+  });
+  const descMenu = attachMentionMenu(descInput, {
+    getNotes: descNotes,
+    getVideos: () => listVideos(),
+    sigils: '@#',
+    includeNow: openedAt == null ? null : () => `@${formatTime(openedAt)}`,
+  });
+  descHighlight.refresh();
   const descField = h(
     'div',
     { class: 'field' },
     h('label', { class: 'field-label', for: 'video-description' }, 'Description'),
-    descInput,
+    descHighlight.el,
     descMenu,
     h('span', { class: 'field-hint' }, descHint),
   );
@@ -278,6 +302,10 @@ export function openVideoDialog({ mode, video = null, preset = {} }) {
     );
 
   async function save() {
+    if (descInput.value !== init.description) {
+      descTimes.flush();
+      descHighlight.refresh();
+    } else descTimes.cancel();
     errorBox.hidden = true;
     const ytRaw = ytInput.value.trim();
     const ytId = ytRaw ? parseYouTubeId(ytRaw) : '';
@@ -317,7 +345,10 @@ export function openVideoDialog({ mode, video = null, preset = {} }) {
     size: 'md',
     body: form,
     actions: [removeBtn, h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => modal.close() }, 'Cancel'), saveBtn],
-    onClose: () => copying?.abort(),
+    onClose: () => {
+      copying?.abort();
+      descTimes.cancel();
+    },
   });
   requestAnimationFrame(() => (init.title ? (ytInput.value ? descInput : ytInput) : titleInput).focus());
   return modal;

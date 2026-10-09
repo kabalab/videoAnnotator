@@ -1,8 +1,9 @@
 import { fill, h, plural } from '../../core/dom.js';
-import { store, getVideo } from '../../core/store.js';
+import { store, getVideo, listVideos } from '../../core/store.js';
 import { navigate, videoHref } from '../../core/router.js';
 import { displayTimeTokens, formatTime } from '../../core/time.js';
 import { displayNoteRefs } from '../video/noteRefs.js';
+import { displayVideoRefs } from '../video/videoRefs.js';
 import { icon } from '../../ui/icons.js';
 import { noteChips, privateBadge } from '../descriptors/chips.js';
 import { videoThumb } from '../library/libraryView.js';
@@ -32,6 +33,10 @@ function snippetAround(text, terms, max = 220) {
   return `${start ? '\u2026' : ''}${slice}${start + max < flat.length ? '\u2026' : ''}`;
 }
 
+function readableContent(doc, video) {
+  return displayVideoRefs(displayNoteRefs(doc.content, video.notes), listVideos());
+}
+
 function resultRow({ doc }, video, terms) {
   const isVideo = doc.kind === 'video';
   const note = isVideo ? null : video.notes.find((n) => n.id === doc.noteId);
@@ -52,7 +57,7 @@ function resultRow({ doc }, video, terms) {
         'div',
         { class: 'result-body' },
         doc.title && h('div', { class: 'result-title' }, highlight(doc.title, terms)),
-        doc.content && h('p', { class: 'result-snippet' }, highlight(snippetAround(doc.kind === 'video' ? displayNoteRefs(doc.content, video.notes) : doc.content, terms), terms)),
+        doc.content && h('p', { class: 'result-snippet' }, highlight(snippetAround(readableContent(doc, video), terms), terms)),
         note && (note.tags.length || note.markers.length || note.visibility === 'private') ? h('div', { class: 'note-meta' }, noteChips(note), note.visibility === 'private' && privateBadge()) : null,
       ),
     ),
