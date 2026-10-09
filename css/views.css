@@ -1,11 +1,56 @@
 /* ---------- shared text ---------- */
 
 .rich-text {
+  --indent-step: 1.6rem;
   overflow-wrap: anywhere;
 }
 
-.rich-text p + p {
+.rich-para + .rich-para {
   margin-top: 0.6em;
+}
+
+.rich-line {
+  padding-left: calc(var(--indent, 0) * var(--indent-step));
+  white-space: pre-wrap;
+  tab-size: 4;
+  overflow-wrap: anywhere;
+}
+
+.rich-line + .rich-line {
+  margin-top: 0.15em;
+}
+
+.rich-h1 {
+  font-size: 1.22em;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.rich-h2 {
+  font-size: 1.45em;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.rich-h3 {
+  font-size: 1.7em;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.rich-u {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.rich-text em {
+  font-style: italic;
+}
+
+.rich-sup,
+.rich-sub {
+  font-size: 0.72em;
+  line-height: 0;
 }
 
 .is-clamped {
@@ -504,8 +549,21 @@ button.time-ref:hover {
   color: var(--accent-text);
   font: inherit;
   font-weight: 600;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  text-align: left;
   vertical-align: baseline;
   cursor: pointer;
+}
+
+.note-ref strong,
+.mention-label strong {
+  font-weight: 800;
+}
+
+.note-ref .rich-line,
+.mention-label .rich-line {
+  display: inline;
 }
 
 button.note-ref:hover {
@@ -515,6 +573,22 @@ button.note-ref:hover {
 
 .mention-menu {
   margin-top: 4px;
+  max-height: min(70vh, 560px);
+}
+
+.mention-menu .picker-option {
+  align-items: flex-start;
+}
+
+.mention-menu .picker-option .icon {
+  margin-top: 3px;
+}
+
+.mention-menu .picker-option .muted {
+  flex: none;
+  margin-left: auto;
+  padding-top: 2px;
+  white-space: nowrap;
 }
 
 .composer-field {
@@ -530,6 +604,7 @@ button.note-ref:hover {
   background: transparent;
   white-space: pre-wrap;
   overflow-wrap: break-word;
+  tab-size: 4;
 }
 
 .input.composer-input::selection {
@@ -549,6 +624,7 @@ button.note-ref:hover {
   color: var(--text);
   white-space: pre-wrap;
   overflow-wrap: break-word;
+  tab-size: 4;
   pointer-events: none;
 }
 
@@ -569,9 +645,8 @@ button.note-ref:hover {
 .mention-label {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .note-body {
@@ -589,6 +664,30 @@ button.note-ref:hover {
 
 .note-title {
   font-weight: 600;
+}
+
+.note.has-parts .note-body {
+  gap: 8px;
+}
+
+.note-parts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: 2px;
+  padding-left: 10px;
+  border-left: 2px solid var(--accent);
+}
+
+.note-part {
+  padding: 8px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.note-part .note-content .rich-para {
+  margin: 0;
 }
 
 .note-meta {
@@ -614,10 +713,17 @@ button.note-ref:hover {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
   padding: 6px;
+  overflow: hidden;
   background: transparent;
   border: 0;
   border-radius: 0;
+}
+
+.notes-panel-compact .notes-header,
+.notes-panel-compact .notes-next {
+  flex: none;
 }
 
 .notes-panel-compact .notes-tabpanel {
@@ -625,12 +731,17 @@ button.note-ref:hover {
   min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .notes-panel-compact .notes-list {
   flex: 1;
   min-height: 0;
   overflow: auto;
+}
+
+.notes-panel-compact .note-content {
+  overflow: visible;
 }
 
 /* ---------- note editor ---------- */

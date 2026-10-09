@@ -22,6 +22,15 @@ export function noteRefLabel(note) {
   return note?.type === 'timestamp' && note.timestamp != null ? formatTime(note.timestamp) : 'Note';
 }
 
+// Full title and body, for the link menu. Nothing is shortened.
+export function noteMentionText(note) {
+  const title = String(note?.title || '').trim();
+  const body = String(note?.content || '').trim();
+  if (title && body) return `${title}\n${body}`;
+  if (title || body) return title || body;
+  return note?.type === 'timestamp' && note.timestamp != null ? formatTime(note.timestamp) : 'Note';
+}
+
 export function canStartMention(prev) {
   if (!prev) return true;
   return !/[\p{L}\p{N}_@#]/u.test(prev);
@@ -222,7 +231,7 @@ export function mentionChoices(notes, query) {
     if (seen.has(key)) continue;
     const title = String(note.title || '').trim();
     const time = note.type === 'timestamp' && note.timestamp != null ? formatTime(note.timestamp) : '';
-    const label = noteRefLabel(note);
+    const label = noteMentionText(note);
     const hay = `${title} ${time} ${label}`.toLowerCase();
     let rank = 50;
     if (q) {
@@ -244,8 +253,8 @@ export function mentionChoices(notes, query) {
     });
   }
   ranked.sort((a, b) => a.rank - b.rank || a.order - b.order || a.label.localeCompare(b.label));
-  if (q) return ranked.slice(0, 24);
-  const times = ranked.filter((item) => item.time).slice(0, 16);
-  const general = ranked.filter((item) => !item.time).slice(0, 12);
+  if (q) return ranked;
+  const times = ranked.filter((item) => item.time);
+  const general = ranked.filter((item) => !item.time);
   return [...times, ...general];
 }

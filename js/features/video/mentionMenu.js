@@ -1,4 +1,4 @@
-import { h } from '../../core/dom.js';
+import { formattedText, h } from '../../core/dom.js';
 import { icon } from '../../ui/icons.js';
 import { mentionChoices, mentionClosed, mentionQuery } from './noteRefs.js';
 import { videoMentionChoices, videoMentionClosed } from './videoRefs.js';
@@ -119,7 +119,7 @@ export function attachMentionMenu(textarea, source) {
             },
           },
           icon(item.icon || 'note'),
-          h('span', { class: 'mention-label' }, item.label),
+          h('span', { class: 'mention-label' }, formattedText(item.label)),
           h('span', { class: 'muted' }, item.hint || ''),
         );
       }),

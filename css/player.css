@@ -574,6 +574,8 @@
   width: min(420px, 100%);
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
   background: rgba(15, 18, 24, 0.95);
   backdrop-filter: blur(12px);
   border-left: 1px solid var(--border);

@@ -1,5 +1,5 @@
 import { formatTime } from '../../core/time.js';
-import { canStartMention, matchNoteRef, noteRefLabel } from './noteRefs.js';
+import { canStartMention, matchNoteRef, noteMentionText } from './noteRefs.js';
 import { matchVideoRef, videoRefLabel, videoRefTitle } from './videoRefs.js';
 
 // Turns an @ or # at index into the button richText should draw.
@@ -14,7 +14,7 @@ export function mentionAt(line, index, { notes, videos, onNote, onVideo, sigils 
     const time = ref.note.type === 'timestamp' && ref.note.timestamp != null ? formatTime(ref.note.timestamp) : '';
     return {
       length: ref.length,
-      label: noteRefLabel(ref.note),
+      label: noteMentionText(ref.note),
       title: time ? `Jump to ${time}` : 'Show this note',
       onClick: () => onNote?.(ref.note),
     };

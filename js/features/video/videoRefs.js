@@ -1,5 +1,5 @@
 import { formatTime, parseTime } from '../../core/time.js';
-import { canStartMention, matchNoteBody, mentionChoices, mentionQuery, noteRefLabel, noteTextKeys } from './noteRefs.js';
+import { canStartMention, matchNoteBody, mentionChoices, mentionQuery, noteMentionText, noteTextKeys } from './noteRefs.js';
 
 // #Lecture links that video. #Lecture/Summary links a note by title.
 // #Lecture/0:25 links the note at that time, or the moment itself when no note is there.
@@ -80,7 +80,7 @@ export function matchVideoRef(text, videos) {
 
 export function videoRefLabel(ref) {
   const name = ref.video?.title || ref.video?.id || 'Video';
-  if (ref.note) return `${name} / ${noteRefLabel(ref.note)}`;
+  if (ref.note) return `${name} / ${noteMentionText(ref.note)}`;
   if (ref.kind === 'time' && ref.seconds != null) return `${name} / ${formatTime(ref.seconds)}`;
   return name;
 }
@@ -152,7 +152,7 @@ export function videoMentionChoices(videos, query) {
         }
       }
     }
-    return items.slice(0, 30);
+    return items;
   }
 
   const q = typed.trim().toLowerCase();
@@ -183,7 +183,7 @@ export function videoMentionChoices(videos, query) {
     });
   }
   ranked.sort((a, b) => a.rank - b.rank || a.label.localeCompare(b.label));
-  return ranked.slice(0, 30);
+  return ranked;
 }
 
 // True once the caret has moved past a finished # reference and a space.

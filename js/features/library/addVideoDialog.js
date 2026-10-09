@@ -12,6 +12,7 @@ import { formatTime } from '../../core/time.js';
 import { attachComposerHighlight, watchTimeTokens } from '../video/composerLinks.js';
 import { matchNoteRef } from '../video/noteRefs.js';
 import { attachMentionMenu } from '../video/mentionMenu.js';
+import { bindTextIndent } from '../../core/markup.js';
 
 function titleFromFile(path) {
   const base = String(path || '').split('/').pop().replace(/\.[^.]+$/, '');
@@ -51,6 +52,7 @@ export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTim
     placeholder: 'What is this video about? Type @ for a time or a note, or # to link another video. Leave a blank line between paragraphs.',
   });
   descInput.value = init.description;
+  bindTextIndent(descInput);
   const fitDesc = autoGrow(descInput, 260);
   const openedAt = (() => {
     const t = getCurrentTime?.();
@@ -58,8 +60,8 @@ export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTim
   })();
   const descNotes = () => (isEdit ? video.notes : []);
   const descHint = isEdit
-    ? 'Type @ to link a timestamp or general note, @now or @10:40 for a time you can click, or # to link another video.'
-    : 'Leave a blank line between paragraphs. Type @10:40 for a time you can click, or #Lecture to link another video. After this video has notes, @ can link them too.';
+    ? 'Type @ to link a timestamp or general note, @now or @10:40 for a time you can click, or # to link another video. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. Tab indents.'
+    : 'Leave a blank line between paragraphs. Type @10:40 for a time you can click, or #Lecture to link another video. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. Tab indents.';
   const descHighlight = attachComposerHighlight(descInput, () => ({ notes: descNotes(), videos: listVideos() }));
   const descTimes = watchTimeTokens(descInput, {
     getSeconds: () => (openedAt == null ? 0 : openedAt),

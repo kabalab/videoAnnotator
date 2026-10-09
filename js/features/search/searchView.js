@@ -1,4 +1,5 @@
 import { fill, h, plural } from '../../core/dom.js';
+import { plainMarkup } from '../../core/markup.js';
 import { store, getVideo, listVideos } from '../../core/store.js';
 import { navigate, videoHref } from '../../core/router.js';
 import { displayTimeTokens, formatTime } from '../../core/time.js';
@@ -21,7 +22,7 @@ function highlight(text, terms) {
 }
 
 function snippetAround(text, terms, max = 220) {
-  const flat = displayTimeTokens(text).replace(/\s+/g, ' ').trim();
+  const flat = plainMarkup(displayTimeTokens(text)).replace(/\s+/g, ' ').trim();
   if (flat.length <= max) return flat;
   const lower = flat.toLowerCase();
   const idx = terms.reduce((best, t) => {

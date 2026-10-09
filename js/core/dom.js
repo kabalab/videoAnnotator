@@ -1,3 +1,4 @@
+import { parseLine } from './markup.js';
 import { formatTime, matchClockToken, parseTime } from './time.js';
 
 const PROPS = new Set(['value', 'checked', 'selected', 'indeterminate', 'textContent']);
@@ -66,7 +67,7 @@ function linkify(line, { onTime, onMention } = {}) {
                 mention.onClick?.();
               },
             },
-            mention.label,
+            formattedText(mention.label),
           ),
         );
       } else if (clock) {
@@ -110,20 +111,84 @@ function timeButton(label, onTime) {
   );
 }
 
+const MARK_TAG = {
+  bold: ['strong', ''],
+  underline: ['span', 'rich-u'],
+  italic: ['em', ''],
+  sup: ['sup', 'rich-sup'],
+  sub: ['sub', 'rich-sub'],
+};
+
+function renderPieces(pieces, opts) {
+  const out = [];
+  for (const piece of pieces) {
+    if (typeof piece === 'string') out.push(...(opts.plain ? [piece] : linkify(piece, opts)));
+    else {
+      const [tag, className] = MARK_TAG[piece.mark] || ['span', ''];
+      out.push(h(tag, className ? { class: className } : {}, renderPieces(piece.children, opts)));
+    }
+  }
+  return out;
+}
+
+// Formatting inside a reference label. The label is already the note's words, so @ and #
+// stay as text instead of becoming another button inside this one.
+export function formattedText(text) {
+  const src = String(text ?? '').replace(/\r\n?/g, '\n');
+  if (!src) return [];
+  const lines = src.split('\n');
+  const nodes = [];
+  lines.forEach((line, index) => {
+    if (index) nodes.push('\n');
+    const { indent, level, pieces } = parseLine(line);
+    const bits = renderPieces(pieces, { plain: true });
+    if (!bits.length) return;
+    if (!indent && !level) {
+      nodes.push(...bits);
+      return;
+    }
+    nodes.push(
+      h(
+        'span',
+        {
+          class: level ? `rich-line rich-h${level}` : 'rich-line',
+          style: indent ? { '--indent': String(indent) } : undefined,
+        },
+        bits.length ? bits : h('br'),
+      ),
+    );
+  });
+  return nodes;
+}
+
 // Plain text -> paragraphs (blank line) and line breaks, with URLs as links.
+// $, $$, and $$$ at the start of a line make it bigger. **text** is bold, __text__ is underlined,
+// ~~text~~ is italic, ^^text^^ is raised, and %%text%% is lowered.
+// A leading tab (or two spaces) indents the line.
 // In note text, @10:40 (and a legacy \t(10:40)) becomes a jump button when onTime is provided.
 // onMention(line, index) may return { length, label, title, onClick } for an @ or # at that index.
 export function richText(text, { className = 'rich-text', onTime, onMention } = {}) {
   const wrap = h('div', { class: className });
+  const opts = { onTime, onMention };
   const paragraphs = String(text || '').replace(/\r\n?/g, '\n').split(/\n\s*\n/);
   for (const para of paragraphs) {
     if (!para.trim()) continue;
-    const p = h('p');
-    para.split('\n').forEach((line, i) => {
-      if (i) p.append(h('br'));
-      append(p, linkify(line, { onTime, onMention }));
-    });
-    wrap.append(p);
+    const block = h('div', { class: 'rich-para' });
+    for (const line of para.split('\n')) {
+      const { indent, level, pieces } = parseLine(line);
+      const bits = renderPieces(pieces, opts);
+      block.append(
+        h(
+          'div',
+          {
+            class: level ? `rich-line rich-h${level}` : 'rich-line',
+            style: indent ? { '--indent': String(indent) } : undefined,
+          },
+          bits.length ? bits : h('br'),
+        ),
+      );
+    }
+    wrap.append(block);
   }
   return wrap;
 }

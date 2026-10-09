@@ -1,4 +1,5 @@
 import { fill, h } from '../../core/dom.js';
+import { plainMarkup } from '../../core/markup.js';
 import { canEdit } from '../../core/store.js';
 import { formatTime } from '../../core/time.js';
 import { icon } from '../../ui/icons.js';
@@ -108,7 +109,7 @@ export function createNotesPanel({ onJump, onOpen, onAdd, onVideoRef, onNote, co
 
     const source = tab === 'timeline' ? timestamps : general;
     const shown = source.filter(passes);
-    list.replaceChildren(...shown.map((n) => renderNoteItem(n, { onJump, onOpen, onVideoRef, onNote, notes: video.notes, editable, compact })));
+    list.replaceChildren(...shown.map((n) => renderNoteItem(n, { onJump, onOpen, onVideoRef, onNote, notes: video.notes, editable })));
     panelBody.id = `${prefix}panel`;
     panelBody.setAttribute('role', 'tabpanel');
     panelBody.setAttribute('aria-labelledby', `${prefix}tab-${tab}`);
@@ -132,7 +133,7 @@ export function createNotesPanel({ onJump, onOpen, onAdd, onVideoRef, onNote, co
   function notePreview(note) {
     const title = note.title?.trim();
     if (title) return title;
-    const content = (note.content || '').trim().replace(/\s+/g, ' ');
+    const content = plainMarkup(note.content || '').trim().replace(/\s+/g, ' ');
     if (!content) return 'Timestamp note';
     return content.length > 80 ? `${content.slice(0, 79)}\u2026` : content;
   }

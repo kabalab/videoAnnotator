@@ -1,5 +1,6 @@
 import { config } from '../../config.js';
 import { h, isTypingTarget, snippet } from '../../core/dom.js';
+import { plainMarkup } from '../../core/markup.js';
 import { store, state, canEdit, editorActive, getVideo, getTag } from '../../core/store.js';
 import { navigate } from '../../core/router.js';
 import { parseTime } from '../../core/time.js';
@@ -27,7 +28,7 @@ function mountMissing(container, id) {
   return {};
 }
 
-const tickLabel = (n) => n.title || snippet(n.content, 70) || 'Note';
+const tickLabel = (n) => n.title || snippet(plainMarkup(n.content), 70) || 'Note';
 
 export function mountVideoView(container, route) {
   const id = route.params.id;

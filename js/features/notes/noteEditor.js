@@ -8,6 +8,7 @@ import { icon } from '../../ui/icons.js';
 import { segmented } from '../../ui/segmented.js';
 import { createDescriptorPicker } from '../descriptors/descriptorPicker.js';
 import { attachMentionMenu } from '../video/mentionMenu.js';
+import { bindTextIndent } from '../../core/markup.js';
 
 const LAST_MARKERS = 'lastMarkers';
 
@@ -64,7 +65,8 @@ export function createNoteEditor({ getCurrentTime, getNotes, onSave, onDelete, o
   );
 
   const titleInput = h('input', { class: 'input', placeholder: 'Title (optional)', 'aria-label': 'Title (optional)', maxlength: '200' });
-  const content = h('textarea', { class: 'input textarea editor-content', rows: '4', placeholder: 'Write your note\u2026 Leave a blank line between paragraphs.', 'aria-label': 'Note text' });
+  const content = h('textarea', { class: 'input textarea editor-content', rows: '4', placeholder: 'Write your note\u2026 Leave a blank line to start another part.', 'aria-label': 'Note text' });
+  bindTextIndent(content);
   const fit = autoGrow(content, 420);
   const highlight = attachComposerHighlight(content, () => ({
     notes: (getNotes?.() || []).filter((note) => note.id !== editingId),
@@ -76,7 +78,11 @@ export function createNoteEditor({ getCurrentTime, getNotes, onSave, onDelete, o
     sigils: '@#',
     includeNow: () => `@${formatTime(secondsForNow())}`,
   });
-  const refHint = h('span', { class: 'field-hint' }, 'Type @ to link a timestamp or general note on this video. Type #Lecture to link another video, then pick one of its timestamps or general notes.');
+  const refHint = h(
+    'span',
+    { class: 'field-hint' },
+    'Type @ to link a timestamp or general note on this video. Type #Lecture to link another video, then pick one of its timestamps or general notes. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. Tab indents.',
+  );
   const tagPicker = createDescriptorPicker({ kind: 'tag', label: 'Tags' });
   const markerPicker = createDescriptorPicker({
     kind: 'marker',
@@ -168,7 +174,7 @@ export function createNoteEditor({ getCurrentTime, getNotes, onSave, onDelete, o
     tsRow.hidden = !ts;
     content.placeholder = ts
       ? 'Write your note\u2026 Type @ to link a timestamp, or @10:40 for a time.'
-      : 'Write your note\u2026 Type @ to link a timestamp, @now for this moment, or @10:40 for another time.';
+      : 'Write your note\u2026 Leave a blank line to start another part. Type @ to link a timestamp, @now for this moment, or @10:40 for another time.';
     if (isNew) heading.textContent = ts ? 'New timestamp note' : 'New general note';
   }
 

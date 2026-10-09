@@ -316,6 +316,7 @@ select.input {
 }
 
 .textarea {
+  display: block;
   height: auto;
   min-height: 92px;
   padding: 10px 12px;
@@ -700,8 +701,33 @@ dialog.modal[open] {
 }
 
 .help-lead {
-  margin: 0 0 18px;
+  margin: 0 0 14px;
   color: var(--text-dim);
+}
+
+.help-modal .modal-body {
+  padding-top: 4px;
+}
+
+.help-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0 -22px 16px;
+  padding: 4px 22px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.help-tab-lead {
+  margin: 0 0 12px;
+  color: var(--text-dim);
+}
+
+.help-panel .help-section:first-child {
+  margin-top: 0;
 }
 
 .help-section + .help-section {

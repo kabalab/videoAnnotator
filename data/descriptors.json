@@ -42,6 +42,18 @@
       "name": "Intro video",
       "color": "#e86fb0",
       "description": ""
+    },
+    {
+      "id": "sermon-notes",
+      "name": "Sermon notes",
+      "color": "#d9774b",
+      "description": ""
+    },
+    {
+      "id": "verse",
+      "name": "Verse",
+      "color": "#00a2ad",
+      "description": ""
     }
   ],
   "markers": [

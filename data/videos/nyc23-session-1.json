@@ -11,7 +11,7 @@
   },
   "duration": 7855.1,
   "createdAt": "2026-10-08T04:33:42Z",
-  "updatedAt": "2026-10-09T03:52:55Z",
+  "updatedAt": "2026-10-09T21:23:53Z",
   "notes": [
     {
       "id": "n_1ebu0jb12b",
@@ -86,7 +86,7 @@
       "type": "timestamp",
       "timestamp": 1512.3,
       "title": "Intro to band",
-      "content": "The main singer kinda introduces the band and also is asking to get into a more serious version of worship. All of the co host pastors speak in between each of them there Is Cloud by Elevation Worship is sung. Brady Braatz (NYC live guy) does a small talk on remember your longing for relief. Shane Lima talks about the familiarity of pain. Antonio Marshall talked about soaking up God's abundance love. Stephanie Lobdell talks about the fear of the unknown, you may feel tossed but remember you are carried by the current of Christ flooded by the relentless love of God. Antonio Marshall talks again about receiving all that God has to offer. Then all the co host pastors pray together. Lastly they talk about why their band is called royal company, which is because when they are worshiping they are in the true presence of the one true king God.",
+      "content": "The main singer kinda introduces the band and also is asking to get into a more serious version of worship. All of the co host pastors speak in between each of them there Is __Cloud by Elevation Worship__ is sung. Brady Braatz (NYC live guy) does a small talk on **remember your longing for relief**. Shane Lima talks about the **familiarity of pain**. Antonio Marshall talked about **soaking up God's abundance love**. Stephanie Lobdell talks about the **fear of the unknown, you may feel tossed but remember you are carried by the current of Christ flooded by the relentless love of God**. Antonio Marshall talks again about **receiving all that God has to offer during NYC**. Then all the co host pastors pray together. Lastly they talk about why their band is called royal company, which is because **when you are worshiping you are in the true presence of the one true king God**.",
       "tags": [
         "important-piece",
         "song"
@@ -94,7 +94,7 @@
       "markers": [],
       "visibility": "public",
       "createdAt": "2026-10-09T02:56:40Z",
-      "updatedAt": "2026-10-09T03:27:02Z"
+      "updatedAt": "2026-10-09T21:23:53Z"
     },
     {
       "id": "n_n1sxe21oq3",
@@ -115,14 +115,14 @@
       "type": "timestamp",
       "timestamp": 2683.1,
       "title": "Vidio prior to sermon starts",
-      "content": "Video with ?God or Jesus? speaking about how harsh the world is. How his love overflows for you, remember where your help come from, he is always there for you",
+      "content": "Video with ~~God or Jesus~~ speaking about how harsh the world is. How his love overflows for you, remember where your help come from, he is always there for you",
       "tags": [
         "intro-video"
       ],
       "markers": [],
       "visibility": "public",
       "createdAt": "2026-10-09T03:30:40Z",
-      "updatedAt": "2026-10-09T03:30:40Z"
+      "updatedAt": "2026-10-09T20:52:41Z"
     },
     {
       "id": "n_19vp0d2fpf",
@@ -180,6 +180,136 @@
       "visibility": "public",
       "createdAt": "2026-10-09T03:52:55Z",
       "updatedAt": "2026-10-09T03:52:55Z"
+    },
+    {
+      "id": "n_1tt5frnn4q",
+      "type": "timestamp",
+      "timestamp": 4213.7,
+      "title": "It doesn't matter how you start in life you only matters how you finish",
+      "content": "",
+      "tags": [
+        "one-liner"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T15:52:06Z",
+      "updatedAt": "2026-10-09T15:52:06Z"
+    },
+    {
+      "id": "n_1x8uecw81g",
+      "type": "generic",
+      "timestamp": null,
+      "title": "Sermon notes When in drought",
+      "content": "@1:10:25 Talks about him, and part of his story.\nBasketball was an escape for him.\n\nYou are not here by accident you are here to leave your mark. It doesn't matter your story God created us. **YOU** are made in his image. Jesus had to do what Adam couldn't. \n\nThe bible is filled with imagery of water. In this imagery we begin to see God's story, a story that   tells we were created to be filled with rivers of God's abundance life. \n\nThe difference between us and the world is we have God with us. The world has no hope because they have a hole that only God can fill. \n\n@1:22:26  \n\n1st principle: A place with not water is a place with no life.\n     __ALL__ scripture is given by inspiration by God. The earth cries out for God.\n\nMillionaires have everything but still don't have peace in their soul. Peace comes from a spirit filled life.",
+      "tags": [
+        "sermon-notes"
+      ],
+      "markers": [
+        "rewatch-october-26"
+      ],
+      "visibility": "public",
+      "createdAt": "2026-10-09T15:57:12Z",
+      "updatedAt": "2026-10-09T21:09:38Z"
+    },
+    {
+      "id": "n_mu5e531otr",
+      "type": "timestamp",
+      "timestamp": 4460.6,
+      "title": "At the end of popularity is emptiness",
+      "content": "",
+      "tags": [
+        "one-liner"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T15:57:45Z",
+      "updatedAt": "2026-10-09T15:57:45Z"
+    },
+    {
+      "id": "n_vix0wj1ghw",
+      "type": "timestamp",
+      "timestamp": 4477.8,
+      "title": "Don't lose you for people you are never going to see",
+      "content": "",
+      "tags": [
+        "one-liner"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T16:01:33Z",
+      "updatedAt": "2026-10-09T16:02:04Z"
+    },
+    {
+      "id": "n_19gowp21gt",
+      "type": "timestamp",
+      "timestamp": 4733.2,
+      "title": "The tragedy of life isn't dying, it's going past the cemetery and thinking of things that never came to be.",
+      "content": "",
+      "tags": [
+        "one-liner"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T16:11:06Z",
+      "updatedAt": "2026-10-09T16:11:06Z"
+    },
+    {
+      "id": "n_u28p4l1rsc",
+      "type": "timestamp",
+      "timestamp": 4946.5,
+      "title": "Genesis 1:1-2",
+      "content": "^^1^^ In the beginning God created the heavens and the earth. ^^2^^ The earth was without form, and void; and darkness was on the face of the deep. And the spirit of God was hovering over the face of the waters.",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T16:23:20Z",
+      "updatedAt": "2026-10-09T21:11:40Z"
+    },
+    {
+      "id": "n_1a1obj699z",
+      "type": "timestamp",
+      "timestamp": 5143.4,
+      "title": "He has a desire to keep you thirsty for things that can't satisfy you",
+      "content": "",
+      "tags": [
+        "one-liner"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T17:33:48Z",
+      "updatedAt": "2026-10-09T17:33:48Z"
+    },
+    {
+      "id": "n_d3zz621x8y",
+      "type": "timestamp",
+      "timestamp": 5193.4,
+      "title": "We don't follow God and get mad at God when trouble comes",
+      "content": "",
+      "tags": [
+        "one-liner",
+        "important-piece"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T17:35:30Z",
+      "updatedAt": "2026-10-09T17:35:30Z"
+    },
+    {
+      "id": "n_g14y5l13wx",
+      "type": "timestamp",
+      "timestamp": 5283,
+      "title": "You can't be tempted by something you don't desire",
+      "content": "",
+      "tags": [
+        "one-liner",
+        "important-piece"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-09T17:39:02Z",
+      "updatedAt": "2026-10-09T17:40:22Z"
     }
   ]
 }
