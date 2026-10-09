@@ -1,4 +1,4 @@
-import { formatTime, parseTime } from './time.js';
+import { formatTime, matchClockToken, parseTime } from './time.js';
 
 const PROPS = new Set(['value', 'checked', 'selected', 'indeterminate', 'textContent']);
 
@@ -41,34 +41,43 @@ export function fill(el, ...children) {
   return el;
 }
 
-function linkify(line, onTime) {
+function linkify(line, { onTime, onMention } = {}) {
   const out = [];
   let last = 0;
-  for (const m of line.matchAll(/\\t\(([^)]+)\)|(https?:\/\/[^\s<>"]+)/g)) {
+  for (const m of line.matchAll(/\\t\(([^)]+)\)|https?:\/\/[^\s<>"]+|@/g)) {
+    if (m.index < last) continue;
     if (m.index > last) out.push(line.slice(last, m.index));
     let consumed = m[0].length;
-    if (m[1] != null) {
-      const seconds = parseTime(m[1].trim());
-      if (seconds == null) out.push(m[0]);
-      else if (onTime) {
-        const label = formatTime(seconds);
+    if (m[0] === '@') {
+      const mention = onMention?.(line, m.index) || null;
+      const clock = !mention && onTime ? matchClockToken(line, m.index) : null;
+      if (mention) {
+        consumed = mention.length;
         out.push(
           h(
             'button',
             {
-              class: 'time-ref',
+              class: 'note-ref',
               type: 'button',
-              title: `Jump to ${label}`,
+              title: mention.title || '',
               onclick: (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                onTime(seconds);
+                mention.onClick?.();
               },
             },
-            label,
+            mention.label,
           ),
         );
-      } else out.push(formatTime(seconds));
+      } else if (clock) {
+        consumed = clock.length;
+        out.push(timeButton(clock.label, () => onTime(clock.seconds)));
+      } else out.push('@');
+    } else if (m[1] != null) {
+      const seconds = parseTime(m[1].trim());
+      if (seconds == null) out.push(m[0]);
+      else if (onTime) out.push(timeButton(formatTime(seconds), () => onTime(seconds)));
+      else out.push(formatTime(seconds));
     } else {
       let url = m[0];
       const trail = url.match(/[.,;:!?)\]]+$/);
@@ -84,9 +93,27 @@ function linkify(line, onTime) {
   return out;
 }
 
+function timeButton(label, onTime) {
+  return h(
+    'button',
+    {
+      class: 'time-ref',
+      type: 'button',
+      title: `Jump to ${label}`,
+      onclick: (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onTime();
+      },
+    },
+    label,
+  );
+}
+
 // Plain text -> paragraphs (blank line) and line breaks, with URLs as links.
-// \t(56:30) becomes a jump button when onTime is provided.
-export function richText(text, { className = 'rich-text', onTime } = {}) {
+// In note text, @10:40 (and a legacy \t(10:40)) becomes a jump button when onTime is provided.
+// onMention(line, index) may return { length, label, title, onClick } for an @ at that index.
+export function richText(text, { className = 'rich-text', onTime, onMention } = {}) {
   const wrap = h('div', { class: className });
   const paragraphs = String(text || '').replace(/\r\n?/g, '\n').split(/\n\s*\n/);
   for (const para of paragraphs) {
@@ -94,7 +121,7 @@ export function richText(text, { className = 'rich-text', onTime } = {}) {
     const p = h('p');
     para.split('\n').forEach((line, i) => {
       if (i) p.append(h('br'));
-      append(p, linkify(line, onTime));
+      append(p, linkify(line, { onTime, onMention }));
     });
     wrap.append(p);
   }

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "nyc26-session-1",
+  "title": "NYC26 SESSION 1 WONDER",
+  "description": "",
+  "visibility": "public",
+  "sources": {
+    "local": "videos/NYC26 SESSION 1 WONDER.mp4",
+    "youtube": "qD9-YkWLEOI",
+    "offsetSeconds": 0
+  },
+  "duration": 7637.6,
+  "createdAt": "2026-10-08T22:23:46Z",
+  "updatedAt": "2026-10-08T22:27:34Z",
+  "notes": []
+}

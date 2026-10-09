@@ -163,6 +163,7 @@ function normalizeNote(n, i, path, issues) {
   const markers = stringList(n.markers ?? (n.marker ? [n.marker] : undefined));
   if (!markers.ok) issues.push(issue(path, `${where}: "markers" should be a list of marker ids.`));
   note.markers = markers.list;
+  if (note.markers.length > 1) issues.push(issue(path, `${where} has ${note.markers.length} markers. A note can only have one.`));
   delete note.marker;
 
   if (n.visibility !== undefined && !VISIBILITY.includes(n.visibility)) {

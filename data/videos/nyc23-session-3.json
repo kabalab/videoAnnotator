@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "nyc23-session-3",
+  "title": "NYC23 SESSION 3 RAIN",
+  "description": "",
+  "visibility": "public",
+  "sources": {
+    "local": "videos/NYC23 SESSION 3 OVERFLOW.mp4",
+    "youtube": "Ihp8oC2uQBo",
+    "offsetSeconds": 0
+  },
+  "duration": 8035,
+  "createdAt": "2026-10-08T22:20:57Z",
+  "updatedAt": "2026-10-08T22:26:20Z",
+  "notes": []
+}

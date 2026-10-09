@@ -8,6 +8,7 @@ import { toast } from '../../ui/toast.js';
 import { icon } from '../../ui/icons.js';
 import { openSettings } from '../settings/connectionPanel.js';
 import { parseYouTubeId, youtubeThumbnail, youtubeWatchUrl } from './youtubeUrl.js';
+import { attachMentionMenu } from '../video/mentionMenu.js';
 
 function titleFromFile(path) {
   const base = String(path || '').split('/').pop().replace(/\.[^.]+$/, '');
@@ -40,9 +41,26 @@ export function openVideoDialog({ mode, video = null, preset = {} }) {
 
   // ---- basics
   const titleInput = h('input', { class: 'input', value: init.title, placeholder: 'e.g. Lecture 4: Sorting algorithms', maxlength: '200' });
-  const descInput = h('textarea', { class: 'input textarea', rows: '3', placeholder: 'What is this video about? Leave a blank line between paragraphs.' });
+  const descInput = h('textarea', {
+    id: 'video-description',
+    class: 'input textarea',
+    rows: '3',
+    placeholder: 'What is this video about? Type @0:25 or @Summary to link a note. Leave a blank line between paragraphs.',
+  });
   descInput.value = init.description;
   autoGrow(descInput, 260);
+  const descHint = isEdit
+    ? 'Type @ to link a note. @0:25 is shown as that note\u2019s title. @Summary links a note by its title.'
+    : 'Leave a blank line between paragraphs. After the video has notes, @0:25 and @Summary can link them from here.';
+  const descMenu = isEdit ? attachMentionMenu(descInput, () => video.notes) : null;
+  const descField = h(
+    'div',
+    { class: 'field' },
+    h('label', { class: 'field-label', for: 'video-description' }, 'Description'),
+    descInput,
+    descMenu,
+    h('span', { class: 'field-hint' }, descHint),
+  );
   const idHint = h('span', { class: 'field-hint' });
   const updateIdHint = () => {
     if (isEdit) idHint.textContent = `Stored in data/videos/${video.id}.json`;
@@ -225,7 +243,7 @@ export function openVideoDialog({ mode, video = null, preset = {} }) {
       field('Offset (seconds)', offsetInput, h('span', { class: 'field-hint' }, 'Only if the YouTube upload starts at a different point. 5 means YouTube has 5 extra seconds at the start (its 0:15 matches the local 0:10).'), 'field-narrow'),
       publicHint,
     ),
-    field('Description', descInput),
+    descField,
     h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Visibility'), visibility.el),
     errorBox,
   );

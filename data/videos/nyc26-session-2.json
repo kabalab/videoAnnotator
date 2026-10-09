@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "nyc26-session-2",
+  "title": "NYC26 SESSION 2 ASCEND",
+  "description": "",
+  "visibility": "public",
+  "sources": {
+    "local": "videos/NYC26 SESSION 2 WONDER.mp4",
+    "youtube": "413y3DSJSSI",
+    "offsetSeconds": 0
+  },
+  "duration": 6934.9,
+  "createdAt": "2026-10-08T22:24:01Z",
+  "updatedAt": "2026-10-08T22:27:44Z",
+  "notes": []
+}

@@ -49,7 +49,16 @@ export function mountVideoView(container, route) {
   });
   playerWrap.append(player.el);
 
-  const header = createVideoHeader({ onEdit: () => openEditVideoDialog(getVideo(id)) });
+  const header = createVideoHeader({
+    onEdit: () => openEditVideoDialog(getVideo(id)),
+    onNote: (note) => {
+      if (note.type === 'timestamp') jumpToNote(note);
+      else {
+        panel.highlight(note.id);
+        panel.el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    },
+  });
   const panel = createNotesPanel({ onJump: jumpToNote, onOpen: openEditor, onAdd: addNote });
   const editor = createNoteEditor({
     getCurrentTime: () => player.getTime(),

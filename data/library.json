@@ -1,9 +1,19 @@
 {
   "schemaVersion": 1,
   "videos": [
-    "sample-bbb",
-    "sample-spring",
-    "nyc23-session-1-overflow",
-    "nyc23-session-2"
+    "nyc23-session-1",
+    "nyc23-session-2",
+    "nyc23-session-3",
+    "nyc23-session-4",
+    "nyc23-session-5",
+    "nyc23-session-6",
+    "nyc23-session-7",
+    "nyc26-session-1",
+    "nyc26-session-2",
+    "nyc26-session-3",
+    "nyc26-session-4",
+    "nyc26-session-5",
+    "nyc26-session-6",
+    "nyc26-session-7"
   ]
 }

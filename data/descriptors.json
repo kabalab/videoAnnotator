@@ -2,70 +2,57 @@
   "schemaVersion": 1,
   "tags": [
     {
-      "id": "important",
-      "name": "Important",
+      "id": "song",
+      "name": "Song",
       "color": "#4f7cff",
-      "description": "Key moments worth coming back to."
-    },
-    {
-      "id": "question",
-      "name": "Question",
-      "color": "#e0a43b",
-      "description": "Something to look up or ask about."
-    },
-    {
-      "id": "interesting",
-      "name": "Interesting",
-      "color": "#2fb8c9",
       "description": ""
     },
     {
-      "id": "funny",
-      "name": "Funny",
-      "color": "#e32b8d",
+      "id": "start-of-sermon",
+      "name": "Start of sermon",
+      "color": "#001b6b",
       "description": ""
     },
     {
-      "id": "problem",
-      "name": "Problem",
+      "id": "important-piece",
+      "name": "Important piece",
+      "color": "#acd714",
+      "description": ""
+    },
+    {
+      "id": "idea",
+      "name": "Idea",
       "color": "#e5484d",
-      "description": "Mistakes, glitches or things that don't add up."
+      "description": ""
     },
     {
-      "id": "tutorial",
-      "name": "Tutorial",
+      "id": "one-liner",
+      "name": "One liner",
+      "color": "#262626",
+      "description": ""
+    },
+    {
+      "id": "nyc-live",
+      "name": "NYC live",
       "color": "#3fb27f",
-      "description": "Technique or how-to worth reusing."
+      "description": ""
     }
   ],
   "markers": [
     {
-      "id": "first-watch",
-      "name": "First Watch",
-      "description": "Notes taken the first time through.",
-      "date": "2026-10-13",
-      "order": 1
+      "id": "orignal-23",
+      "name": "Original 23",
+      "description": "Original notes from 2023"
     },
     {
-      "id": "second-watch",
-      "name": "Second Watch",
-      "description": "Notes from a re-watch.",
-      "date": "",
-      "order": 2
+      "id": "original-26",
+      "name": "Original 26",
+      "description": "Original notes from 2026"
     },
     {
-      "id": "april-2026",
-      "name": "April 2026",
-      "description": "",
-      "date": "2026-04-01",
-      "order": 3
-    },
-    {
-      "id": "october-2026",
-      "name": "October 2026",
-      "description": "",
-      "date": "2026-10-01",
-      "order": 4
+      "id": "rewatch-october-26",
+      "name": "Rewatch October 26",
+      "description": ""
     }
   ]
 }

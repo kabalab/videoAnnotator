@@ -1,9 +1,24 @@
 import { fill, h, richText } from '../../core/dom.js';
 import { canEdit, showPrivate } from '../../core/store.js';
+import { formatTime } from '../../core/time.js';
 import { icon } from '../../ui/icons.js';
 import { privateBadge } from '../descriptors/chips.js';
+import { canStartMention, matchNoteRef, noteRefLabel } from './noteRefs.js';
 
-export function createVideoHeader({ onEdit }) {
+function mentionAt(line, index, video, onNote) {
+  if (!canStartMention(index > 0 ? line[index - 1] : '')) return null;
+  const ref = matchNoteRef(line.slice(index), video.notes);
+  if (!ref) return null;
+  const time = ref.note.type === 'timestamp' && ref.note.timestamp != null ? formatTime(ref.note.timestamp) : '';
+  return {
+    length: ref.length,
+    label: noteRefLabel(ref.note),
+    title: time ? `Jump to ${time}` : 'Show this note',
+    onClick: () => onNote?.(ref.note),
+  };
+}
+
+export function createVideoHeader({ onEdit, onNote }) {
   const el = h('section', { class: 'video-header' });
   let expanded = false;
   let current = null;
@@ -22,7 +37,12 @@ export function createVideoHeader({ onEdit }) {
     fill(
       el,
       h('div', { class: 'video-title-row' }, h('h1', { class: 'video-title' }, video.title), meta.length ? h('div', { class: 'video-title-meta' }, meta) : null),
-      desc ? richText(desc, { className: `rich-text video-desc${long && !expanded ? ' is-clamped' : ''}` }) : null,
+      desc
+        ? richText(desc, {
+            className: `rich-text video-desc${long && !expanded ? ' is-clamped' : ''}`,
+            onMention: (line, index) => mentionAt(line, index, video, onNote),
+          })
+        : null,
       desc && long
         ? h(
             'button',

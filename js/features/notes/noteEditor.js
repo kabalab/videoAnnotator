@@ -10,7 +10,7 @@ const LAST_MARKERS = 'lastMarkers';
 
 function lastMarkers() {
   const raw = getPref(LAST_MARKERS);
-  return (Array.isArray(raw) ? raw : []).filter((id) => getMarker(id));
+  return (Array.isArray(raw) ? raw : []).filter((id) => getMarker(id)).slice(0, 1);
 }
 
 function rememberMarkers(ids) {
@@ -25,7 +25,7 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
   let initialTime = null;
   let initialText = '';
   let originalContent = '';
-  // Video time when a new note was opened. \t(now) uses this, not the playhead at the keystroke.
+  // Video time when a new note was opened. @now uses this, not the playhead at the keystroke.
   let createdVideoTime = null;
   let expandTimer = 0;
 
@@ -64,7 +64,14 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
   const content = h('textarea', { class: 'input textarea editor-content', rows: '4', placeholder: 'Write your note\u2026 Leave a blank line between paragraphs.', 'aria-label': 'Note text' });
   const fit = autoGrow(content, 420);
   const tagPicker = createDescriptorPicker({ kind: 'tag', label: 'Tags' });
-  const markerPicker = createDescriptorPicker({ kind: 'marker', label: 'Markers' });
+  const markerPicker = createDescriptorPicker({
+    kind: 'marker',
+    label: 'Marker',
+    max: 1,
+    onChange: (ids) => {
+      if (ids.length <= 1 && formError.textContent.startsWith('A note can only have one marker')) formError.hidden = true;
+    },
+  });
   const visHint = h('p', { class: 'field-hint' });
   const visSeg = segmented({
     label: 'Visibility',
@@ -144,7 +151,7 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
     fit();
   }
 
-  // Apply after the input event. Setting the value during input can be overwritten, which left \t(now) in the note.
+  // Apply after the input event. Setting the value during input can be overwritten, which left @now in the note.
   function scheduleExpand() {
     const raw = content.value;
     const cursor = content.selectionStart;
@@ -167,8 +174,8 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
     content.placeholder = ts
       ? 'Write your note\u2026 Leave a blank line between paragraphs.'
       : isNew
-        ? 'Write your note\u2026 Type \\t(now) for the time you started this note, or \\t(56:30) for another time.'
-        : 'Write your note\u2026 Type \\t(now) or \\t(56:30) to insert a time you can click.';
+        ? 'Write your note\u2026 Type @now for the time you started this note, or @10:40 for another time.'
+        : 'Write your note\u2026 Type @now or @10:40 to insert a time you can click.';
     if (isNew) heading.textContent = ts ? 'New timestamp note' : 'New general note';
   }
 
@@ -285,6 +292,7 @@ export function createNoteEditor({ getCurrentTime, onSave, onDelete, onClose, on
       visSeg.set(base.visibility);
       deleteBtn.hidden = isNew;
       formError.hidden = true;
+      if (base.markers.length > 1) showError('A note can only have one marker. Remove the extras before saving.');
       pauseToggle.checked = getPref('pauseWhileTyping');
       syncType();
       syncVis();

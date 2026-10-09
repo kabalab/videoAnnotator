@@ -8,10 +8,12 @@ import { tagChip, markerChip } from './chips.js';
 let uid = 0;
 
 // Combobox for attaching tags or markers, with inline "Create tag 'x'".
-export function createDescriptorPicker({ kind, label }) {
+// `max` caps how many can be attached. At the cap the add box is hidden.
+export function createDescriptorPicker({ kind, label, max = Infinity, onChange } = {}) {
   let selected = [];
   let active = 0;
   let menuOpen = false;
+  const atMax = () => selected.length >= max;
   const noun = kind === 'tag' ? 'tag' : 'marker';
   const menuId = `picker-menu-${++uid}`;
 
@@ -31,6 +33,7 @@ export function createDescriptorPicker({ kind, label }) {
   const menu = h('ul', { class: 'picker-menu', role: 'listbox', id: menuId, hidden: true });
   const field = h('div', { class: 'picker-field' }, chipsEl, input);
   field.addEventListener('mousedown', (e) => {
+    if (atMax()) return;
     if (e.target === field || e.target === chipsEl) {
       e.preventDefault();
       input.focus();
@@ -111,15 +114,34 @@ export function createDescriptorPicker({ kind, label }) {
     renderMenu();
   }
 
+  function syncCapacity() {
+    const full = atMax();
+    input.hidden = full;
+    field.classList.toggle('is-full', full);
+    if (full && menuOpen) {
+      menuOpen = false;
+      renderMenu();
+    }
+  }
+
+  function notify() {
+    onChange?.([...selected]);
+  }
+
   function add(id) {
-    if (!selected.includes(id)) selected = [...selected, id];
+    if (selected.includes(id) || atMax()) return;
+    selected = [...selected, id];
     renderChips();
+    syncCapacity();
+    notify();
   }
 
   function remove(id) {
     selected = selected.filter((x) => x !== id);
     renderChips();
+    syncCapacity();
     renderMenu();
+    notify();
   }
 
   input.addEventListener('focus', () => {
@@ -168,6 +190,7 @@ export function createDescriptorPicker({ kind, label }) {
       selected = [...(ids || [])];
       input.value = '';
       renderChips();
+      syncCapacity();
     },
     refresh() {
       renderChips();

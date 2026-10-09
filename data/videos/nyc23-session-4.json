@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "nyc23-session-4",
+  "title": "NYC23 SESSION 4 CURRENT",
+  "description": "",
+  "visibility": "public",
+  "sources": {
+    "local": "videos/NYC23 SESSION 4 OVERFLOW.mp4",
+    "youtube": "kPr9EBRaerE",
+    "offsetSeconds": 0
+  },
+  "duration": 8440.1,
+  "createdAt": "2026-10-08T22:21:38Z",
+  "updatedAt": "2026-10-08T22:26:37Z",
+  "notes": []
+}

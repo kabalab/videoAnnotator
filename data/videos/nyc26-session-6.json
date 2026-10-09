@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "nyc26-session-6",
+  "title": "NYC26 SESSION 6 PURSUE",
+  "description": "",
+  "visibility": "public",
+  "sources": {
+    "local": "videos/NYC26 SESSION 6 WONDER.mp4",
+    "youtube": "_a9qrAV9uBY",
+    "offsetSeconds": 0
+  },
+  "duration": 7324.2,
+  "createdAt": "2026-10-08T22:25:09Z",
+  "updatedAt": "2026-10-08T22:28:32Z",
+  "notes": []
+}

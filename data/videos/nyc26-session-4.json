@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "nyc26-session-4",
+  "title": "NYC26 SESSION 4 AWAKEN",
+  "description": "",
+  "visibility": "public",
+  "sources": {
+    "local": "videos/NYC26 SESSION 4 WONDER.mp4",
+    "youtube": "s9VUHdL4d08",
+    "offsetSeconds": 0
+  },
+  "duration": 7141.6,
+  "createdAt": "2026-10-08T22:24:29Z",
+  "updatedAt": "2026-10-08T22:28:03Z",
+  "notes": []
+}

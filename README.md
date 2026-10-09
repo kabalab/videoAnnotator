@@ -88,7 +88,7 @@ Some YouTube uploads (for example Blender's *Sintel* and *Tears of Steel*) refus
 2. In **Settings → Pages**, set **Source** to *Deploy from a branch*, pick your branch and the `/ (root)` folder.
 3. The included `.nojekyll` file makes Pages serve the files as-is.
 
-Videos without a YouTube link, and private videos, don't appear on the public site until someone signs in. Open **Settings**, enter the editor code from `editorCode` in [`js/config.js`](js/config.js), and editing works in that browser the way it does locally, except the project folder cannot be connected. Change the code in that file whenever you want; anyone who can read the repository can see it. Before pushing, use **Settings → Preview public site** (or add `?env=public` to the address) to see exactly what visitors will see. That preview stays read-only.
+Videos without a YouTube link, and private videos, don't appear on the public site until someone signs in. Open **Settings**, enter the editor code from `editorCode` in [`js/config.js`](js/config.js), and editing works in that browser the way it does locally, except the project folder cannot be connected. Change the code in that file whenever you want; anyone who can read the repository can see it. Before pushing, use **Settings → Preview public site** (or add `?env=public` to the address) to see exactly what visitors will see, including signing in from **Settings** with the editor code. Folder linking stays off in that preview.
 
 > **Private notes are hidden, not secret.** They're filtered out of the public interface, but they're still in the JSON files that Pages serves. Anyone who opens `data/videos/….json` can read them. Don't put anything sensitive in a repository that's published.
 
@@ -97,7 +97,7 @@ Videos without a YouTube link, and private videos, don't appear on the public si
 - **Edit / View** (top bar, when running locally or signed in): View mode hides the editing buttons for distraction-free watching. Private notes still show. The unsaved count stays in the top bar and hides while the player is fullscreen.
 - **Timestamp notes** start at the current playback time. Click a time to jump; **Go back** returns to where you were before the jump.
 - **General notes** are about the whole video and support multiple paragraphs (leave a blank line).
-- **Tags** are colored labels. **Markers** are viewing sessions like "First watch" or "October 2026"; the **Markers** page lists every note from a session across all videos.
+- **Tags** are colored labels. The **Tags** page lists every note with that tag across all videos. **Markers** are viewing sessions like "First watch" or "October 2026"; the **Markers** page lists every note from a session across all videos.
 - **Search** (`/`) looks through every video's notes, titles and descriptions. Filter by video, type, tag, marker and visibility. Filters are kept in the URL, so results can be bookmarked.
 - **Deleting** a note shows an **Undo** button for a few seconds. The deletion is written to the file immediately, and Undo writes the note back.
 - **Fullscreen** (`F`) keeps a quick-notes panel beside the video, or along the bottom when the player is narrow. Press `C` to show or hide that panel, and `N` to add a note without leaving fullscreen. The **Notes** button in the controls does the same thing. If the browser blocks fullscreen, theater mode fills the window and keeps that panel.
@@ -163,6 +163,7 @@ All data is plain JSON in `data/`. Files are written with stable key order and 2
 ```
 
 - `type` is `"timestamp"` (with `timestamp` in seconds) or `"generic"` (with `timestamp: null`).
+- `markers` holds at most one marker id. Tags are not limited.
 - `visibility` is `"public"` or `"private"`, on both videos and notes.
 - `sources.local` and `sources.youtube` are both optional. `youtube` is the 11-character video id; full YouTube URLs pasted into the app are converted automatically.
 
@@ -188,7 +189,7 @@ js/core/            environment detection, store, router, DOM and time helpers
 js/data/            schema, validation, visibility filter, repository (all reads and writes)
 js/storage/         HTTP loading, File System Access, drafts, downloads
 js/player/          player shell, HTML5 and YouTube adapters, controls, jump history
-js/features/        library, video page, notes, tags/markers, search, markers, settings
+js/features/        library, video page, notes, tags/markers, search, tags, markers, settings
 js/ui/              top bar, modals, toasts, banners, icons
 data/               library.json, descriptors.json, videos/*.json
 videos/             local video files (not committed)

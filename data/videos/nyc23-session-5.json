@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "nyc23-session-5",
+  "title": "NYC23 SESSION 5 RIVER",
+  "description": "",
+  "visibility": "public",
+  "sources": {
+    "local": "videos/NYC23 SESSION 5 OVERFLOW.mp4",
+    "youtube": "aTDokTYLgrA",
+    "offsetSeconds": 0
+  },
+  "duration": 7755.1,
+  "createdAt": "2026-10-08T22:22:13Z",
+  "updatedAt": "2026-10-08T22:26:48Z",
+  "notes": []
+}

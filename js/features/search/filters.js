@@ -1,7 +1,7 @@
 import { listVideos, sortedTags, sortedMarkers, showPrivate } from '../../core/store.js';
 
 // Filter registry. Adding a filter means adding one entry here; the search view, URL state and
-// marker view pick it up automatically. Filters combine with AND; values within one filter with OR.
+// tags and markers pages pick it up automatically. Filters combine with AND; values within one filter with OR.
 export const FILTERS = [
   {
     id: 'video',

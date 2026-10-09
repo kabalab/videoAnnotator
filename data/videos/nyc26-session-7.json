@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "nyc26-session-7",
+  "title": "NYC26 SESSION 7 IMAGINE",
+  "description": "",
+  "visibility": "public",
+  "sources": {
+    "local": "videos/NYC26 SESSION 7 WONDER.mp4",
+    "youtube": "4wgBBqFTrm8",
+    "offsetSeconds": 0
+  },
+  "duration": 7123,
+  "createdAt": "2026-10-08T22:25:28Z",
+  "updatedAt": "2026-10-08T22:28:39Z",
+  "notes": []
+}

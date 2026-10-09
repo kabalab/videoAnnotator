@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "nyc23-session-6",
+  "title": "NYC23 SESSION 6 WATERFALL",
+  "description": "",
+  "visibility": "public",
+  "sources": {
+    "local": "videos/NYC23 SESSION 6 OVERFLOW.mp4",
+    "youtube": "DX9ZjSYefRY",
+    "offsetSeconds": 0
+  },
+  "duration": 8120.1,
+  "createdAt": "2026-10-08T22:22:26Z",
+  "updatedAt": "2026-10-08T22:27:11Z",
+  "notes": []
+}

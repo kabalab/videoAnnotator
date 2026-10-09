@@ -147,7 +147,7 @@ function sections() {
     out.push(draftsSection(), issuesSection(), preferencesSection());
   } else if (state.editorSession) {
     out.push(draftsSection(), issuesSection(), preferencesSection());
-  } else if (!env.previewPublic) {
+  } else {
     out.push(editorAccessSection());
   }
   out.push(privacySection());
@@ -170,7 +170,7 @@ function environmentSection() {
     title = 'Signed in: editing is on in this browser';
     detail = `${rule}. Folder linking stays off on the public site.`;
   } else if (env.previewPublic) {
-    title = 'Previewing the public site';
+    detail = `${rule}. This tab is a local preview of that read-only view. Sign in below with the editor code, the same as on the public site.`;
   }
   return section(
     'environment',

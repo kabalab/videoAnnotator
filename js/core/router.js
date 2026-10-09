@@ -2,6 +2,7 @@ const routes = [
   { name: 'library', pattern: /^\/?$/ },
   { name: 'video', pattern: /^\/video\/([^/]+)$/, keys: ['id'] },
   { name: 'search', pattern: /^\/search$/ },
+  { name: 'tags', pattern: /^\/tags(?:\/([^/]+))?$/, keys: ['id'] },
   { name: 'markers', pattern: /^\/markers(?:\/([^/]+))?$/, keys: ['id'] },
 ];
 

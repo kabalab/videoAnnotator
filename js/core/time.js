@@ -35,38 +35,92 @@ export function formatDuration(seconds) {
   return Number.isFinite(seconds) && seconds > 0 ? formatTime(seconds) : '';
 }
 
-// Show \t(56:30) as 56:30 in plain-text snippets. Unparseable tokens stay as written.
-export function displayTimeTokens(text) {
-  return String(text || '').replace(/\\t\(([^)]+)\)/g, (full, inner) => {
-    const seconds = parseTime(String(inner).trim());
-    return seconds == null ? full : formatTime(seconds);
-  });
+const CLOCK = String.raw`(\d{1,3}:\d{2}(?::\d{2})?(?:\.\d+)?)`;
+const STUCK_BEFORE = /[\p{L}\p{N}_@]/u;
+
+function replaceRange(value, start, end, replacement, cursor) {
+  const next = value.slice(0, start) + replacement + value.slice(end);
+  let c = cursor;
+  if (c > start) c = Math.max(start, c + (replacement.length - (end - start)));
+  return { value: next, cursor: c };
 }
 
-// \t(now) becomes \t(m:ss) using nowSeconds. A finished \t(12:43) is normalized in place.
-// cursor is the caret; it is shifted so it stays at the same spot in the text.
+// @10:40 or a legacy \t(10:40) at index. Emails and unfinished clocks are left alone.
+export function matchClockToken(text, index) {
+  if (!text || index < 0 || index >= text.length) return null;
+  const legacy = text.slice(index).match(/^\\t\(([^)]+)\)/);
+  if (legacy) {
+    const seconds = parseTime(legacy[1].trim());
+    if (seconds == null) return null;
+    return { length: legacy[0].length, seconds, label: formatTime(seconds) };
+  }
+  if (text[index] !== '@') return null;
+  if (index > 0 && STUCK_BEFORE.test(text[index - 1])) return null;
+  const clock = text.slice(index + 1).match(new RegExp(`^${CLOCK}(?!(?:[\\d:]|\\.\\d))`));
+  if (!clock) return null;
+  const seconds = parseTime(clock[1]);
+  if (seconds == null) return null;
+  return { length: 1 + clock[1].length, seconds, label: formatTime(seconds) };
+}
+
+// Show @10:40 and legacy \t(10:40) as 10:40 in plain-text snippets.
+export function displayTimeTokens(text) {
+  const src = String(text || '');
+  let out = '';
+  for (let i = 0; i < src.length; ) {
+    const clock = matchClockToken(src, i);
+    if (clock) {
+      out += clock.label;
+      i += clock.length;
+      continue;
+    }
+    out += src[i];
+    i += 1;
+  }
+  return out;
+}
+
+// @now becomes @m:ss using nowSeconds. A finished @10:40 is normalized in place.
+// Legacy \t(now) and \t(10:40) are rewritten to the @ form. The caret stays on the same spot.
 export function expandTimeTokens(text, cursor, nowSeconds) {
   let value = String(text || '');
   let next = Number.isFinite(cursor) ? cursor : value.length;
-  const nowToken = `\\t(${formatTime(nowSeconds)})`;
-  const nows = [...value.matchAll(/\\t\(\s*now\s*\)/gi)];
-  for (let i = nows.length - 1; i >= 0; i--) {
-    const match = nows[i];
-    value = value.slice(0, match.index) + nowToken + value.slice(match.index + match[0].length);
-    const delta = nowToken.length - match[0].length;
-    if (next > match.index) next = Math.max(match.index, next + delta);
-  }
-  const atCursor = value.slice(0, next).match(/\\t\(([^)]*)\)$/);
-  if (atCursor && !/^now$/i.test(atCursor[1].trim())) {
-    const seconds = parseTime(atCursor[1].trim());
-    if (seconds != null) {
-      const replacement = `\\t(${formatTime(seconds)})`;
-      if (replacement !== atCursor[0]) {
-        const start = next - atCursor[0].length;
-        value = value.slice(0, start) + replacement + value.slice(next);
-        next = start + replacement.length;
-      }
+  const nowToken = `@${formatTime(nowSeconds)}`;
+  const swaps = [];
+  for (const match of value.matchAll(/\\t\(\s*now\s*\)|@now/gi)) {
+    if (match[0][0] === '@') {
+      if (match.index > 0 && STUCK_BEFORE.test(value[match.index - 1])) continue;
+      const after = match.index + match[0].length;
+      if (after < value.length && /[\p{L}\p{N}_]/u.test(value[after])) continue;
     }
+    swaps.push([match.index, match.index + match[0].length, nowToken]);
+  }
+  for (const match of value.matchAll(/\\t\(([^)]+)\)/g)) {
+    if (/^\s*now\s*$/i.test(match[1])) continue;
+    const seconds = parseTime(match[1].trim());
+    if (seconds == null) continue;
+    swaps.push([match.index, match.index + match[0].length, `@${formatTime(seconds)}`]);
+  }
+  swaps.sort((a, b) => b[0] - a[0]);
+  let lastStart = Infinity;
+  for (const [start, end, replacement] of swaps) {
+    if (end > lastStart) continue;
+    ({ value, cursor: next } = replaceRange(value, start, end, replacement, next));
+    lastStart = start;
+  }
+  const clocks = [];
+  for (const match of value.matchAll(new RegExp(`(?<![\\p{L}\\p{N}_@])@${CLOCK}(?!(?:[\\d:]|\\.\\d))`, 'gu'))) {
+    const seconds = parseTime(match[1]);
+    if (seconds == null) continue;
+    const replacement = `@${formatTime(seconds)}`;
+    if (replacement === match[0]) continue;
+    const end = match.index + match[0].length;
+    if (next > match.index && next < end) continue;
+    clocks.push([match.index, end, replacement]);
+  }
+  clocks.sort((a, b) => b[0] - a[0]);
+  for (const [start, end, replacement] of clocks) {
+    ({ value, cursor: next } = replaceRange(value, start, end, replacement, next));
   }
   return { value, cursor: next };
 }

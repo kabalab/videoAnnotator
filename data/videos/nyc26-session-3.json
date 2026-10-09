@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "nyc26-session-3",
+  "title": "NYC26 SESSION 3 FORM",
+  "description": "",
+  "visibility": "public",
+  "sources": {
+    "local": "videos/NYC26 SESSION 3 WONDER.mp4",
+    "youtube": "D8_bp8-E7rg",
+    "offsetSeconds": 0
+  },
+  "duration": 6537.1,
+  "createdAt": "2026-10-08T22:24:18Z",
+  "updatedAt": "2026-10-08T22:27:50Z",
+  "notes": []
+}

@@ -311,6 +311,7 @@ function cleanNote(input) {
   if (!out.content.trim() && !out.title) throw new ValidationError('Write something before saving.', 'content');
   out.tags = [...new Set(input.tags || [])];
   out.markers = [...new Set(input.markers || [])];
+  if (out.markers.length > 1) throw new ValidationError('A note can only have one marker.', 'markers');
   out.visibility = input.visibility === 'private' ? 'private' : 'public';
   return out;
 }

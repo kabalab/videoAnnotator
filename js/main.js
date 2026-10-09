@@ -13,12 +13,14 @@ import { openSettings, connectAction, retryAction, writeDraftsAction } from './f
 import { mountLibraryView } from './features/library/libraryView.js';
 import { mountVideoView } from './features/video/videoView.js';
 import { mountSearchView } from './features/search/searchView.js';
+import { mountTagView } from './features/tags/tagView.js';
 import { mountMarkerView } from './features/markers/markerView.js';
 
 const MOUNTS = {
   library: mountLibraryView,
   video: mountVideoView,
   search: mountSearchView,
+  tags: mountTagView,
   markers: mountMarkerView,
 };
 
@@ -118,7 +120,9 @@ function syncBanners() {
     showBanner('preview', {
       kind: 'info',
       title: 'Previewing the public site.',
-      message: 'Private notes, private videos and editing are hidden, exactly as visitors see it.',
+      message: editorActive()
+        ? 'You are signed in, the same as on the public site. Changes stay in this browser, and the project folder stays disconnected.'
+        : 'This is the visitor view. Open Settings and enter the editor code to sign in, the same as on the public site.',
       actions: [{ label: 'Exit preview', onClick: () => { window.location.href = exitPreviewUrl(); } }],
     });
   }
@@ -267,7 +271,7 @@ async function boot() {
   state.env = env;
   if (env.isFile) return;
 
-  state.editorSession = !env.isLocal && !env.previewPublic && storedEditorSessionMatches();
+  state.editorSession = !env.isLocal && storedEditorSessionMatches();
   state.uiMode = editorActive() ? (readPref('va.uiMode') === 'view' ? 'view' : 'edit') : 'view';
   document.body.dataset.env = env.env.toLowerCase();
   syncModeClass();

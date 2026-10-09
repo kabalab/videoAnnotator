@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "id": "nyc23-session-2",
-  "title": "NYC23 SESSION 2",
+  "title": "NYC23 SESSION 2 SPRING",
   "description": "",
   "visibility": "public",
   "sources": {
-    "local": "videos/NYC23 SESSION 2   OVERFLOW.mp4",
+    "local": "videos/NYC23 SESSION 2 OVERFLOW.mp4",
     "youtube": "oXrqfAGpq3s",
     "offsetSeconds": 0
   },
   "duration": 8618.7,
   "createdAt": "2026-10-08T04:41:19Z",
-  "updatedAt": "2026-10-08T04:41:19Z",
+  "updatedAt": "2026-10-08T22:26:09Z",
   "notes": []
 }
