@@ -71,7 +71,7 @@ export function mountVideoView(container, route) {
     getNotes: () => getVideo(id)?.notes || [],
     onSave: async (input) => {
       const { note } = await repo.saveNote(id, input);
-      requestAnimationFrame(() => panel.highlight(note.id));
+      requestAnimationFrame(() => highlightNote(note.id));
     },
     onDelete: async (note) => {
       const r = await repo.deleteNote(id, note.id);
@@ -99,6 +99,9 @@ export function mountVideoView(container, route) {
   // ---- immersive overlay: the editor or a compact notes list sits inside the player
   let overlayMode = null;
   let overlayNotes = null;
+  // Notes list was showing in fullscreen or theater when the editor covered it. Put back after Save or Cancel.
+  let notesBehindEditor = false;
+  let keepingNotes = false;
 
   function syncScrim() {
     page.classList.toggle('editor-docked', editor.isOpen() && !player.isImmersive());
@@ -118,12 +121,15 @@ export function mountVideoView(container, route) {
   }
 
   function placeEditor() {
+    if (keepingNotes) return;
     if (!editor.isOpen()) {
       if (overlayMode === 'editor') setOverlay(null);
       syncScrim();
       return;
     }
     if (player.isImmersive()) {
+      if (overlayMode === 'notes') notesBehindEditor = true;
+      else if (overlayMode !== 'editor') notesBehindEditor = false;
       setOverlay('editor');
     } else {
       if (overlayMode === 'editor') setOverlay(null);
@@ -149,9 +155,25 @@ export function mountVideoView(container, route) {
 
   function closeEditor() {
     page.classList.remove('editor-open');
-    if (overlayMode === 'editor') setOverlay(null);
+    const reopen = notesBehindEditor && player.isImmersive();
+    notesBehindEditor = false;
+    if (reopen) keepingNotes = true;
+    if (editor.el.contains(document.activeElement) && document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    if (!reopen) {
+      if (overlayMode === 'editor') setOverlay(null);
+      editor.el.remove();
+      syncScrim();
+      return;
+    }
+    setOverlay('notes');
     editor.el.remove();
     syncScrim();
+    requestAnimationFrame(() => {
+      keepingNotes = false;
+      if (editor.isOpen()) return;
+      if (player.isImmersive()) setOverlay('notes');
+      else if (overlayMode === 'notes') setOverlay(null);
+    });
   }
 
   function highlightNote(noteId) {
@@ -216,7 +238,7 @@ export function mountVideoView(container, route) {
   }
   player.on('toggle-overlay-notes', toggleOverlayNotes);
   player.on('immersive', (on) => {
-    if (!on && overlayMode === 'notes') setOverlay(null);
+    if (!on && overlayMode === 'notes' && !keepingNotes) setOverlay(null);
     placeEditor();
   });
   player.on('edit-video', () => openEditVideoDialog(getVideo(id), { getCurrentTime: () => player.getTime() }));
@@ -307,6 +329,56 @@ export function mountVideoView(container, route) {
   }
   document.addEventListener('keydown', onKey);
 
+  // /t \t pause or play, /q \q and /e \e step, /a \a and /d \d big step. The two characters are removed.
+  const textCommands = {
+    t: () => player.togglePlay(),
+    q: () => player.seekBy(-config.player.seekStep),
+    e: () => player.seekBy(config.player.seekStep),
+    a: () => player.seekBy(-config.player.bigSeekStep),
+    d: () => player.seekBy(config.player.bigSeekStep),
+  };
+  let applyingCommand = false;
+
+  function commandFor(sigil, letter) {
+    if (sigil !== '/' && sigil !== '\\') return null;
+    return textCommands[String(letter || '').toLowerCase()] || null;
+  }
+
+  function fieldCaret(el) {
+    try {
+      if (typeof el.selectionStart !== 'number' || typeof el.selectionEnd !== 'number') return null;
+      return { start: el.selectionStart, end: el.selectionEnd };
+    } catch {
+      return null;
+    }
+  }
+
+  function isCommandField(el) {
+    if (!(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)) return false;
+    if (!isTypingTarget(el) || el.hasAttribute('data-no-text-command')) return false;
+    return true;
+  }
+
+  function onTextCommand(e) {
+    if (applyingCommand || e.isComposing) return;
+    if (e.inputType !== 'insertText' && e.inputType !== 'insertFromPaste' && e.inputType !== 'insertFromDrop') return;
+    const el = e.target;
+    if (!isCommandField(el) || el.closest('.settings')) return;
+    const caret = fieldCaret(el);
+    if (!caret || caret.start !== caret.end || caret.start < 2) return;
+    const fn = commandFor(el.value[caret.start - 2], el.value[caret.start - 1]);
+    if (!fn) return;
+    applyingCommand = true;
+    try {
+      el.setRangeText('', caret.start - 2, caret.start, 'end');
+      fn();
+    } finally {
+      applyingCommand = false;
+    }
+  }
+
+  document.addEventListener('input', onTextCommand, true);
+
   render();
   if (route.query.note) requestAnimationFrame(() => panel.highlight(route.query.note));
 
@@ -319,6 +391,7 @@ export function mountVideoView(container, route) {
     destroy() {
       offs.forEach((off) => off());
       document.removeEventListener('keydown', onKey);
+      document.removeEventListener('input', onTextCommand, true);
       player.destroy();
     },
   };

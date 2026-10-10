@@ -84,6 +84,14 @@ const SHORTCUTS = [
   { when: 'readonly', keys: [['Esc']], action: 'Close a dialog or theater mode' },
 ];
 
+const WHILE_TYPING = [
+  { keys: [['/t'], ['\\t']], action: 'Pause or play' },
+  { keys: [['/q'], ['\\q']], action: `Back ${step} seconds` },
+  { keys: [['/e'], ['\\e']], action: `Forward ${step} seconds` },
+  { keys: [['/a'], ['\\a']], action: `Back ${big} seconds` },
+  { keys: [['/d'], ['\\d']], action: `Forward ${big} seconds` },
+];
+
 const TEXT_READING = [
   { when: 'public', text: 'Click a time in a note or a description to jump to that moment.' },
   { when: 'public', text: 'A link to another note on this video shows that note. Click it to jump to a timestamp note, or to open a general note.' },
@@ -204,15 +212,34 @@ function watchingPanel() {
   return [block(null, WATCHING), block('Adding and editing', EDITING)];
 }
 
+function renderShortcutList(items) {
+  return h(
+    'div',
+    { class: 'help-shortcuts' },
+    items.map((item) => h('div', { class: 'help-shortcut' }, renderKeys(item.keys), h('div', { class: 'help-action' }, item.action))),
+  );
+}
+
 function keyboardPanel() {
   const shortcuts = SHORTCUTS.filter((item) => show(item.when));
   return [
     h(
-      'div',
-      { class: 'help-shortcuts' },
-      shortcuts.map((item) => h('div', { class: 'help-shortcut' }, renderKeys(item.keys), h('div', { class: 'help-action' }, item.action))),
+      'section',
+      { class: 'help-section' },
+      renderShortcutList(shortcuts),
+      h('p', { class: 'help-note' }, 'Shortcuts on the video page are ignored while you are typing in a text field.'),
     ),
-    h('p', { class: 'help-note' }, 'Shortcuts on the video page are ignored while you are typing in a text field.'),
+    h(
+      'section',
+      { class: 'help-section' },
+      h('h3', {}, 'While typing'),
+      h(
+        'p',
+        { class: 'help-tab-lead' },
+        'Type these in any text field on the video page. The two characters are removed when the command runs.',
+      ),
+      renderShortcutList(WHILE_TYPING),
+    ),
   ];
 }
 

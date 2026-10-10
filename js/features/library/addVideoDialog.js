@@ -96,7 +96,7 @@ export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTim
   updateIdHint();
 
   // ---- local file
-  const localInput = h('input', { class: 'input mono', value: init.local, placeholder: 'videos/my-video.mp4', spellcheck: 'false' });
+  const localInput = h('input', { class: 'input mono', value: init.local, placeholder: 'videos/my-video.mp4', spellcheck: 'false', 'data-no-text-command': 'true' });
   const fileSelect = h('select', { class: 'input', 'aria-label': 'Choose a file from the videos folder' }, h('option', { value: '' }, 'Choose a file in videos/\u2026'));
   const fileInput = h('input', { type: 'file', accept: 'video/*,.mkv', hidden: true });
   const progressBar = h('div', { class: 'progress-bar' });
@@ -175,7 +175,7 @@ export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTim
       );
 
   // ---- backup YouTube link
-  const ytInput = h('input', { class: 'input', value: init.youtube ? youtubeWatchUrl(init.youtube) : '', placeholder: 'https://www.youtube.com/watch?v=\u2026 or youtu.be/\u2026', spellcheck: 'false' });
+  const ytInput = h('input', { class: 'input', value: init.youtube ? youtubeWatchUrl(init.youtube) : '', placeholder: 'https://www.youtube.com/watch?v=\u2026 or youtu.be/\u2026', spellcheck: 'false', 'data-no-text-command': 'true' });
   const ytStatus = h('span', { class: 'field-hint' });
   const ytPreview = h('div', { class: 'yt-preview', hidden: true });
   const offsetInput = h('input', { class: 'input', type: 'number', step: '0.1', value: String(init.offsetSeconds), 'aria-label': 'Offset in seconds' });
