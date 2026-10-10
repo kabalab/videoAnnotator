@@ -5,7 +5,7 @@ export const VISIBILITY = ['public', 'private'];
 export const NOTE_TYPES = ['timestamp', 'generic'];
 
 const VIDEO_KEYS = ['schemaVersion', 'id', 'title', 'description', 'visibility', 'sources', 'duration', 'createdAt', 'updatedAt'];
-const SOURCE_KEYS = ['local', 'youtube', 'offsetSeconds'];
+const SOURCE_KEYS = ['local', 'youtube', 'offsetSeconds', 'noFile'];
 const NOTE_KEYS = ['id', 'type', 'timestamp', 'title', 'content', 'tags', 'markers', 'visibility', 'createdAt', 'updatedAt'];
 const TAG_KEYS = ['id', 'name', 'color', 'description'];
 const MARKER_KEYS = ['id', 'name', 'description', 'date', 'order'];
@@ -70,7 +70,9 @@ export function serializeNote(note) {
 export function serializeVideo(video) {
   const { notes, sources, ...rest } = video;
   const out = ordered(rest, VIDEO_KEYS);
-  out.sources = ordered(sources || {}, SOURCE_KEYS);
+  const src = { ...(sources || {}) };
+  if (!src.noFile) delete src.noFile;
+  out.sources = ordered(src, SOURCE_KEYS);
   if (out.duration === undefined) delete out.duration;
   out.notes = [...(notes || []).map(serializeNote), ...(video.__quarantine || [])];
   // Keep "sources" right after "visibility" even when unknown keys exist.

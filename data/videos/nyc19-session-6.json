@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "nyc19-session-6",
+  "title": "NYC19 SESSION 6 CALLED",
+  "description": "",
+  "visibility": "public",
+  "sources": {
+    "local": "",
+    "youtube": "9NSnD-7N6mw",
+    "offsetSeconds": 0,
+    "noFile": true
+  },
+  "duration": 4822,
+  "createdAt": "2026-10-10T17:12:13Z",
+  "updatedAt": "2026-10-10T17:12:20Z",
+  "notes": []
+}

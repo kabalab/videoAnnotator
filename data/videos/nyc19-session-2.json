@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "nyc19-session-2",
+  "title": "NYC19 SESSION 2 SURRENDER",
+  "description": "",
+  "visibility": "public",
+  "sources": {
+    "local": "",
+    "youtube": "dycJPMnBV5w",
+    "offsetSeconds": 0,
+    "noFile": true
+  },
+  "duration": 6613,
+  "createdAt": "2026-10-10T17:05:56Z",
+  "updatedAt": "2026-10-10T17:12:36Z",
+  "notes": []
+}

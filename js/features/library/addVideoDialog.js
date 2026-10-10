@@ -38,8 +38,8 @@ export function openAddVideoDialog(preset = {}) {
 export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTime = null }) {
   const isEdit = mode === 'edit';
   const init = isEdit
-    ? { title: video.title, description: video.description, visibility: video.visibility, local: video.sources.local, youtube: video.sources.youtube, offsetSeconds: video.sources.offsetSeconds || 0 }
-    : { title: preset.title || titleFromFile(preset.local), description: '', visibility: 'public', local: preset.local || '', youtube: '', offsetSeconds: 0 };
+    ? { title: video.title, description: video.description, visibility: video.visibility, local: video.sources.local, noFile: !!video.sources.noFile, youtube: video.sources.youtube, offsetSeconds: video.sources.offsetSeconds || 0 }
+    : { title: preset.title || titleFromFile(preset.local), description: '', visibility: 'public', local: preset.local || '', noFile: false, youtube: '', offsetSeconds: 0 };
   const connected = repo.isConnected();
   let copying = null;
 
@@ -96,8 +96,15 @@ export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTim
   updateIdHint();
 
   // ---- local file
-  const localInput = h('input', { class: 'input mono', value: init.local, placeholder: 'videos/my-video.mp4', spellcheck: 'false', 'data-no-text-command': 'true' });
-  const fileSelect = h('select', { class: 'input', 'aria-label': 'Choose a file from the videos folder' }, h('option', { value: '' }, 'Choose a file in videos/\u2026'));
+  const NO_FILE = '__no-file__';
+  let noFile = !!init.noFile;
+  const localInput = h('input', { class: 'input mono', value: noFile ? '' : init.local, placeholder: 'videos/my-video.mp4', spellcheck: 'false', 'data-no-text-command': 'true', disabled: noFile });
+  const fileSelect = h(
+    'select',
+    { class: 'input', 'aria-label': 'Choose a file from the videos folder' },
+    h('option', { value: '' }, 'Choose a file in videos/\u2026'),
+    h('option', { value: NO_FILE }, 'No file'),
+  );
   const fileInput = h('input', { type: 'file', accept: 'video/*,.mkv', hidden: true });
   const progressBar = h('div', { class: 'progress-bar' });
   const progressText = h('span', { class: 'progress-text' });
@@ -108,14 +115,21 @@ export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTim
     h('div', { class: 'progress-row' }, progressText, h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: () => copying?.abort() }, 'Cancel')),
   );
 
+  if (noFile) fileSelect.value = NO_FILE;
   if (connected) {
     repo.listVideoFiles().then((files) => {
       for (const f of files) fileSelect.append(h('option', { value: `videos/${f.name}` }, f.name));
       if (!files.length) fileSelect.options[0].textContent = 'No video files in videos/ yet';
-      if (init.local && localInput.value === init.local && [...fileSelect.options].some((o) => o.value === init.local)) fileSelect.value = init.local;
+      if (noFile) fileSelect.value = NO_FILE;
+      else if (init.local && localInput.value === init.local && [...fileSelect.options].some((o) => o.value === init.local)) fileSelect.value = init.local;
     });
-  }
+  } else if (noFile) fileSelect.value = NO_FILE;
   fileSelect.addEventListener('change', () => {
+    if (fileSelect.value === NO_FILE) {
+      setNoFile(true);
+      return;
+    }
+    setNoFile(false);
     if (!fileSelect.value) return;
     localInput.value = fileSelect.value;
     if (!titleInput.value.trim()) {
@@ -142,7 +156,9 @@ export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTim
           progressText.textContent = `${Math.floor(fraction * 100)}% \u00b7 ${formatBytes(written)} of ${formatBytes(total)}`;
         },
       });
+      setNoFile(false);
       localInput.value = path;
+      if ([...fileSelect.options].some((o) => o.value === path)) fileSelect.value = path;
       if (!titleInput.value.trim()) {
         titleInput.value = titleFromFile(path);
         updateIdHint();
@@ -158,21 +174,41 @@ export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTim
     }
   });
 
+  const copyBtn = h('button', { class: 'btn btn-secondary', type: 'button', disabled: noFile, onclick: () => fileInput.click(), title: 'Streams a copy into the project\u2019s videos folder. Large files take a while; copying them in File Explorer is faster.' }, icon('upload'), 'Copy a file in\u2026');
+  const localHint = h('span', { class: 'field-hint' });
+  function syncLocalHint() {
+    localHint.textContent = noFile
+      ? 'No local file will be connected to this video.'
+      : 'Path inside the project. Local files never go to GitHub (videos/ is git-ignored). Choose No file if there will never be one.';
+  }
+  syncLocalHint();
   const localTools = connected
-    ? h(
-        'div',
-        { class: 'field-row' },
-        fileSelect,
-        h('button', { class: 'btn btn-secondary', type: 'button', onclick: () => fileInput.click(), title: 'Streams a copy into the project\u2019s videos folder. Large files take a while; copying them in File Explorer is faster.' }, icon('upload'), 'Copy a file in\u2026'),
-        fileInput,
-      )
+    ? h('div', { class: 'field-row' }, fileSelect, copyBtn, fileInput)
     : h(
-        'p',
-        { class: 'field-hint' },
-        'Put the file in the project\u2019s videos folder and type its name above. ',
-        state.env.isLocal && state.persistence.kind !== 'fallback' && h('button', { class: 'link-btn', type: 'button', onclick: () => openSettings({ focus: 'folder' }) }, 'Connect the project folder'),
-        state.env.isLocal && state.persistence.kind !== 'fallback' && ' to browse or copy files from here.',
+        'div',
+        {},
+        fileSelect,
+        h(
+          'p',
+          { class: 'field-hint' },
+          'Put the file in the project\u2019s videos folder and type its name above, or choose No file. ',
+          state.env.isLocal && state.persistence.kind !== 'fallback' && h('button', { class: 'link-btn', type: 'button', onclick: () => openSettings({ focus: 'folder' }) }, 'Connect the project folder'),
+          state.env.isLocal && state.persistence.kind !== 'fallback' && ' to browse or copy files from here.',
+        ),
       );
+
+  function setNoFile(on) {
+    noFile = on;
+    localInput.disabled = on;
+    copyBtn.disabled = on;
+    if (on) {
+      localInput.value = '';
+      fileSelect.value = NO_FILE;
+    } else if (fileSelect.value === NO_FILE) fileSelect.value = '';
+    syncLocalHint();
+    updatePublicHint();
+    updateYt();
+  }
 
   // ---- backup YouTube link
   const ytInput = h('input', { class: 'input', value: init.youtube ? youtubeWatchUrl(init.youtube) : '', placeholder: 'https://www.youtube.com/watch?v=\u2026 or youtu.be/\u2026', spellcheck: 'false', 'data-no-text-command': 'true' });
@@ -217,7 +253,7 @@ export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTim
     const raw = ytInput.value.trim();
     const id = raw ? parseYouTubeId(raw) : null;
     ytInput.classList.toggle('is-invalid', !!raw && !id);
-    if (!raw) ytStatus.textContent = 'Used when the local file can\u2019t play, and always on the public site.';
+    if (!raw) ytStatus.textContent = noFile ? 'This video has no local file, so this link is what plays.' : 'Used when the local file can\u2019t play, and always on the public site.';
     else if (!id) ytStatus.textContent = 'Not a recognizable YouTube link or 11-character video id.';
     else ytStatus.textContent = `Video id: ${id}`;
     if (id !== lastId) {
@@ -229,7 +265,7 @@ export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTim
   }
 
   function updatePublicHint() {
-    publicHint.hidden = !!ytInput.value.trim() || !localInput.value.trim();
+    publicHint.hidden = noFile || !!ytInput.value.trim() || !localInput.value.trim();
   }
 
   ytInput.addEventListener('input', updateYt);
@@ -261,7 +297,7 @@ export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTim
       'fieldset',
       { class: 'fieldset' },
       h('legend', {}, 'Sources'),
-      field('Local file', localInput, h('span', { class: 'field-hint' }, 'Path inside the project. Local files never go to GitHub (videos/ is git-ignored).')),
+      field('Local file', localInput, localHint),
       localTools,
       progress,
       field('Backup YouTube link', ytInput, ytStatus),
@@ -320,6 +356,7 @@ export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTim
       description: descInput.value,
       visibility: visibility.value,
       local: localInput.value,
+      noFile,
       youtube: ytId,
       offsetSeconds: offsetInput.value,
     };

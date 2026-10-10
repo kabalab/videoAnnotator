@@ -130,6 +130,7 @@ export function createPlayer({ video, isLocal, editable = false, startTime = 0, 
   }
 
   function showNotice(text) {
+    if (getPref('hideWarnings') && /couldn.t (load|play)/i.test(text)) return;
     clearTimeout(noticeTimer);
     notice.replaceChildren(
       icon('info'),

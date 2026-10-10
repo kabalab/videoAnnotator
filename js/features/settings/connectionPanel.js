@@ -7,6 +7,7 @@ import { openModal, confirmDanger } from '../../ui/modal.js';
 import { toast } from '../../ui/toast.js';
 import { icon } from '../../ui/icons.js';
 import { renderIssues, collectIssues } from './issuesPanel.js';
+import { summarizeDraft } from './draftReview.js';
 
 // ---- actions shared with banners and the top bar (all must run from a click) ----
 
@@ -125,7 +126,7 @@ export function openSettings({ focus } = {}) {
   });
   openInstance = modal;
   const render = () => fill(content, sections());
-  for (const e of ['persistence', 'drafts', 'issues', 'data', 'descriptors', 'mode']) offs.push(store.on(e, render));
+  for (const e of ['persistence', 'drafts', 'issues', 'data', 'descriptors', 'mode', 'prefs']) offs.push(store.on(e, render));
   render();
   if (focus) requestAnimationFrame(() => content.querySelector(`[data-section="${focus}"]`)?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
 }
@@ -273,8 +274,108 @@ function externalSection() {
   );
 }
 
+const reviewCache = new Map();
+
+function reviewNames() {
+  return {
+    videoTitle: (id) => state.videos.get(id)?.title || id,
+    tagName: (id) => state.descriptors.tags.find((t) => t.id === id)?.name || id,
+    markerName: (id) => state.descriptors.markers.find((m) => m.id === id)?.name || id,
+  };
+}
+
+function ensureReviews(drafts) {
+  const live = new Set(drafts.map((d) => d.path));
+  for (const path of [...reviewCache.keys()]) if (!live.has(path)) reviewCache.delete(path);
+  for (const d of drafts) {
+    const hit = reviewCache.get(d.path);
+    if (hit && hit.savedAt === d.savedAt) continue;
+    reviewCache.set(d.path, { savedAt: d.savedAt, status: 'loading' });
+    loadReview(d);
+  }
+}
+
+async function loadReview(draft) {
+  const savedAt = draft.savedAt;
+  try {
+    const savedText = await repo.readProjectText(draft.path);
+    const current = reviewCache.get(draft.path);
+    if (!current || current.savedAt !== savedAt) return;
+    reviewCache.set(draft.path, { savedAt, status: 'ready', savedText });
+  } catch (e) {
+    const current = reviewCache.get(draft.path);
+    if (!current || current.savedAt !== savedAt) return;
+    reviewCache.set(draft.path, { savedAt, status: 'error', message: e.message || 'Could not read the project file.' });
+  }
+  paintReview(draft);
+}
+
+function paintReview(draft) {
+  const row = document.querySelector(`[data-draft-path="${CSS.escape(draft.path)}"]`);
+  if (!row) return;
+  const review = reviewFor(draft);
+  const meta = row.querySelector('[data-draft-meta]');
+  if (meta) meta.textContent = draftMeta(draft, review);
+  const body = row.querySelector('[data-draft-review]');
+  if (body) fill(body, draftReviewList(review));
+}
+
+function reviewFor(draft) {
+  const hit = reviewCache.get(draft.path);
+  if (!hit || hit.status === 'loading') return { status: 'loading' };
+  if (hit.status === 'error') return hit;
+  return { status: 'ready', items: summarizeDraft(draft.path, draft, hit.savedText, reviewNames()) };
+}
+
+function reviewCounts(items) {
+  const added = items.filter((i) => i.kind === 'added').length;
+  const changed = items.filter((i) => i.kind === 'changed').length;
+  const removed = items.filter((i) => i.kind === 'removed').length;
+  return [
+    added && `${added} added`,
+    changed && `${changed} changed`,
+    removed && `${removed} removed`,
+  ].filter(Boolean).join(', ');
+}
+
+function draftMeta(draft, review) {
+  const when = new Date(draft.savedAt).toLocaleString();
+  const base = draft.deleted ? ` \u00b7 delete this file \u00b7 ${when}` : ` \u00b7 ${when}`;
+  if (review.status === 'loading') return `${base} \u00b7 checking what isn\u2019t saved`;
+  if (review.status !== 'ready') return base;
+  const counts = reviewCounts(review.items);
+  return counts ? `${base} \u00b7 ${counts}` : base;
+}
+
+function draftReviewList(review) {
+  if (review.status === 'loading') return h('p', { class: 'muted draft-review-status' }, 'Checking what was added and what still isn\u2019t saved\u2026');
+  if (review.status === 'error') return h('p', { class: 'muted draft-review-status' }, review.message);
+  return h(
+    'ul',
+    { class: 'draft-changes' },
+    review.items.map((item) =>
+      h(
+        'li',
+        { class: `draft-change draft-${item.kind}` },
+        h(
+          'div',
+          { class: 'draft-change-head' },
+          h('span', { class: 'draft-change-kind' }, item.kind === 'added' ? 'Added' : item.kind === 'removed' ? 'Removed' : 'Changed'),
+          h('span', {}, item.title),
+        ),
+        item.lines?.map((line) => h('p', { class: 'draft-change-line' }, line)),
+        item.text != null && h('p', { class: 'draft-change-label' }, item.savedText != null ? 'Not saved' : 'Note text'),
+        item.text != null && h('pre', { class: 'draft-change-text' }, item.text || '(empty)'),
+        item.savedText != null && h('p', { class: 'draft-change-label' }, 'In the project file'),
+        item.savedText != null && h('pre', { class: 'draft-change-text' }, item.savedText || '(empty)'),
+      ),
+    ),
+  );
+}
+
 function draftsSection() {
   const drafts = state.drafts;
+  ensureReviews(drafts);
   const connected = state.persistence.kind === 'fsa-connected';
   const remote = !state.env.isLocal;
   const importBox = h('textarea', {
@@ -291,21 +392,27 @@ function draftsSection() {
       'p',
       { class: 'muted' },
       remote
-        ? 'Changes stay in this browser. Copy a change code to move them, or paste a code to reapply them here. A project folder cannot be connected from the public site.'
-        : 'These changes are only stored in this browser. Downloaded files land in your Downloads folder: move each one to the path shown, replacing the old file. A draft clears itself once the project file matches it.',
+        ? 'Changes stay in this browser. Each file below lists what was added and what still differs from the saved copy. Copy a change code to move them, or paste a code to reapply them here. A project folder cannot be connected from the public site.'
+        : 'These changes are only stored in this browser. Each file below lists what was added and what still differs from the project copy. Downloaded files land in your Downloads folder: move each one to the path shown, replacing the old file. A draft clears itself once the project file matches it.',
     ),
     drafts.length
       ? h(
           'ul',
           { class: 'draft-list' },
-          drafts.map((d) =>
-            h(
+          drafts.map((d) => {
+            const review = reviewFor(d);
+            return h(
               'li',
-              { class: 'draft' },
-              h('div', {}, h('code', {}, d.path), h('span', { class: 'muted' }, d.deleted ? ' \u00b7 delete this file' : ` \u00b7 ${new Date(d.savedAt).toLocaleString()}`)),
-              d.deleted ? h('span', { class: 'muted' }, 'Remove manually') : h('button', { class: 'btn btn-secondary btn-sm', type: 'button', onclick: () => repo.downloadDraft(d.path) }, icon('download'), 'Download'),
-            ),
-          ),
+              { class: 'draft', dataset: { draftPath: d.path } },
+              h(
+                'div',
+                { class: 'draft-row' },
+                h('div', {}, h('code', {}, d.path), h('span', { class: 'muted', dataset: { draftMeta: '' } }, draftMeta(d, review))),
+                d.deleted ? h('span', { class: 'muted' }, 'Remove manually') : h('button', { class: 'btn btn-secondary btn-sm', type: 'button', onclick: () => repo.downloadDraft(d.path) }, icon('download'), 'Download'),
+              ),
+              h('div', { dataset: { draftReview: '' } }, draftReviewList(review)),
+            );
+          }),
         )
       : h('p', { class: 'muted' }, 'None right now.'),
     drafts.length
@@ -364,6 +471,20 @@ function preferencesSection() {
       h('input', { type: 'checkbox', checked: getPref('pauseWhileTyping'), onchange: (e) => setPref('pauseWhileTyping', e.target.checked) }),
       h('span', {}, 'Pause the video while typing a note'),
     ),
+    h(
+      'label',
+      { class: 'check' },
+      h('input', {
+        type: 'checkbox',
+        checked: getPref('hideWarnings'),
+        onchange: (e) => {
+          setPref('hideWarnings', e.target.checked);
+          store.emit('prefs');
+        },
+      }),
+      h('span', {}, 'Hide warning notices'),
+    ),
+    h('p', { class: 'muted' }, 'Hides messages such as a note saved only in this browser, not saved, and can\u2019t find the local file. Unsaved drafts stay listed here in Settings.'),
   );
 }
 

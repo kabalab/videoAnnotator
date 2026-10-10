@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "nyc19-session-1",
+  "title": "NYC19 SESSION 1 WORSHIP",
+  "description": "",
+  "visibility": "public",
+  "sources": {
+    "local": "",
+    "youtube": "WgrVq92zJI8",
+    "offsetSeconds": 0,
+    "noFile": true
+  },
+  "duration": 5415,
+  "createdAt": "2026-10-10T17:05:10Z",
+  "updatedAt": "2026-10-10T17:12:29Z",
+  "notes": []
+}

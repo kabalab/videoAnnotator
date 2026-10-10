@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "nyc19-session-4",
+  "title": "NYC19 SESSION 4 CHURCH",
+  "description": "",
+  "visibility": "public",
+  "sources": {
+    "local": "",
+    "youtube": "74oM67pEos0",
+    "offsetSeconds": 0,
+    "noFile": true
+  },
+  "duration": 6844,
+  "createdAt": "2026-10-10T17:10:02Z",
+  "updatedAt": "2026-10-10T17:12:47Z",
+  "notes": []
+}

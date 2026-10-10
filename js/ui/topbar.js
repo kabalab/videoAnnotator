@@ -1,4 +1,5 @@
 import { h, debounce, isTypingTarget } from '../core/dom.js';
+import { getPref } from '../core/prefs.js';
 import { store, state, canEdit, editorActive, setUiMode } from '../core/store.js';
 import { navigate, parseHash } from '../core/router.js';
 import { icon } from './icons.js';
@@ -64,7 +65,7 @@ export function createTopbar(el) {
     const env = state.env;
     const items = [];
     if (editorActive()) {
-      if (state.drafts.length) {
+      if (state.drafts.length && !getPref('hideWarnings')) {
         items.push(
           h(
             'button',
@@ -129,6 +130,7 @@ export function createTopbar(el) {
   store.on('mode', renderRight);
   store.on('persistence', renderRight);
   store.on('drafts', renderRight);
+  store.on('prefs', renderRight);
   renderRight();
 
   return {

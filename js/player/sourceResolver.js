@@ -3,7 +3,7 @@
 export function resolveSources(video, { isLocal }) {
   const { local, youtube, offsetSeconds } = video.sources || {};
   const list = [];
-  if (isLocal && local) list.push({ kind: 'local', label: 'Local file', path: local });
+  if (isLocal && local && !video.sources?.noFile) list.push({ kind: 'local', label: 'Local file', path: local });
   if (youtube) list.push({ kind: 'youtube', label: 'YouTube', videoId: youtube, offset: Number(offsetSeconds) || 0 });
   return list;
 }

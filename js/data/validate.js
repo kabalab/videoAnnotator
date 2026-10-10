@@ -220,6 +220,10 @@ export function validateVideo(raw, expectedId, path) {
 
   const s = isObject(raw.sources) ? raw.sources : {};
   const sources = { ...s, local: str(s.local ?? raw.video).trim(), youtube: '', offsetSeconds: 0 };
+  if (s.noFile === true) {
+    sources.noFile = true;
+    sources.local = '';
+  } else delete sources.noFile;
   delete video.video;
   if (s.youtube) {
     const id = parseYouTubeId(s.youtube);

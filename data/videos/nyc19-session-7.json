@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "nyc19-session-7",
+  "title": "NYC19 SESSION 7 GO",
+  "description": "",
+  "visibility": "public",
+  "sources": {
+    "local": "",
+    "youtube": "pBa-P-sNnVc",
+    "offsetSeconds": 0,
+    "noFile": true
+  },
+  "duration": 7640,
+  "createdAt": "2026-10-10T17:13:36Z",
+  "updatedAt": "2026-10-10T17:13:43Z",
+  "notes": []
+}

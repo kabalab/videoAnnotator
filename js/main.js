@@ -3,6 +3,7 @@ import { detectEnvironment, exitPreviewUrl } from './core/env.js';
 import { store, state, canEdit, editorActive, storedEditorSessionMatches } from './core/store.js';
 import { startRouter, parseHash } from './core/router.js';
 import { h, plural } from './core/dom.js';
+import { getPref } from './core/prefs.js';
 import * as repo from './data/repository.js';
 import { rebuildIndex } from './features/search/searchIndex.js';
 import { createTopbar } from './ui/topbar.js';
@@ -132,7 +133,8 @@ function syncBanners() {
     return;
   }
 
-  if (!env.isLocal) {
+  if (getPref('hideWarnings')) hideBanner('persist');
+  else if (!env.isLocal) {
     if (drafts) {
       showBanner('persist', {
         kind: 'warning',
@@ -220,7 +222,7 @@ function onSave(r) {
       break;
     case 'draft':
       if (r.error) toast('Couldn\u2019t write to the project folder. Your change is kept as a draft.', { kind: 'error', duration: 5000 });
-      else {
+      else if (!getPref('hideWarnings')) {
         toast('Kept as a draft in this browser. It isn\u2019t in the project files yet.', {
           kind: 'warning',
           duration: 3600,
@@ -232,7 +234,7 @@ function onSave(r) {
       toast(`Couldn\u2019t save: ${r.error.message}`, { kind: 'error', duration: 9000 });
       break;
     case 'cancelled':
-      toast('Not saved.', { kind: 'info' });
+      if (!getPref('hideWarnings')) toast('Not saved.', { kind: 'info' });
       break;
     case 'reloaded':
       toast('Reloaded from disk.', { kind: 'info' });
@@ -256,6 +258,7 @@ function wireEvents() {
     syncModeClass();
     syncBanners();
   });
+  store.on('prefs', syncBanners);
   store.on('save', onSave);
 
   window.addEventListener('unhandledrejection', (e) => {

@@ -3,6 +3,7 @@ const PREFIX = 'va.pref.';
 
 const DEFAULTS = {
   pauseWhileTyping: true,
+  hideWarnings: false,
   volume: 1,
   muted: false,
   rate: 1,

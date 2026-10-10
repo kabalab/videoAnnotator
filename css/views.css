@@ -928,11 +928,6 @@ button.note-ref:hover {
   background: var(--surface-3);
 }
 
-.filter-option input {
-  margin: 0;
-  accent-color: var(--accent-hover);
-}
-
 .filter-flag {
   width: 14px;
   height: 14px;
@@ -1444,14 +1439,97 @@ button.note-ref:hover {
 
 .draft {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
   padding: 8px 10px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--bg-raised);
   font-size: 13px;
+}
+
+.draft-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.draft-review-status {
+  margin: 0;
+  font-size: 12.5px;
+}
+
+.draft-changes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.draft-change {
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--bg);
+  border-left: 3px solid var(--border-strong);
+  font-size: 12.5px;
+}
+
+.draft-added {
+  border-left-color: var(--success);
+}
+
+.draft-changed {
+  border-left-color: var(--warning);
+}
+
+.draft-removed {
+  border-left-color: var(--danger);
+}
+
+.draft-change-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  align-items: baseline;
+}
+
+.draft-change-kind {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.draft-added .draft-change-kind {
+  color: var(--success);
+}
+
+.draft-changed .draft-change-kind {
+  color: var(--warning);
+}
+
+.draft-removed .draft-change-kind {
+  color: var(--danger);
+}
+
+.draft-change-line,
+.draft-change-label {
+  margin: 4px 0 0;
+  color: var(--text-dim);
+}
+
+.draft-change-text {
+  margin: 4px 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 9em;
+  overflow: auto;
+  font-family: inherit;
+  font-size: 12.5px;
 }
 
 .issues {

@@ -101,6 +101,24 @@ async function readFile(path) {
   return fetchText(path);
 }
 
+// The project file as stored, without this browser's draft layered on top. Null when the file is absent.
+export async function readProjectText(path) {
+  if (connected()) {
+    try {
+      return (await fsa.readText(path)).text;
+    } catch (e) {
+      if (e instanceof LoadError && e.kind === 'missing') return null;
+      throw e;
+    }
+  }
+  try {
+    return await fetchText(path);
+  } catch (e) {
+    if (e instanceof LoadError && e.kind === 'missing') return null;
+    throw e;
+  }
+}
+
 async function readJson(path) {
   let text = null;
   let error = null;
@@ -365,16 +383,19 @@ export async function restoreNote(videoId, note, index) {
 function cleanVideoMeta(input) {
   const title = String(input.title || '').trim();
   if (!title) throw new ValidationError('Give the video a title.', 'title');
-  const local = String(input.local || '').trim().replace(/\\/g, '/').replace(/^\.\//, '');
+  const noFile = !!input.noFile;
+  const local = noFile ? '' : String(input.local || '').trim().replace(/\\/g, '/').replace(/^\.\//, '');
   const youtube = String(input.youtube || '').trim();
   if (!local && !youtube) throw new ValidationError('Add a local file or a backup YouTube link so the video can play.', 'local');
   const offset = input.offsetSeconds === '' || input.offsetSeconds == null ? 0 : Number(input.offsetSeconds);
   if (!Number.isFinite(offset)) throw new ValidationError('Offset must be a number of seconds.', 'offset');
+  const sources = { local, youtube, offsetSeconds: offset };
+  if (noFile) sources.noFile = true;
   return {
     title,
     description: String(input.description || '').replace(/\s+$/, ''),
     visibility: input.visibility === 'private' ? 'private' : 'public',
-    sources: { local, youtube, offsetSeconds: offset },
+    sources,
   };
 }
 
@@ -401,7 +422,9 @@ export async function updateVideo(id, input) {
   assertWritable();
   const video = requireVideo(id);
   const meta = cleanVideoMeta(input);
-  const updated = { ...video, ...meta, sources: { ...video.sources, ...meta.sources }, updatedAt: nowIso() };
+  const sources = { ...video.sources, ...meta.sources };
+  if (!meta.sources.noFile) delete sources.noFile;
+  const updated = { ...video, ...meta, sources, updatedAt: nowIso() };
   commitVideo(updated);
   const result = await persistVideo(updated);
   scanUnregistered();
