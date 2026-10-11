@@ -66,6 +66,12 @@
       "name": "Benediction",
       "color": "#7cc45a",
       "description": ""
+    },
+    {
+      "id": "start-of-worship",
+      "name": "Start of worship",
+      "color": "#ffffff",
+      "description": ""
     }
   ],
   "markers": [

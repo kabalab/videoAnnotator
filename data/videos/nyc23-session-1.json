@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "nyc23-session-1",
   "title": "NYC23 SESSION 1 OVERFLOW",
-  "description": "",
+  "description": "LaMorris Crawford talks about not loosing your self to other people and recovering from sin.",
   "visibility": "public",
   "sources": {
     "local": "videos/NYC23 SESSION 1 OVERFLOW.mp4",
@@ -11,7 +11,7 @@
   },
   "duration": 7855.1,
   "createdAt": "2026-10-08T04:33:42Z",
-  "updatedAt": "2026-10-11T03:51:35Z",
+  "updatedAt": "2026-10-11T23:48:06Z",
   "notes": [
     {
       "id": "n_1ebu0jb12b",
@@ -42,30 +42,19 @@
       "updatedAt": "2026-10-09T02:40:39Z"
     },
     {
-      "id": "n_13mhjwzl4n",
-      "type": "timestamp",
-      "timestamp": 998.8,
-      "title": "Worship starts",
-      "content": "",
-      "tags": [],
-      "markers": [],
-      "visibility": "public",
-      "createdAt": "2026-10-09T02:42:02Z",
-      "updatedAt": "2026-10-09T02:42:02Z"
-    },
-    {
       "id": "n_15iexas7sd",
       "type": "timestamp",
       "timestamp": 1058.1,
       "title": "Grace Like a Wave by Elevation Worship",
       "content": "",
       "tags": [
-        "song"
+        "song",
+        "start-of-worship"
       ],
       "markers": [],
       "visibility": "public",
       "createdAt": "2026-10-09T02:44:40Z",
-      "updatedAt": "2026-10-09T02:44:40Z"
+      "updatedAt": "2026-10-11T23:37:06Z"
     },
     {
       "id": "n_1azxco33va",
@@ -436,30 +425,19 @@
       "updatedAt": "2026-10-11T03:21:51Z"
     },
     {
-      "id": "n_tvi06b1e4v",
-      "type": "timestamp",
-      "timestamp": 6387.1,
-      "title": "Worship begins again",
-      "content": "",
-      "tags": [],
-      "markers": [],
-      "visibility": "public",
-      "createdAt": "2026-10-11T03:24:24Z",
-      "updatedAt": "2026-10-11T03:24:24Z"
-    },
-    {
       "id": "n_mm3n0u1oxz",
       "type": "timestamp",
       "timestamp": 6393,
       "title": "Closer by Brandon Lake",
       "content": "",
       "tags": [
-        "song"
+        "song",
+        "start-of-worship"
       ],
       "markers": [],
       "visibility": "public",
       "createdAt": "2026-10-11T03:26:30Z",
-      "updatedAt": "2026-10-11T03:29:16Z"
+      "updatedAt": "2026-10-11T23:37:20Z"
     },
     {
       "id": "n_gxxug3h1p9",
@@ -515,6 +493,22 @@
       "visibility": "public",
       "createdAt": "2026-10-11T03:51:35Z",
       "updatedAt": "2026-10-11T03:51:35Z"
+    },
+    {
+      "id": "n_2u3r8q15iz",
+      "type": "generic",
+      "timestamp": null,
+      "title": "Sermon notes",
+      "content": "Don't loose your self for people you wont see. A place without water (faith/God) has no life, live in Gods reality A heart without faith is a life without hope. God speaks in our purpose. God will show up.",
+      "tags": [
+        "sermon-notes"
+      ],
+      "markers": [
+        "orignal-23"
+      ],
+      "visibility": "public",
+      "createdAt": "2026-10-11T23:43:46Z",
+      "updatedAt": "2026-10-11T23:43:46Z"
     }
   ]
 }
