@@ -43,8 +43,31 @@
   text-underline-offset: 0.15em;
 }
 
-.rich-text em {
+.rich-text em,
+.video-title em,
+.tile-title em,
+.note-title em,
+.result-title em,
+.result-video-title em,
+.notes-next-title em,
+.filter-value em,
+.filter-option em,
+.note-ref em,
+.mention-label em,
+.seek-tooltip-label em {
   font-style: italic;
+}
+
+.video-title strong,
+.tile-title strong,
+.note-title strong,
+.result-title strong,
+.result-video-title strong,
+.notes-next-title strong,
+.filter-value strong,
+.filter-option strong,
+.seek-tooltip-label strong {
+  font-weight: 800;
 }
 
 .rich-sup,
@@ -480,6 +503,15 @@ mark {
   white-space: nowrap;
 }
 
+.notes-next-title .rich-line,
+.tile-title .rich-line,
+.video-title .rich-line,
+.note-title .rich-line,
+.result-title .rich-line,
+.result-video-title .rich-line {
+  display: inline;
+}
+
 .notes-panel-compact .notes-next {
   margin: 2px 4px;
   padding: 6px 8px;
@@ -664,6 +696,8 @@ button.note-ref:hover {
 
 .note-title {
   font-weight: 600;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .note.has-parts .note-body {
@@ -786,6 +820,20 @@ button.note-ref:hover {
 
 .editor-content {
   min-height: 110px;
+}
+
+textarea.editor-title-input {
+  display: block;
+  flex: none;
+  height: auto;
+  min-height: 38px;
+  max-height: 240px;
+  padding: 8px 12px;
+  line-height: 1.45;
+  resize: none;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .ts-input {

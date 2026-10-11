@@ -93,6 +93,11 @@ export function plainMarkup(text) {
     .join('\n');
 }
 
+// One line of those words. Used for the browser tab, tooltips, and @ / # links.
+export function plainTitle(text) {
+  return plainMarkup(text).replace(/\s+/g, ' ').trim();
+}
+
 function indentWidth(line) {
   if (line.startsWith('\t')) return 1;
   if (line.startsWith('  ')) return 2;

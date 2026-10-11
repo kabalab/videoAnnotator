@@ -1,4 +1,5 @@
-import { h } from '../core/dom.js';
+import { fill, formattedText, h } from '../core/dom.js';
+import { plainTitle } from '../core/markup.js';
 import { formatTime } from '../core/time.js';
 import { icon, iconSvg } from '../ui/icons.js';
 import { sourceLabel } from './sourceResolver.js';
@@ -77,7 +78,7 @@ export function createControls(p) {
     const r = seek.getBoundingClientRect();
     const near = ticks.find((tk) => Math.abs((tk.time / duration) * r.width - (clientX - r.left)) <= 6);
     tooltipTime.textContent = formatTime(near ? near.time : t);
-    tooltipLabel.textContent = near ? near.label : '';
+    fill(tooltipLabel, near?.label ? formattedText(near.label) : null);
     tooltip.classList.toggle('has-label', !!near);
     tooltip.hidden = false;
     tooltip.style.left = '0px';
@@ -136,7 +137,7 @@ export function createControls(p) {
             class: ['seek-tick', t.noteId === nextNoteId && 'is-next'],
             type: 'button',
             style: { left: `${Math.min(100, (t.time / duration) * 100)}%`, '--tick': t.color },
-            'aria-label': `${t.noteId === nextNoteId ? 'Next note. ' : ''}Jump to ${formatTime(t.time)}: ${t.label}`,
+            'aria-label': `${t.noteId === nextNoteId ? 'Next note. ' : ''}Jump to ${formatTime(t.time)}: ${plainTitle(t.label)}`,
             onpointerdown: (e) => e.stopPropagation(),
             onclick: (e) => {
               e.stopPropagation();

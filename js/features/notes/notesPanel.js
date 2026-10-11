@@ -1,5 +1,5 @@
-import { fill, h } from '../../core/dom.js';
-import { plainMarkup } from '../../core/markup.js';
+import { fill, formattedText, h } from '../../core/dom.js';
+import { plainMarkup, plainTitle } from '../../core/markup.js';
 import { canEdit } from '../../core/store.js';
 import { formatTime } from '../../core/time.js';
 import { icon } from '../../ui/icons.js';
@@ -152,11 +152,11 @@ export function createNotesPanel({ onJump, onOpen, onAdd, onVideoRef, onNote, co
     const label = notePreview(nextNote);
     const time = timeUntilNext();
     nextBanner.hidden = false;
-    nextBanner.setAttribute('aria-label', `Next note in ${time}: ${label}. Jump there.`);
+    nextBanner.setAttribute('aria-label', `Next note in ${time}: ${plainTitle(label)}. Jump there.`);
     nextBanner.replaceChildren(
       h('span', { class: 'notes-next-label' }, 'Next'),
       h('span', { class: 'notes-next-time' }, time),
-      h('span', { class: 'notes-next-title' }, label),
+      h('span', { class: 'notes-next-title' }, formattedText(label)),
     );
   }
 

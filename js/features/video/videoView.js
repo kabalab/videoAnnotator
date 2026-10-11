@@ -1,6 +1,6 @@
 import { config } from '../../config.js';
 import { h, isTypingTarget, snippet } from '../../core/dom.js';
-import { plainMarkup } from '../../core/markup.js';
+import { plainMarkup, plainTitle } from '../../core/markup.js';
 import { store, state, canEdit, editorActive, getVideo, getTag } from '../../core/store.js';
 import { navigate } from '../../core/router.js';
 import { parseTime } from '../../core/time.js';
@@ -212,7 +212,7 @@ export function mountVideoView(container, route) {
   }
 
   function render() {
-    document.title = `${video.title} \u00b7 Video Annotator`;
+    document.title = `${plainTitle(video.title)} \u00b7 Video Annotator`;
     header.update(video);
     panel.update(video);
     overlayNotes?.update(video);

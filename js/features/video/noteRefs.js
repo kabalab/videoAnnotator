@@ -1,3 +1,4 @@
+import { plainTitle } from '../../core/markup.js';
 import { formatTime, parseTime } from '../../core/time.js';
 
 // @0:25 links the timestamp note at that moment and is shown as its title.
@@ -56,7 +57,7 @@ function clipKey(text) {
 
 // Words that can be written after @. A title wins. An untitled note uses its first line.
 export function noteTextKeys(note) {
-  const rawTitle = String(note?.title || '').trim();
+  const rawTitle = plainTitle(note?.title);
   if (rawTitle) {
     const title = clipKey(rawTitle);
     return title ? [title] : [];
@@ -229,10 +230,10 @@ export function mentionChoices(notes, query) {
     if (!token) continue;
     const key = token.toLowerCase();
     if (seen.has(key)) continue;
-    const title = String(note.title || '').trim();
+    const title = plainTitle(note.title);
     const time = note.type === 'timestamp' && note.timestamp != null ? formatTime(note.timestamp) : '';
     const label = noteMentionText(note);
-    const hay = `${title} ${time} ${label}`.toLowerCase();
+    const hay = `${plainTitle(label)} ${time}`.toLowerCase();
     let rank = 50;
     if (q) {
       const titleKey = title.toLowerCase();

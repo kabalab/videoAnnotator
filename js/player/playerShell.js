@@ -1,5 +1,6 @@
 import { config } from '../config.js';
 import { h } from '../core/dom.js';
+import { plainTitle } from '../core/markup.js';
 import { Emitter } from '../core/emitter.js';
 import { getPref, setPref } from '../core/prefs.js';
 import { setToastHost } from '../ui/toast.js';
@@ -61,7 +62,7 @@ export function createPlayer({ video, isLocal, editable = false, startTime = 0, 
     fullscreenSupported: fs.supported(),
   });
 
-  const root = h('div', { class: 'player', role: 'region', 'aria-label': `Video player: ${video.title}` }, stage, clickLayer, loading, bigPlay, notice, errorBox, overlay, controls.el);
+  const root = h('div', { class: 'player', role: 'region', 'aria-label': `Video player: ${plainTitle(video.title)}` }, stage, clickLayer, loading, bigPlay, notice, errorBox, overlay, controls.el);
   controls.setEditable(canEditNow);
   controls.setVolume(prefs.volume, prefs.muted);
   controls.setDuration(lastDuration);

@@ -1,4 +1,5 @@
-import { fill, h, hashHue, plural } from '../../core/dom.js';
+import { fill, formattedText, h, hashHue, plural } from '../../core/dom.js';
+import { plainTitle } from '../../core/markup.js';
 import { store, state, canEdit, showPrivate, editorActive } from '../../core/store.js';
 import { videoHref } from '../../core/router.js';
 import { formatDuration } from '../../core/time.js';
@@ -12,7 +13,7 @@ export function videoThumb(video, { quality = 'hqdefault', className = 'thumb' }
   return h(
     'div',
     { class: className, style: { '--hue': hashHue(video.id) } },
-    h('span', { class: 'thumb-initial', 'aria-hidden': 'true' }, video.title.trim().charAt(0).toUpperCase()),
+    h('span', { class: 'thumb-initial', 'aria-hidden': 'true' }, (plainTitle(video.title) || video.title).trim().charAt(0).toUpperCase()),
     yt && h('img', { src: youtubeThumbnail(yt, quality), alt: '', loading: 'lazy', decoding: 'async', onerror: (e) => e.target.remove() }),
   );
 }
@@ -38,7 +39,7 @@ function videoTile(video) {
     h(
       'div',
       { class: 'tile-body' },
-      h('h3', { class: 'tile-title' }, video.title),
+      h('h3', { class: 'tile-title' }, formattedText(video.title)),
       h('p', { class: 'tile-meta' }, [timestamps && plural(timestamps, 'timestamp'), general && plural(general, 'note')].filter(Boolean).join(' \u00b7 ') || 'No notes yet'),
       badges.length ? h('div', { class: 'tile-badges' }, badges) : null,
     ),

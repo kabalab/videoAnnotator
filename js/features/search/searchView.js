@@ -1,4 +1,4 @@
-import { fill, h, plural } from '../../core/dom.js';
+import { fill, formattedText, h, plural } from '../../core/dom.js';
 import { plainMarkup } from '../../core/markup.js';
 import { store, getVideo, listVideos } from '../../core/store.js';
 import { navigate, videoHref } from '../../core/router.js';
@@ -13,12 +13,49 @@ import { availableFilters, filtersFromQuery, hasActiveFilters } from './filters.
 
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
+function termRe(terms) {
+  return new RegExp(terms.map(escapeRe).join('|'), 'gi');
+}
+
+function markParts(value, re) {
+  const parts = [];
+  let last = 0;
+  re.lastIndex = 0;
+  for (const match of String(value).matchAll(re)) {
+    if (match.index > last) parts.push({ hit: false, text: value.slice(last, match.index) });
+    if (match[0]) parts.push({ hit: true, text: match[0] });
+    last = match.index + match[0].length;
+    if (!match[0]) break;
+  }
+  if (last < value.length) parts.push({ hit: false, text: value.slice(last) });
+  return parts;
+}
+
 function highlight(text, terms) {
   if (!terms.length) return text;
-  const re = new RegExp(`(${terms.map(escapeRe).join('|')})`, 'gi');
-  return String(text)
-    .split(re)
-    .map((part, i) => (i % 2 ? h('mark', {}, part) : part));
+  const parts = markParts(text, termRe(terms));
+  if (!parts.some((part) => part.hit)) return text;
+  return parts.map((part) => (part.hit ? h('mark', {}, part.text) : part.text));
+}
+
+function highlightIn(el, terms) {
+  if (!el || !terms.length) return el;
+  const re = termRe(terms);
+  const nodes = [];
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  for (const node of nodes) {
+    const parts = markParts(node.nodeValue, re);
+    if (!parts.some((part) => part.hit)) continue;
+    const frag = document.createDocumentFragment();
+    for (const part of parts) frag.append(part.hit ? h('mark', {}, part.text) : document.createTextNode(part.text));
+    node.replaceWith(frag);
+  }
+  return el;
+}
+
+function formattedTitle(tag, className, text, terms) {
+  return highlightIn(h(tag, { class: className }, formattedText(text)), terms);
 }
 
 function snippetAround(text, terms, max = 220) {
@@ -57,7 +94,7 @@ function resultRow({ doc }, video, terms) {
       h(
         'div',
         { class: 'result-body' },
-        doc.title && h('div', { class: 'result-title' }, highlight(doc.title, terms)),
+        doc.title && formattedTitle('div', 'result-title', doc.title, terms),
         doc.content && h('p', { class: 'result-snippet' }, highlight(snippetAround(readableContent(doc, video), terms), terms)),
         note && (note.tags.length || note.markers.length || note.visibility === 'private') ? h('div', { class: 'note-meta' }, noteChips(note), note.visibility === 'private' && privateBadge()) : null,
       ),
@@ -80,7 +117,7 @@ export function renderResults(results, { terms = [], emptyText = 'No matches.' }
           'a',
           { class: 'result-group-head', href: videoHref(video.id) },
           videoThumb(video, { quality: 'mqdefault', className: 'thumb thumb-sm' }),
-          h('div', {}, h('h2', { class: 'result-video-title' }, video.title), h('span', { class: 'muted' }, plural(g.items.length, 'match', 'matches'))),
+          h('div', {}, formattedTitle('h2', 'result-video-title', video.title, terms), h('span', { class: 'muted' }, plural(g.items.length, 'match', 'matches'))),
         ),
         h('ul', { class: 'result-list' }, g.items.map((r) => resultRow(r, video, terms))),
       );
@@ -104,7 +141,9 @@ function filterMenu(filter, selected, onChange) {
       'summary',
       { class: 'filter-summary' },
       h('span', { class: 'filter-label' }, filter.label),
-      selected.length ? h('span', { class: 'filter-value' }, labels[0] + (labels.length > 1 ? ` +${labels.length - 1}` : '')) : h('span', { class: 'filter-value muted' }, 'All'),
+      selected.length
+        ? h('span', { class: 'filter-value' }, formattedText(labels[0]), labels.length > 1 ? ` +${labels.length - 1}` : null)
+        : h('span', { class: 'filter-value muted' }, 'All'),
       icon('chevronDown', 'filter-chevron'),
     ),
     h(
@@ -122,7 +161,7 @@ function filterMenu(filter, selected, onChange) {
               }),
               o.color && h('span', { class: 'chip-dot', style: { '--chip': o.color } }),
               o.marker && icon('flag', 'filter-flag'),
-              h('span', {}, o.label),
+              h('span', {}, formattedText(o.label)),
             ),
           )
         : h('p', { class: 'muted' }, 'Nothing to filter by yet.'),

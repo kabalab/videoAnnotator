@@ -64,7 +64,34 @@ export function createNoteEditor({ getCurrentTime, getNotes, onSave, onDelete, o
     tsError,
   );
 
-  const titleInput = h('input', { class: 'input', placeholder: 'Title (optional)', 'aria-label': 'Title (optional)', maxlength: '200' });
+  const titleInput = h('textarea', { class: 'input editor-title-input', rows: '1', placeholder: 'Title (optional)', 'aria-label': 'Title (optional)', maxlength: '200' });
+  const TITLE_MAX = 240;
+  function fitTitle() {
+    const border = titleInput.offsetHeight - titleInput.clientHeight;
+    titleInput.style.height = '0px';
+    titleInput.style.height = `${Math.min(titleInput.scrollHeight + border, TITLE_MAX)}px`;
+  }
+  titleInput.addEventListener('input', fitTitle);
+  let titleWidth = 0;
+  const titleResize = new ResizeObserver(() => {
+    const width = el.clientWidth;
+    if (width === titleWidth) return;
+    titleWidth = width;
+    fitTitle();
+  });
+  titleInput.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' || e.ctrlKey || e.metaKey) return;
+    e.preventDefault();
+    content.focus();
+  });
+  titleInput.addEventListener('input', () => {
+    const flat = titleInput.value.replace(/[\r\n]+/g, ' ');
+    if (flat === titleInput.value) return;
+    const pos = titleInput.selectionStart;
+    titleInput.value = flat;
+    titleInput.setSelectionRange(pos, pos);
+    fitTitle();
+  });
   const content = h('textarea', { class: 'input textarea editor-content', rows: '4', placeholder: 'Write your note\u2026 Leave a blank line to start another part.', 'aria-label': 'Note text' });
   bindTextIndent(content);
   const fit = autoGrow(content, 420);
@@ -81,7 +108,7 @@ export function createNoteEditor({ getCurrentTime, getNotes, onSave, onDelete, o
   const refHint = h(
     'span',
     { class: 'field-hint' },
-    'Type @ to link a timestamp or general note on this video. Type #Lecture to link another video, then pick one of its timestamps or general notes. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. Tab indents.',
+    'Type @ to link a timestamp or general note on this video. Type #Lecture to link another video, then pick one of its timestamps or general notes. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. These marks work in the title too. Tab indents.',
   );
   const tagPicker = createDescriptorPicker({ kind: 'tag', label: 'Tags' });
   const markerPicker = createDescriptorPicker({
@@ -134,6 +161,7 @@ export function createNoteEditor({ getCurrentTime, getNotes, onSave, onDelete, o
       saveBtn,
     ),
   );
+  titleResize.observe(el);
 
   el.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
@@ -302,6 +330,7 @@ export function createNoteEditor({ getCurrentTime, getNotes, onSave, onDelete, o
       open = true;
       el.classList.add('is-open');
       requestAnimationFrame(() => {
+        fitTitle();
         fit();
         content.focus({ preventScroll: true });
         content.setSelectionRange(content.value.length, content.value.length);

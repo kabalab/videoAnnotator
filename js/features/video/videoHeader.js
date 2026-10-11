@@ -1,4 +1,4 @@
-import { fill, h, richText } from '../../core/dom.js';
+import { fill, formattedText, h, richText } from '../../core/dom.js';
 import { canEdit, listVideos, showPrivate } from '../../core/store.js';
 import { icon } from '../../ui/icons.js';
 import { privateBadge } from '../descriptors/chips.js';
@@ -22,7 +22,7 @@ export function createVideoHeader({ onEdit, onNote, onVideo, onTime }) {
 
     fill(
       el,
-      h('div', { class: 'video-title-row' }, h('h1', { class: 'video-title' }, video.title), meta.length ? h('div', { class: 'video-title-meta' }, meta) : null),
+      h('div', { class: 'video-title-row' }, h('h1', { class: 'video-title' }, formattedText(video.title)), meta.length ? h('div', { class: 'video-title-meta' }, meta) : null),
       desc
         ? richText(desc, {
             className: `rich-text video-desc${long && !expanded ? ' is-clamped' : ''}`,

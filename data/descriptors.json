@@ -52,7 +52,19 @@
     {
       "id": "verse",
       "name": "Verse",
-      "color": "#00a2ad",
+      "color": "#ff0008",
+      "description": ""
+    },
+    {
+      "id": "response",
+      "name": "Response",
+      "color": "#2fb8c9",
+      "description": ""
+    },
+    {
+      "id": "benediction",
+      "name": "Benediction",
+      "color": "#7cc45a",
       "description": ""
     }
   ],

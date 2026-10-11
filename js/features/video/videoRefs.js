@@ -1,3 +1,4 @@
+import { plainTitle } from '../../core/markup.js';
 import { formatTime, parseTime } from '../../core/time.js';
 import { canStartMention, matchNoteBody, mentionChoices, mentionQuery, noteMentionText, noteTextKeys } from './noteRefs.js';
 
@@ -15,7 +16,7 @@ function boundaryAfter(text, length) {
 function titleCounts(videos) {
   const counts = new Map();
   for (const video of videos || []) {
-    const title = String(video?.title || '').trim();
+    const title = plainTitle(video?.title);
     if (!title || /[#\n]/.test(title)) continue;
     const key = title.toLowerCase();
     counts.set(key, (counts.get(key) || 0) + 1);
@@ -25,7 +26,7 @@ function titleCounts(videos) {
 
 export function videoRefKeys(video, counts) {
   const keys = [];
-  const title = String(video?.title || '').trim();
+  const title = plainTitle(video?.title);
   if (title && !/[#\n]/.test(title) && counts.get(title.toLowerCase()) === 1) keys.push({ value: title, kind: 'title' });
   const id = String(video?.id || '').trim();
   if (id && !/[#/\n]/.test(id)) keys.push({ value: id, kind: 'id' });
@@ -86,7 +87,7 @@ export function videoRefLabel(ref) {
 }
 
 export function videoRefTitle(ref) {
-  const name = ref.video?.title || ref.video?.id || 'this video';
+  const name = plainTitle(ref.video?.title) || ref.video?.id || 'this video';
   if (ref.note?.type === 'timestamp' && ref.note.timestamp != null) return `Jump to ${formatTime(ref.note.timestamp)} in ${name}`;
   if (ref.note) return `Show this note in ${name}`;
   if (ref.seconds != null) return `Jump to ${formatTime(ref.seconds)} in ${name}`;
@@ -161,7 +162,8 @@ export function videoMentionChoices(videos, query) {
   for (const video of videos || []) {
     const token = videoMentionToken(video, videos);
     if (!token) continue;
-    const title = String(video.title || '').trim();
+    const rawTitle = String(video.title || '').trim();
+    const title = plainTitle(rawTitle);
     const id = String(video.id || '');
     const titleKey = title.toLowerCase();
     const idKey = id.toLowerCase();
@@ -176,7 +178,7 @@ export function videoMentionChoices(videos, query) {
     const ambiguous = counts.get(titleKey) > 1;
     ranked.push({
       token,
-      label: title || id,
+      label: rawTitle || id,
       hint: ambiguous ? id : 'Video',
       icon: 'film',
       rank,

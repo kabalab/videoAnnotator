@@ -1,4 +1,4 @@
-import { h, richText } from '../../core/dom.js';
+import { formattedText, h, richText } from '../../core/dom.js';
 import { listVideos, showPrivate } from '../../core/store.js';
 import { formatTime } from '../../core/time.js';
 import { icon } from '../../ui/icons.js';
@@ -39,7 +39,7 @@ export function renderNoteItem(note, { onJump, onOpen, onVideoRef, onNote, notes
   const body = h(
     'div',
     { class: 'note-body' },
-    note.title && h('div', { class: 'note-title' }, note.title),
+    note.title && h('div', { class: 'note-title' }, formattedText(note.title)),
     content,
     meta.length ? h('div', { class: 'note-meta' }, meta) : null,
   );

@@ -1,3 +1,4 @@
+import { plainTitle } from '../../core/markup.js';
 import { state, getTag, getMarker, listVideos } from '../../core/store.js';
 import { displayTimeTokens, formatTime } from '../../core/time.js';
 import { displayNoteRefs } from '../video/noteRefs.js';
@@ -26,7 +27,7 @@ function buildDocs(video) {
   }
   for (const d of docs) {
     d.fields = {
-      title: normalize(d.title),
+      title: normalize(plainTitle(d.title)),
       content: normalize(`${d.content} ${displayTimeTokens(displayVideoRefs(displayNoteRefs(d.content, video.notes), listVideos()))}`),
       labels: normalize([...d.tagIds.map(tagName), ...d.markerIds.map(markerName)].join(' ')),
       time: d.timestamp != null ? formatTime(d.timestamp) : '',

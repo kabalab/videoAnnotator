@@ -12,7 +12,7 @@ import { formatTime } from '../../core/time.js';
 import { attachComposerHighlight, watchTimeTokens } from '../video/composerLinks.js';
 import { matchNoteRef } from '../video/noteRefs.js';
 import { attachMentionMenu } from '../video/mentionMenu.js';
-import { bindTextIndent } from '../../core/markup.js';
+import { bindTextIndent, plainTitle } from '../../core/markup.js';
 
 function titleFromFile(path) {
   const base = String(path || '').split('/').pop().replace(/\.[^.]+$/, '');
@@ -60,8 +60,8 @@ export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTim
   })();
   const descNotes = () => (isEdit ? video.notes : []);
   const descHint = isEdit
-    ? 'Type @ to link a timestamp or general note, @now or @10:40 for a time you can click, or # to link another video. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. Tab indents.'
-    : 'Leave a blank line between paragraphs. Type @10:40 for a time you can click, or #Lecture to link another video. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. Tab indents.';
+    ? 'Type @ to link a timestamp or general note, @now or @10:40 for a time you can click, or # to link another video. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. These marks work in the title too. Tab indents.'
+    : 'Leave a blank line between paragraphs. Type @10:40 for a time you can click, or #Lecture to link another video. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. These marks work in the title too. Tab indents.';
   const descHighlight = attachComposerHighlight(descInput, () => ({ notes: descNotes(), videos: listVideos() }));
   const descTimes = watchTimeTokens(descInput, {
     getSeconds: () => (openedAt == null ? 0 : openedAt),
@@ -321,7 +321,7 @@ export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTim
         onclick: async () => {
           const ok = await confirmDanger({
             title: 'Remove from library?',
-            message: `"${video.title}" and its ${video.notes.length} notes will be removed (data/videos/${video.id}.json is deleted).`,
+            message: `"${plainTitle(video.title)}" and its ${video.notes.length} notes will be removed (data/videos/${video.id}.json is deleted).`,
             detail: 'The video file itself is never deleted.',
             confirmLabel: 'Remove',
           });

@@ -96,7 +96,7 @@ const TEXT_READING = [
   { when: 'public', text: 'Click a time in a note or a description to jump to that moment.' },
   { when: 'public', text: 'A link to another note on this video shows that note. Click it to jump to a timestamp note, or to open a general note.' },
   { when: 'public', text: 'A link to another video opens that video. It can also open a moment in it, or one of its general notes.' },
-  { when: 'public', text: 'Some lines are larger than others. Text can be bold, underlined, italic, raised like an exponent, or lowered and smaller. Lines can be indented.' },
+  { when: 'public', text: 'Some lines are larger than others. Text can be bold, underlined, italic, raised like an exponent, or lowered and smaller. Lines can be indented. Video titles and note titles use the same marks.' },
 ];
 
 const TEXT_WRITING = [
@@ -138,15 +138,15 @@ const TEXT_WRITING = [
   },
   {
     when: 'editor',
-    parts: ['Start a line with ', code('$'), ' to make it bigger. ', code('$$'), ' is larger, and ', code('$$$'), ' is the largest.'],
+    parts: ['Start a line with ', code('$'), ' to make it bigger. ', code('$$'), ' is larger, and ', code('$$$'), ' is the largest. A title can start the same way.'],
   },
   {
     when: 'editor',
-    parts: [code('**text**'), ' is bold. ', code('__text__'), ' is underlined. ', code('~~text~~'), ' is italic.'],
+    parts: [code('**text**'), ' is bold. ', code('__text__'), ' is underlined. ', code('~~text~~'), ' is italic. The same marks work in a video title and a note title.'],
   },
   {
     when: 'editor',
-    parts: [code('^^text^^'), ' raises the text, like an exponent. ', code('%%text%%'), ' lowers it and makes it smaller.'],
+    parts: [code('^^text^^'), ' raises the text, like an exponent. ', code('%%text%%'), ' lowers it and makes it smaller. These work in titles too.'],
   },
   { when: 'editor', text: 'Tab indents while you are typing a note or a description. Shift+Tab removes one indent. Select several lines to indent them together. While a suggestion list is open, Tab picks a suggestion instead.' },
   { when: 'editor', text: 'Leave a blank line to start another part of a general note or a description.' },
