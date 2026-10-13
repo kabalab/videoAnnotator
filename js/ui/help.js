@@ -90,6 +90,8 @@ const WHILE_TYPING = [
   { keys: [['/e'], ['\\e']], action: `Forward ${step} seconds` },
   { keys: [['/a'], ['\\a']], action: `Back ${big} seconds` },
   { keys: [['/d'], ['\\d']], action: `Forward ${big} seconds` },
+  { keys: [['/j1:25', 'Space'], ['\\j1:25', 'Space']], action: 'Jump to that time. If the jump is 2 seconds or more, B or /b goes back' },
+  { keys: [['/b'], ['\\b']], action: 'Go back to where you were before the last jump' },
 ];
 
 const TEXT_READING = [
@@ -249,7 +251,7 @@ function keyboardPanel() {
       h(
         'p',
         { class: 'help-tab-lead' },
-        'Type these in any text field on the video page. The two characters are removed when the command runs.',
+        'Type these in any text field on the video page. The command is removed when it runs. /j waits until you type a time and press Space.',
       ),
       renderShortcutList(WHILE_TYPING),
     ),
