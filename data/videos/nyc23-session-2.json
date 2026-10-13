@@ -11,6 +11,136 @@
   },
   "duration": 8618.7,
   "createdAt": "2026-10-08T04:41:19Z",
-  "updatedAt": "2026-10-08T22:26:09Z",
-  "notes": []
+  "updatedAt": "2026-10-12T18:10:01Z",
+  "notes": [
+    {
+      "id": "n_howty3mg6c",
+      "type": "timestamp",
+      "timestamp": 490.4,
+      "title": "NYC live",
+      "content": "Interviews Stephanie Lobdell.\n\n@13:17 Interviews the singers of king and country.\n\n@17:31 Goes back to NYC live.",
+      "tags": [
+        "nyc-live"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-12T01:13:12Z",
+      "updatedAt": "2026-10-12T01:18:56Z"
+    },
+    {
+      "id": "n_1p2k8v8chx",
+      "type": "timestamp",
+      "timestamp": 1458.7,
+      "title": "All Hail King Jesus by Jeremy Riddle",
+      "content": "",
+      "tags": [
+        "song",
+        "start-of-worship"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-12T01:23:29Z",
+      "updatedAt": "2026-10-12T01:23:29Z"
+    },
+    {
+      "id": "n_1315zpiuec",
+      "type": "timestamp",
+      "timestamp": 1862.5,
+      "title": "Antonio Marshall walks on stage",
+      "content": "Prepares us for the sermon and also talks about leaving NYC overflowing with the love of Christ. talks about getting ready for the service and be ready to receive.",
+      "tags": [
+        "important-piece"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-12T01:30:58Z",
+      "updatedAt": "2026-10-12T01:50:18Z"
+    },
+    {
+      "id": "n_1ea1ggkom3",
+      "type": "timestamp",
+      "timestamp": 1914.6,
+      "title": "2 Corinthians 8:1-5",
+      "content": "And now, brothers and sisters, we want you to know about the grave that God has given the Macedonian churches. In the midst of a very severe trial, their overflowing joy and their extreme poverty welled up in rich generosity. For I testify that they gave as much as they were able, and even beyond their ability. Entirely on their own, they urgently pleaded with us for the privilege of sharing in this service to the Lord's people. And they exceeded our expectations: They gave themselves first of all to the lord and then by the will of God also to us.",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-12T01:32:29Z",
+      "updatedAt": "2026-10-12T01:38:27Z"
+    },
+    {
+      "id": "n_psrcg21fe3",
+      "type": "timestamp",
+      "timestamp": 2102.2,
+      "title": "Intro video",
+      "content": "You don't need to be perfect God just want to be with you.",
+      "tags": [
+        "intro-video"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-12T01:45:16Z",
+      "updatedAt": "2026-10-12T01:45:16Z"
+    },
+    {
+      "id": "n_13y97og14l",
+      "type": "timestamp",
+      "timestamp": 2232.5,
+      "title": "Here it is (I worship you) by Passion",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-12T01:45:31Z",
+      "updatedAt": "2026-10-12T01:49:43Z"
+    },
+    {
+      "id": "n_ltqks6bw95",
+      "type": "timestamp",
+      "timestamp": 2519.4,
+      "title": "Graves into Gardens by Elevation Worship",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-12T01:58:07Z",
+      "updatedAt": "2026-10-12T01:58:07Z"
+    },
+    {
+      "id": "n_11ylqooqj6",
+      "type": "timestamp",
+      "timestamp": 3017.8,
+      "title": "Carly Bartlett walks on stage",
+      "content": "",
+      "tags": [
+        "start-of-sermon"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-12T02:02:19Z",
+      "updatedAt": "2026-10-12T17:58:20Z"
+    },
+    {
+      "id": "n_1rm54anxur",
+      "type": "generic",
+      "timestamp": null,
+      "title": "Sermon notes",
+      "content": "Talks a little about her. She tried so hard for this Gold cup, which is this trophy for getting 1st all 4 years of high school, she practiced and practiced but the day of the competition she's running a little late she makes on stage and can't play the piano she goes back to her car she gets a parking ticket. The reasons its such a memorable day is because she felt like her value had been shaken. People will find value in what they do, the **identify** with the things they do. __People live life with clenched fists.__ We do it unknowingly we do it when we put up an image for others. God doesn't want us to do this he wants us to let go he wants us to be free.",
+      "tags": [
+        "sermon-notes"
+      ],
+      "markers": [
+        "rewatch-october-26"
+      ],
+      "visibility": "public",
+      "createdAt": "2026-10-12T18:10:01Z",
+      "updatedAt": "2026-10-12T18:10:01Z"
+    }
+  ]
 }

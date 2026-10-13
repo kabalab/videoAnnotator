@@ -1,10 +1,12 @@
 import { plainTitle } from '../../core/markup.js';
 import { formatTime, parseTime } from '../../core/time.js';
-import { canStartMention, matchNoteBody, mentionChoices, mentionQuery, noteMentionText, noteTextKeys } from './noteRefs.js';
+import { canStartMention, matchNoteBody, mentionChoices, mentionQuery, noteMentionText, noteRefLabel, noteTextKeys } from './noteRefs.js';
 
 // #Lecture links that video. #Lecture/Summary links a note by title.
 // #Lecture/0:25 links the note at that time, or the moment itself when no note is there.
+// #t#Lecture/Summary is the same link, but the button shows the video title and the note title, not the note text.
 // A # stuck to a word is left alone. Titles that are shared by two videos are written as the id.
+// A video titled "t" is still #t. Only #t# starts the title-only form.
 
 const CLOCK_TOKEN = /^\d{1,3}:\d{2}(?::\d{2})?(?:\.\d+)?$/;
 
@@ -57,31 +59,35 @@ export function videoMentionToken(video, videos) {
 }
 
 // text starts at the #. Returns null when no video matches, so the characters stay as typed.
+// #t# is the title-only form: the video lookup is the same, and a note link leaves out the note text.
 export function matchVideoRef(text, videos) {
   if (!text?.startsWith('#') || !videos?.length) return null;
-  const rest = text.slice(1);
+  const titleOnly = text.startsWith('#t#');
+  const skip = titleOnly ? 3 : 1;
+  const rest = text.slice(skip);
   const counts = titleCounts(videos);
   const best = bestKey(rest, videos, counts);
   if (!best) return null;
   const after = rest.slice(best.length);
   if (!after.startsWith('/')) {
     if (!boundaryAfter(rest, best.length)) return null;
-    return { length: 1 + best.length, video: best.video, note: null, seconds: null, kind: 'video' };
+    return { length: skip + best.length, video: best.video, note: null, seconds: null, kind: 'video', titleOnly };
   }
   const body = matchNoteBody(after.slice(1), best.video.notes, { allowBareTime: true });
   if (!body) return null;
   return {
-    length: 1 + best.length + 1 + body.length,
+    length: skip + best.length + 1 + body.length,
     video: best.video,
     note: body.note,
     seconds: body.note?.type === 'timestamp' && body.note.timestamp != null ? body.note.timestamp : body.seconds,
     kind: body.kind,
+    titleOnly,
   };
 }
 
 export function videoRefLabel(ref) {
   const name = ref.video?.title || ref.video?.id || 'Video';
-  if (ref.note) return `${name} / ${noteMentionText(ref.note)}`;
+  if (ref.note) return `${name} / ${ref.titleOnly ? noteRefLabel(ref.note) : noteMentionText(ref.note)}`;
   if (ref.kind === 'time' && ref.seconds != null) return `${name} / ${formatTime(ref.seconds)}`;
   return name;
 }
@@ -196,7 +202,8 @@ export function videoMentionClosed(text, cursor, videos) {
   const match = matchVideoRef(from, videos);
   if (!match || match.length >= from.length) return false;
   if (!/^\s/.test(from.slice(match.length))) return false;
-  const typed = from.slice(1).toLowerCase();
+  const skip = found.prefixLength;
+  const typed = from.slice(skip).toLowerCase();
   const counts = titleCounts(videos);
   if (!match.note && match.kind === 'video') {
     const longer = (videos || []).some((video) =>
@@ -207,8 +214,8 @@ export function videoMentionClosed(text, cursor, videos) {
     );
     return !longer;
   }
-  const videoKey = bestKey(from.slice(1), videos, counts);
-  const noteTyped = videoKey ? from.slice(1 + videoKey.length + 1).toLowerCase() : '';
+  const videoKey = bestKey(from.slice(skip), videos, counts);
+  const noteTyped = videoKey ? from.slice(skip + videoKey.length + 1).toLowerCase() : '';
   const longerNote = (match.video.notes || []).some((note) => {
     const id = String(note?.id || '').trim();
     const keys = [...noteTextKeys(note), id && !/[@#/\n]/.test(id) ? id : ''];

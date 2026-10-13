@@ -1,9 +1,10 @@
 import { plainTitle } from '../../core/markup.js';
 import { formatTime, parseTime } from '../../core/time.js';
 
-// @0:25 links the timestamp note at that moment and is shown as its title.
+// @0:25 links the timestamp note at that moment and is shown as its title and text.
 // @Summary links a note by its title. An untitled note can be linked by its first line, or by its id
 // when that line is shared or unsafe to write. An @ inside a word (an email) is left alone.
+// @t@Summary is the same link, but the button shows only the title, not the note text.
 const TIME_TOKEN = /^(\d{1,3}:\d{2}(?::\d{2})?(?:\.\d+)?)/;
 const TIME_EXACT = /^\d{1,3}:\d{2}(?::\d{2})?(?:\.\d+)?$/;
 
@@ -132,11 +133,14 @@ export function matchNoteBody(rest, notes, { allowBareTime = false } = {}) {
 }
 
 // text starts at the @. Returns null when nothing on this video matches, so the characters stay as typed.
+// @t@ is the title-only form: the note lookup is the same, and the button leaves out the note text.
 export function matchNoteRef(text, notes) {
   if (!text?.startsWith('@') || !notes?.length) return null;
-  const body = matchNoteBody(text.slice(1), notes);
+  const titleOnly = text.startsWith('@t@');
+  const skip = titleOnly ? 3 : 1;
+  const body = matchNoteBody(text.slice(skip), notes);
   if (!body?.note) return null;
-  return { length: 1 + body.length, note: body.note, kind: body.kind };
+  return { length: skip + body.length, note: body.note, kind: body.kind, titleOnly };
 }
 
 // Plain-text form used by search snippets: the title a reader would see, not the @ token.
@@ -195,11 +199,19 @@ export function mentionToken(note, notes) {
 }
 
 // The @ or # being typed, if the caret is inside one. start is the index of that sigil.
+// @t@ and #t# are one mention: the query is the text after that prefix, and start stays on the first sigil.
 export function mentionQuery(text, cursor) {
   const upto = String(text || '').slice(0, Number.isFinite(cursor) ? cursor : 0);
-  const m = upto.match(/(?:^|[\s([(])([@#])([^@#\n]*)$/);
+  const m = upto.match(/(?:^|[\s([(])(([@#])t\2|[@#])([^@#\n]*)$/);
   if (!m) return null;
-  return { sigil: m[1], query: m[2], start: upto.length - m[2].length - 1 };
+  const prefix = m[1];
+  return {
+    sigil: prefix[0],
+    query: m[3],
+    start: upto.length - m[3].length - prefix.length,
+    titleOnly: prefix.length === 3,
+    prefixLength: prefix.length,
+  };
 }
 
 // True once the caret has moved past a finished reference, such as "@Summary " or "@0:25 and then".
@@ -211,7 +223,7 @@ export function mentionClosed(text, cursor, notes) {
   const match = matchNoteRef(fromAt, notes);
   if (!match || match.length >= fromAt.length) return false;
   if (!/^\s/.test(fromAt.slice(match.length))) return false;
-  const typed = fromAt.slice(1).toLowerCase();
+  const typed = fromAt.slice(found.prefixLength).toLowerCase();
   const longer = (notes || []).some((note) =>
     [noteTextKeys(note)[0], noteIdKey(note), note?.type === 'timestamp' && note.timestamp != null ? formatTime(note.timestamp) : ''].some((key) => {
       const value = String(key || '').toLowerCase();

@@ -108,7 +108,7 @@ export function createNoteEditor({ getCurrentTime, getNotes, onSave, onDelete, o
   const refHint = h(
     'span',
     { class: 'field-hint' },
-    'Type @ to link a timestamp or general note on this video. Type #Lecture to link another video, then pick one of its timestamps or general notes. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. These marks work in the title too. Tab indents.',
+    'Type @ to link a timestamp or general note on this video. Type #Lecture to link another video, then pick one of its timestamps or general notes. Put t between the marks (@t@ or #t#) to show only the title. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. These marks work in the title too. Tab indents.',
   );
   const tagPicker = createDescriptorPicker({ kind: 'tag', label: 'Tags' });
   const markerPicker = createDescriptorPicker({

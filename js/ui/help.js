@@ -127,6 +127,19 @@ const TEXT_WRITING = [
   {
     when: 'editor',
     parts: [
+      code('@t@Summary'),
+      ' is the same note link, but it shows only the title. ',
+      code('#t#Lecture/Summary'),
+      ' shows the video title and the note title, without the note text. ',
+      code('#t#Lecture'),
+      ' links the video the same way ',
+      code('#Lecture'),
+      ' does.',
+    ],
+  },
+  {
+    when: 'editor',
+    parts: [
       'While writing, type ',
       code('@'),
       ' to link a note or insert a time, or ',

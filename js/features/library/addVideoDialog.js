@@ -60,8 +60,8 @@ export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTim
   })();
   const descNotes = () => (isEdit ? video.notes : []);
   const descHint = isEdit
-    ? 'Type @ to link a timestamp or general note, @now or @10:40 for a time you can click, or # to link another video. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. These marks work in the title too. Tab indents.'
-    : 'Leave a blank line between paragraphs. Type @10:40 for a time you can click, or #Lecture to link another video. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. These marks work in the title too. Tab indents.';
+    ? 'Type @ to link a timestamp or general note, @now or @10:40 for a time you can click, or # to link another video. Put t between the marks (@t@ or #t#) to show only the title. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. These marks work in the title too. Tab indents.'
+    : 'Leave a blank line between paragraphs. Type @10:40 for a time you can click, or #Lecture to link another video. Put t between the marks (@t@ or #t#) to show only the title. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. These marks work in the title too. Tab indents.';
   const descHighlight = attachComposerHighlight(descInput, () => ({ notes: descNotes(), videos: listVideos() }));
   const descTimes = watchTimeTokens(descInput, {
     getSeconds: () => (openedAt == null ? 0 : openedAt),

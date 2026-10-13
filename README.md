@@ -170,6 +170,8 @@ These work in note text and in video descriptions.
 | `#Lecture` | Links another video by title (or by id when two videos share a title). |
 | `#Lecture/0:25` | Opens that video at a timestamp. |
 | `#Lecture/Summary` | Opens a general note on that video. |
+| `@t@Summary` | Same link as `@Summary` or `@0:25`, but the button shows only the title, not the note text. |
+| `#t#Lecture/Summary` | Same link as `#Lecture/Summary` or `#Lecture/0:25`, but the button shows the video title and the note title, not the note text. `#t#Lecture` links the video the same way `#Lecture` does. |
 | `$` / `$$` / `$$$` | At the start of a line, makes it bigger. Three dollar signs is the largest. |
 | `**text**` | Bold |
 | `__text__` | Underlined |

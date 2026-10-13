@@ -58,9 +58,18 @@ export function attachMentionMenu(textarea, source) {
   }
 
   function choicesFor(found) {
-    if (found.sigil === '#') return videoMentionChoices(getVideos?.() || [], found.query);
+    const wrap = (token) => {
+      if (!found.titleOnly || !token) return token;
+      const sigil = token[0];
+      if (sigil !== '@' && sigil !== '#') return token;
+      if (token.startsWith(`${sigil}t${sigil}`)) return token;
+      return `${sigil}t${token}`;
+    };
+    if (found.sigil === '#') {
+      return videoMentionChoices(getVideos?.() || [], found.query).map((item) => ({ ...item, token: wrap(item.token) }));
+    }
     const items = mentionChoices(getNotes?.() || [], found.query).map((item) => ({
-      token: item.token,
+      token: wrap(item.token),
       label: item.label,
       hint: item.time || 'General',
       icon: item.time ? 'clock' : 'note',
@@ -70,8 +79,9 @@ export function attachMentionMenu(textarea, source) {
       const token = includeNow();
       const clock = String(token || '').replace(/^@/, '').toLowerCase();
       const wantsNow = q && ('now'.startsWith(q) || (clock && clock.startsWith(q)));
-      if (wantsNow && token && !items.some((item) => item.token.toLowerCase() === token.toLowerCase())) {
-        items.push({ token, label: 'This time', hint: clock || 'Clock', icon: 'clock' });
+      const wrapped = wrap(token);
+      if (wantsNow && token && !items.some((item) => item.token.toLowerCase() === wrapped.toLowerCase())) {
+        items.push({ token: wrapped, label: 'This time', hint: clock || 'Clock', icon: 'clock' });
       }
     }
     return items;
@@ -88,7 +98,7 @@ export function attachMentionMenu(textarea, source) {
     if (closed) return hide();
     if (found.sigil === '@' && !notes.length && !includeNow) return hide();
     if (found.sigil === '#' && !videos.length) return hide();
-    const queryKey = `${found.sigil}${found.query}`;
+    const queryKey = `${found.titleOnly ? 't' : ''}${found.sigil}${found.query}`;
     if (queryKey !== queryText) {
       queryText = queryKey;
       index = 0;
