@@ -1,5 +1,6 @@
 import { fill, formattedText, h } from '../core/dom.js';
 import { plainTitle } from '../core/markup.js';
+import { getTag } from '../core/store.js';
 import { formatTime } from '../core/time.js';
 import { icon, iconSvg } from '../ui/icons.js';
 import { sourceLabel } from './sourceResolver.js';
@@ -60,7 +61,8 @@ export function createControls(p) {
   const endHandle = h('button', { class: 'seek-handle seek-handle-end', type: 'button', hidden: true, 'aria-label': 'Clip end' });
   const tooltipTime = h('span', { class: 'seek-tooltip-time' });
   const tooltipLabel = h('span', { class: 'seek-tooltip-label' });
-  const tooltip = h('div', { class: 'seek-tooltip', hidden: true }, tooltipTime, tooltipLabel);
+  const tooltipTags = h('span', { class: 'seek-tooltip-tags' });
+  const tooltip = h('div', { class: 'seek-tooltip', hidden: true }, tooltipTime, tooltipLabel, tooltipTags);
   const seek = h(
     'div',
     { class: 'seek', role: 'slider', tabindex: '0', 'aria-label': 'Seek', 'aria-orientation': 'horizontal', 'aria-valuemin': '0', 'aria-valuemax': '0', 'aria-valuenow': '0' },
@@ -121,9 +123,12 @@ export function createControls(p) {
     const t = timeAtFraction(f);
     const r = seek.getBoundingClientRect();
     const near = ticks.find((tk) => Math.abs(fractionOfTime(tk.time) * r.width - (clientX - r.left)) <= 6);
+    const tagNames = near ? (near.tags || []).map((id) => getTag(id)?.name || id).filter(Boolean) : [];
     tooltipTime.textContent = formatTime(near ? near.time : t);
     fill(tooltipLabel, near?.label ? formattedText(near.label) : null);
-    tooltip.classList.toggle('has-label', !!near);
+    tooltipTags.textContent = tagNames.join(', ');
+    tooltip.classList.toggle('has-label', !!near?.label);
+    tooltip.classList.toggle('has-tags', tagNames.length > 0);
     tooltip.hidden = false;
     tooltip.style.left = '0px';
     const pad = 8;
@@ -210,7 +215,7 @@ export function createControls(p) {
             class: ['seek-tick', t.noteId === nextNoteId && 'is-next'],
             type: 'button',
             style: { left: `${Math.min(100, fractionOfTime(t.time) * 100)}%`, '--tick': t.color },
-            'aria-label': `${t.noteId === nextNoteId ? 'Next note. ' : ''}Jump to ${formatTime(t.time)}: ${plainTitle(t.label)}`,
+            'aria-label': `${t.noteId === nextNoteId ? 'Next note. ' : ''}Jump to ${formatTime(t.time)}: ${plainTitle(t.label)}${(t.tags || []).length ? `. Tags: ${(t.tags || []).map((id) => getTag(id)?.name || id).filter(Boolean).join(', ')}` : ''}`,
             onpointerdown: (e) => e.stopPropagation(),
             onclick: (e) => {
               e.stopPropagation();

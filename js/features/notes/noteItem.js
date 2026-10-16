@@ -12,7 +12,7 @@ function paragraphs(text) {
     .filter((para) => para.trim());
 }
 
-export function renderNoteItem(note, { onJump, onOpen, onVideoRef, onClipRef, onNote, notes = [], editable }) {
+export function renderNoteItem(note, { onJump, onOpen, onVideoRef, onClipRef, onNote, onMakeClip, notes = [], editable }) {
   const isTs = note.type === 'timestamp';
   const brokenTime = showPrivate() && '__originalTimestamp' in note;
   const meta = [noteChips(note), note.visibility === 'private' && privateBadge(), brokenTime && h('span', { class: 'badge badge-warning' }, icon('warning'), 'Invalid timestamp in file')].filter(Boolean);
@@ -83,10 +83,31 @@ export function renderNoteItem(note, { onJump, onOpen, onVideoRef, onClipRef, on
     });
   }
 
+  const timeBtn = isTs && h('button', { class: 'note-time', type: 'button', title: `Jump to ${formatTime(note.timestamp)}`, onclick: () => onJump(note) }, formatTime(note.timestamp));
+  const clipBtn =
+    isTs &&
+    editable &&
+    onMakeClip &&
+    h(
+      'button',
+      {
+        class: 'note-clip',
+        type: 'button',
+        title: 'Make a clip from this timestamp',
+        'aria-label': 'Make a clip from this timestamp',
+        onclick: (e) => {
+          e.stopPropagation();
+          onMakeClip(note);
+        },
+      },
+      icon('film'),
+      'Clip',
+    );
+
   return h(
     'li',
     { class: ['note', isTs ? 'note-ts' : 'note-generic', parts.length > 1 && !isTs && 'has-parts', note.visibility === 'private' && 'is-private', editable && 'is-editable'], dataset: { id: note.id } },
-    isTs && h('button', { class: 'note-time', type: 'button', title: `Jump to ${formatTime(note.timestamp)}`, onclick: () => onJump(note) }, formatTime(note.timestamp)),
+    timeBtn && (clipBtn ? h('div', { class: 'note-time-col' }, timeBtn, clipBtn) : timeBtn),
     body,
     editable && h('span', { class: 'note-edit-hint', 'aria-hidden': 'true' }, icon('edit')),
   );

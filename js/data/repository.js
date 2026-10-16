@@ -643,13 +643,25 @@ export async function restoreClip(clip, collections) {
   return persistClips();
 }
 
+function uniqueClipIds(ids) {
+  const seen = new Set();
+  const out = [];
+  for (const raw of ids || []) {
+    const id = String(raw || '').trim();
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    out.push(id);
+  }
+  return out;
+}
+
 function cleanCollection(input) {
   const title = String(input.title || '').trim();
   if (!title) throw new ValidationError('Give the collection a title.', 'title');
   return {
     title,
     description: String(input.description || '').replace(/\s+$/, ''),
-    clipIds: (input.clipIds || []).map((id) => String(id || '').trim()).filter(Boolean),
+    clipIds: uniqueClipIds(input.clipIds),
   };
 }
 

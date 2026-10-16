@@ -55,7 +55,150 @@
       "tags": [
         "song"
       ]
+    },
+    {
+      "id": "c_1x40qyw1sa",
+      "videoId": "nyc23-session-1",
+      "start": 3670,
+      "end": 4003,
+      "title": "Phenomena (Da Da) by Hillsong Young & Free",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_1ox379f42k",
+      "videoId": "nyc23-session-1",
+      "start": 6393,
+      "end": 6675,
+      "title": "Closer by Brandon Lake",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_1cuj0vh26s",
+      "videoId": "nyc23-session-1",
+      "start": 6704,
+      "end": 7027,
+      "title": "Living God by Red Rocks worship",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_1g3t6rbl0q",
+      "videoId": "nyc23-session-2",
+      "start": 1471,
+      "end": 1859,
+      "title": "All Hail King Jesus by Jeremy Riddle",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_1vy3uky1v7",
+      "videoId": "nyc23-session-2",
+      "start": 2361,
+      "end": 2741,
+      "title": "Here it is (I worship you) by Passion",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_r55lpy1ruf",
+      "videoId": "nyc23-session-2",
+      "start": 2741,
+      "end": 3013,
+      "title": "Graves into Gardens by Elevation Worship",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_caib1p16ia",
+      "videoId": "nyc23-session-2",
+      "start": 3941,
+      "end": 4215,
+      "title": "Call Me (I'm Yours) with Spanish by Royal Company",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_g33tdsecfh",
+      "videoId": "nyc23-session-2",
+      "start": 4230,
+      "end": 4613,
+      "title": "Firm Foundation (He Won’t) by Cody Carnes",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_35xphm16dj",
+      "videoId": "nyc23-session-2",
+      "start": 5574,
+      "end": 5872,
+      "title": "Living God by Red Rocks Worship",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_d0zg8312hl",
+      "videoId": "nyc23-session-2",
+      "start": 6706,
+      "end": 7084,
+      "title": "Lord Send Revival by Hillsong Young & Free",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_1oxf42qrh2",
+      "videoId": "nyc23-session-2",
+      "start": 7125,
+      "end": 7385,
+      "title": "Fake Love by Elevation Rhythm",
+      "description": "",
+      "tags": [
+        "song"
+      ]
     }
   ],
-  "collections": []
+  "collections": [
+    {
+      "id": "k_19gjoxjdzd",
+      "title": "Music",
+      "description": "",
+      "clipIds": [
+        "c_91hptlqc7a",
+        "c_1g3t6rbl0q",
+        "c_1cuj0vh26s",
+        "c_1dght6e13k",
+        "c_1ox379f42k",
+        "c_loxgv3k7nq",
+        "c_g33tdsecfh",
+        "c_1vy3uky1v7",
+        "c_d0zg8312hl",
+        "c_1jm1d7mce7",
+        "c_r55lpy1ruf",
+        "c_caib1p16ia",
+        "c_35xphm16dj",
+        "c_1iel6de1b5"
+      ]
+    }
+  ]
 }

@@ -6,7 +6,7 @@ import { icon } from '../../ui/icons.js';
 import { tagChip, markerChip } from '../descriptors/chips.js';
 import { renderNoteItem } from './noteItem.js';
 
-export function createNotesPanel({ onJump, onOpen, onAdd, onVideoRef, onClipRef, onNote, compact = false, onClose }) {
+export function createNotesPanel({ onJump, onOpen, onAdd, onVideoRef, onClipRef, onNote, onMakeClip, compact = false, onClose }) {
   let video = null;
   let tab = null;
   const filter = { tags: new Set(), markers: new Set() };
@@ -109,7 +109,7 @@ export function createNotesPanel({ onJump, onOpen, onAdd, onVideoRef, onClipRef,
 
     const source = tab === 'timeline' ? timestamps : general;
     const shown = source.filter(passes);
-    list.replaceChildren(...shown.map((n) => renderNoteItem(n, { onJump, onOpen, onVideoRef, onClipRef, onNote, notes: video.notes, editable })));
+    list.replaceChildren(...shown.map((n) => renderNoteItem(n, { onJump, onOpen, onVideoRef, onClipRef, onNote, onMakeClip, notes: video.notes, editable })));
     panelBody.id = `${prefix}panel`;
     panelBody.setAttribute('role', 'tabpanel');
     panelBody.setAttribute('aria-labelledby', `${prefix}tab-${tab}`);

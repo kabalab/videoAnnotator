@@ -383,6 +383,15 @@
   display: none;
 }
 
+.seek-tooltip-tags {
+  flex: 1 0 100%;
+  color: var(--text-faint);
+}
+
+.seek-tooltip:not(.has-tags) .seek-tooltip-tags {
+  display: none;
+}
+
 .ctl-row {
   display: flex;
   align-items: center;

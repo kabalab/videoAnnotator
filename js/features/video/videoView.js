@@ -66,7 +66,7 @@ export function mountVideoView(container, route) {
     onClip: openClipRef,
     onTime: (seconds) => player.jumpTo(seconds),
   });
-  const panel = createNotesPanel({ onJump: jumpToNote, onOpen: openEditor, onAdd: addNote, onVideoRef: openVideoRef, onClipRef: openClipRef, onNote: openLocalNote });
+  const panel = createNotesPanel({ onJump: jumpToNote, onOpen: openEditor, onAdd: addNote, onVideoRef: openVideoRef, onClipRef: openClipRef, onNote: openLocalNote, onMakeClip: makeClip });
   const editor = createNoteEditor({
     getCurrentTime: () => player.getTime(),
     getNotes: () => getVideo(id)?.notes || [],
@@ -112,7 +112,7 @@ export function mountVideoView(container, route) {
     overlayMode = mode;
     if (mode === 'editor') player.setOverlay(editor.el);
     else if (mode === 'notes') {
-      overlayNotes ||= createNotesPanel({ compact: true, onJump: jumpToNote, onOpen: openEditor, onAdd: addNote, onVideoRef: openVideoRef, onClipRef: openClipRef, onNote: openLocalNote, onClose: () => setOverlay(null) });
+      overlayNotes ||= createNotesPanel({ compact: true, onJump: jumpToNote, onOpen: openEditor, onAdd: addNote, onVideoRef: openVideoRef, onClipRef: openClipRef, onNote: openLocalNote, onMakeClip: makeClip, onClose: () => setOverlay(null) });
       overlayNotes.update(video);
       overlayNotes.setCurrentTime(player.getTime());
       player.setOverlay(overlayNotes.el);
@@ -188,6 +188,20 @@ export function mountVideoView(container, route) {
     highlightNote(note.id);
   }
 
+  function makeClip(note) {
+    if (!canEdit() || note?.type !== 'timestamp') return;
+    const stamps = (getVideo(id)?.notes || []).filter((n) => n.type === 'timestamp').sort((a, b) => a.timestamp - b.timestamp);
+    const idx = stamps.findIndex((n) => n.id === note.id);
+    const next = idx >= 0 ? stamps[idx + 1] : null;
+    const round = (n) => String(Math.round(Number(n) * 10) / 10);
+    navigate('/clip/new', {
+      video: id,
+      start: round(note.timestamp),
+      end: next ? round(next.timestamp) : undefined,
+      title: String(note.title || '').trim() || undefined,
+    });
+  }
+
   function openClipRef(ref) {
     if (ref.kind === 'collection-clip') navigate(`/collection/${encodeURIComponent(ref.collection.id)}`, { clip: ref.clip.id });
     else if (ref.kind === 'collection') navigate(`/collection/${encodeURIComponent(ref.collection.id)}`);
@@ -214,7 +228,7 @@ export function mountVideoView(container, route) {
     player.setTicks(
       video.notes
         .filter((n) => n.type === 'timestamp')
-        .map((n) => ({ time: n.timestamp, color: getTag(n.tags[0])?.color || '#8fb0ff', label: tickLabel(n), noteId: n.id })),
+        .map((n) => ({ time: n.timestamp, color: getTag(n.tags[0])?.color || '#8fb0ff', label: tickLabel(n), noteId: n.id, tags: n.tags || [] })),
     );
   }
 

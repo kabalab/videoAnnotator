@@ -8,6 +8,7 @@ import * as repo from '../../data/repository.js';
 import { createPlayer } from '../../player/playerShell.js';
 import { icon } from '../../ui/icons.js';
 import { toast } from '../../ui/toast.js';
+import { tagChip } from '../descriptors/chips.js';
 import { createDescriptorPicker } from '../descriptors/descriptorPicker.js';
 import { attachComposerHighlight, watchTimeTokens } from '../video/composerLinks.js';
 import { attachMentionMenu } from '../video/mentionMenu.js';
@@ -25,7 +26,23 @@ function ticksFor(video) {
   if (!video) return [];
   return video.notes
     .filter((note) => note.type === 'timestamp')
-    .map((note) => ({ time: note.timestamp, color: getTag(note.tags[0])?.color || '#8fb0ff', label: tickLabel(note), noteId: note.id }));
+    .map((note) => ({ time: note.timestamp, color: getTag(note.tags[0])?.color || '#8fb0ff', label: tickLabel(note), noteId: note.id, tags: note.tags || [] }));
+}
+
+function uniqueIds(ids) {
+  const seen = new Set();
+  const out = [];
+  for (const id of ids || []) {
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    out.push(id);
+  }
+  return out;
+}
+
+function tagChips(tags) {
+  const chips = (tags || []).map((id) => tagChip(id)).filter(Boolean);
+  return chips.length ? h('span', { class: 'chips clips-tags' }, chips) : null;
 }
 
 function playableQueue(collection) {
@@ -65,10 +82,15 @@ export function mountClipsView(container, route) {
   }
 
   function modeToken() {
-    return [current.name, current.params.id || '', current.query.video || '', current.query.start || '', current.query.clip || '', editing ? 'edit' : 'watch'].join('|');
+    return [current.name, current.params.id || '', current.query.video || '', current.query.start || '', current.query.end || '', current.query.title || '', current.query.clip || '', editing ? 'edit' : 'watch'].join('|');
   }
 
   function destroyPlayer() {
+    if (player?.el.contains(detailHost)) {
+      player.setOverlay(null);
+      const main = page.querySelector('.clips-main');
+      if (main) main.append(detailHost);
+    }
     player?.destroy();
     player = null;
     playerVideoId = null;
@@ -90,6 +112,7 @@ export function mountClipsView(container, route) {
       });
       player.on('range-end', onRangeEnd);
       player.on('span', onSpan);
+      player.on('immersive', () => placeClipEditor());
       playerVideoId = video.id;
       playerHost.replaceChildren(player.el);
       if (play) player.play();
@@ -139,6 +162,7 @@ export function mountClipsView(container, route) {
     const videoId = clip?.videoId || current.query.video || '';
     const video = getVideo(videoId);
     const start = clip ? clip.start : parseTime(current.query.start);
+    const end = clip ? clip.end : parseTime(current.query.end);
     if (!video) {
       showPrompt('Choose a source video to set the clip.');
       return;
@@ -147,8 +171,23 @@ export function mountClipsView(container, route) {
     player.setWindow(null);
     player.armStop(null);
     player.setTicks(ticksFor(video));
-    player.setSpan(Number.isFinite(start) ? { start, end: clip ? clip.end : null } : null);
+    const spanEnd = Number.isFinite(start) && Number.isFinite(end) && end > start ? end : null;
+    player.setSpan(Number.isFinite(start) ? { start, end: spanEnd } : null);
     if (!clip && Number.isFinite(start)) player.seek(start);
+  }
+
+  function clipFormOpen() {
+    return editing && (isNew(current, 'clip') || !!selectedClip());
+  }
+
+  function placeClipEditor() {
+    if (player && clipFormOpen() && player.isImmersive()) {
+      player.setOverlay(detailHost);
+      return;
+    }
+    if (player) player.setOverlay(null);
+    const main = page.querySelector('.clips-main');
+    if (main && detailHost.parentNode !== main) main.append(detailHost);
   }
 
   function openClipRef(ref) {
@@ -204,6 +243,7 @@ export function mountClipsView(container, route) {
             },
             h('span', { class: 'clips-item-title' }, item.title),
             h('span', { class: 'clips-item-meta' }, video ? plainTitle(video.title) : 'Missing video', ` · ${formatTime(item.start)}\u2013${formatTime(item.end)}`),
+            tagChips(item.tags),
           );
         })
       : h('p', { class: 'muted clips-empty' }, 'No clips yet.');
@@ -222,11 +262,19 @@ export function mountClipsView(container, route) {
       : h('p', { class: 'muted clips-empty' }, 'No collections yet.');
     fill(
       listHost,
-      h('div', { class: 'clips-block' }, h('h2', { class: 'clips-block-title' }, 'Clips'), clipRows),
       h('div', { class: 'clips-block' }, h('h2', { class: 'clips-block-title' }, 'Collections'), collectionRows),
+      h('div', { class: 'clips-block' }, h('h2', { class: 'clips-block-title' }, 'Clips'), clipRows),
     );
     if (!clip && current.name === 'clip' && !isNew(current, 'clip')) return;
     if (!collection && current.name === 'collection' && !isNew(current, 'collection')) return;
+  }
+
+  function useTimestamp(note, which) {
+    const input = detailHost.querySelector(which === 'start' ? '[data-clip-start]' : '[data-clip-end]');
+    if (!input) return;
+    input.value = formatTime(note.timestamp);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    player?.seek(note.timestamp);
   }
 
   function timestampRows(video) {
@@ -234,14 +282,21 @@ export function mountClipsView(container, route) {
     if (!notes.length) return [h('p', { class: 'muted' }, 'This video has no timestamp notes.')];
     return notes.map((note) =>
       h(
-        'button',
-        {
-          class: 'clips-ts',
-          type: 'button',
-          onclick: () => player?.seek(note.timestamp),
-        },
-        h('span', { class: 'clips-ts-time' }, formatTime(note.timestamp)),
-        h('span', { class: 'clips-ts-title' }, tickLabel(note)),
+        'div',
+        { class: 'clips-ts' },
+        h(
+          'button',
+          { class: 'clips-ts-jump', type: 'button', onclick: () => player?.seek(note.timestamp) },
+          h('span', { class: 'clips-ts-time' }, formatTime(note.timestamp)),
+          h('span', { class: 'clips-ts-title' }, tickLabel(note)),
+        ),
+        tagChips(note.tags),
+        h(
+          'span',
+          { class: 'clips-ts-actions' },
+          h('button', { class: 'btn btn-secondary btn-sm', type: 'button', onclick: () => useTimestamp(note, 'start') }, 'Set start'),
+          h('button', { class: 'btn btn-secondary btn-sm', type: 'button', onclick: () => useTimestamp(note, 'end') }, 'Set end'),
+        ),
       ),
     );
   }
@@ -283,7 +338,10 @@ export function mountClipsView(container, route) {
 
   function renderClipForm(clip) {
     const videos = listVideos();
-    const startValue = clip ? formatTime(clip.start) : current.query.start ? formatTime(parseTime(current.query.start) ?? 0) : '';
+    const queryStart = parseTime(current.query.start);
+    const queryEnd = parseTime(current.query.end);
+    const startValue = clip ? formatTime(clip.start) : current.query.start && queryStart != null ? formatTime(queryStart) : '';
+    const endValue = clip ? formatTime(clip.end) : current.query.end && queryEnd != null ? formatTime(queryEnd) : '';
     const videoSelect = h(
       'select',
       { class: 'input', 'aria-label': 'Source video', 'data-clip-video': 'true' },
@@ -291,9 +349,9 @@ export function mountClipsView(container, route) {
       ...videos.map((video) => h('option', { value: video.id, selected: video.id === (clip?.videoId || current.query.video) }, plainTitle(video.title) || video.id)),
     );
     const startInput = h('input', { class: 'input mono', 'data-clip-start': 'true', value: startValue, placeholder: '1:30', 'aria-label': 'Start', spellcheck: 'false' });
-    const endInput = h('input', { class: 'input mono', 'data-clip-end': 'true', value: clip ? formatTime(clip.end) : '', placeholder: '3:30', 'aria-label': 'End', spellcheck: 'false' });
+    const endInput = h('input', { class: 'input mono', 'data-clip-end': 'true', value: endValue, placeholder: '3:30', 'aria-label': 'End', spellcheck: 'false' });
     const notes = () => getVideo(videoSelect.value)?.notes || [];
-    const title = proseField('Title', clip?.title || '', notes);
+    const title = proseField('Title', clip?.title || (!clip ? current.query.title || '' : ''), notes);
     const description = proseField('Description', clip?.description || '', notes);
     const tags = createDescriptorPicker({ kind: 'tag', label: 'Tags' });
     tags.setValue(clip?.tags || []);
@@ -389,8 +447,6 @@ export function mountClipsView(container, route) {
     fill(
       detailHost,
       h('h2', { class: 'clips-detail-title' }, clip ? 'Edit clip' : 'New clip'),
-      title.el,
-      description.el,
       h('label', { class: 'field' }, h('span', { class: 'field-label' }, 'Source video'), videoSelect),
       h(
         'div',
@@ -420,8 +476,10 @@ export function mountClipsView(container, route) {
           'Play clip',
         ),
       ),
-      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Timestamp notes'), h('p', { class: 'field-hint' }, 'Click a note to move the playhead there, then set the start or end.'), tsList),
+      title.el,
+      description.el,
       tags.el,
+      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Timestamp notes'), h('p', { class: 'field-hint' }, 'Set start or end from a note, or click the note to move the playhead there.'), tsList),
       error,
       h(
         'div',
@@ -437,19 +495,30 @@ export function mountClipsView(container, route) {
     const key = collection?.id || 'new';
     if (draftKey !== key) {
       draftKey = key;
-      draftIds = [...(collection?.clipIds || [])];
+      draftIds = uniqueIds(collection?.clipIds);
     }
     const title = proseField('Title', collection?.title || '', () => []);
     const description = proseField('Description', collection?.description || '', () => []);
     const error = h('p', { class: 'form-error', role: 'alert', hidden: true });
     const order = h('div', { class: 'clips-order' });
-    const addSelect = h(
-      'select',
-      { class: 'input', 'aria-label': 'Clip to add' },
-      ...listClips().map((clip) => h('option', { value: clip.id }, clip.title)),
+    const addSelect = h('select', { class: 'input', 'aria-label': 'Clip to add' });
+    const addRow = h(
+      'div',
+      { class: 'clips-add-row' },
+      addSelect,
+      h('button', { class: 'btn btn-secondary btn-sm', type: 'button', onclick: () => addClip() }, 'Add'),
     );
+    const addNote = h('p', { class: 'muted' });
+    const shuffleBtn = h('button', { class: 'btn btn-secondary btn-sm', type: 'button', disabled: true, onclick: () => shuffle() }, icon('swap'), 'Shuffle');
 
     function paintOrder() {
+      shuffleBtn.disabled = draftIds.length < 2;
+      const available = listClips().filter((clip) => !draftIds.includes(clip.id));
+      addSelect.replaceChildren(...available.map((clip) => h('option', { value: clip.id }, clip.title)));
+      const anyClips = listClips().length > 0;
+      addRow.hidden = !available.length;
+      addNote.hidden = available.length > 0;
+      addNote.textContent = anyClips ? 'Every clip is already in this collection.' : 'Make a clip first, then add it here.';
       fill(
         order,
         draftIds.length
@@ -460,7 +529,7 @@ export function mountClipsView(container, route) {
               return h(
                 'div',
                 { class: 'clips-order-row' },
-                h('span', { class: 'clips-order-label' }, label),
+                h('span', { class: 'clips-order-main' }, h('span', { class: 'clips-order-label' }, label), clip && tagChips(clip.tags)),
                 h('button', { class: 'icon-btn clips-nudge-up', type: 'button', title: 'Move up', 'aria-label': 'Move up', disabled: index === 0, onclick: () => move(index, -1) }, icon('chevronDown')),
                 h('button', { class: 'icon-btn', type: 'button', title: 'Move down', 'aria-label': 'Move down', disabled: index === draftIds.length - 1, onclick: () => move(index, 1) }, icon('chevronDown')),
                 h('button', { class: 'icon-btn', type: 'button', title: 'Remove', 'aria-label': 'Remove from collection', onclick: () => { draftIds.splice(index, 1); paintOrder(); } }, icon('x')),
@@ -470,11 +539,28 @@ export function mountClipsView(container, route) {
       );
     }
 
+    function addClip() {
+      const id = addSelect.value;
+      if (!id || draftIds.includes(id)) return;
+      draftIds.push(id);
+      paintOrder();
+    }
+
     function move(index, dir) {
       const next = index + dir;
       if (next < 0 || next >= draftIds.length) return;
       const [item] = draftIds.splice(index, 1);
       draftIds.splice(next, 0, item);
+      paintOrder();
+    }
+
+    function shuffle() {
+      for (let i = draftIds.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const swap = draftIds[i];
+        draftIds[i] = draftIds[j];
+        draftIds[j] = swap;
+      }
       paintOrder();
     }
 
@@ -515,15 +601,9 @@ export function mountClipsView(container, route) {
       h('h2', { class: 'clips-detail-title' }, collection ? 'Edit collection' : 'New collection'),
       title.el,
       description.el,
-      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Clips, in play order'), order),
-      listClips().length
-        ? h(
-            'div',
-            { class: 'clips-add-row' },
-            addSelect,
-            h('button', { class: 'btn btn-secondary btn-sm', type: 'button', onclick: () => { if (addSelect.value) { draftIds.push(addSelect.value); paintOrder(); } } }, 'Add'),
-          )
-        : h('p', { class: 'muted' }, 'Make a clip first, then add it here.'),
+      h('div', { class: 'field' }, h('div', { class: 'clips-order-head' }, h('span', { class: 'field-label' }, 'Clips, in play order'), shuffleBtn), order),
+      addRow,
+      addNote,
       error,
       h(
         'div',
@@ -543,9 +623,10 @@ export function mountClipsView(container, route) {
         'div',
         { class: 'clips-watch-head' },
         h('h2', { class: 'clips-detail-title' }, linked(clip.title, video?.notes || [])),
-        canEdit() && h('button', { class: 'btn btn-secondary btn-sm', type: 'button', onclick: () => { editing = true; renderDetail(true); } }, icon('edit'), 'Edit'),
+        canEdit() && h('button', { class: 'btn btn-secondary btn-sm', type: 'button', onclick: () => { editing = true; renderDetail(true); placeClipEditor(); } }, icon('edit'), 'Edit'),
       ),
       h('p', { class: 'clips-item-meta' }, video ? plainTitle(video.title) : 'Missing video', ` · ${formatTime(clip.start)}\u2013${formatTime(clip.end)}`),
+      tagChips(clip.tags),
       clip.description && h('div', { class: 'clips-copy' }, linked(clip.description, video?.notes || [])),
     );
   }
@@ -573,8 +654,13 @@ export function mountClipsView(container, route) {
             markCollectionRows();
           },
         },
-        h('span', { class: 'clips-order-label' }, label),
-        clip && video && h('span', { class: 'clips-item-meta' }, `${formatTime(clip.start)}\u2013${formatTime(clip.end)}`),
+        h(
+          'span',
+          { class: 'clips-order-main' },
+          h('span', { class: 'clips-order-label' }, label),
+          clip && video && h('span', { class: 'clips-item-meta' }, `${formatTime(clip.start)}\u2013${formatTime(clip.end)}`),
+          clip && tagChips(clip.tags),
+        ),
       );
     });
     fill(
@@ -655,7 +741,10 @@ export function mountClipsView(container, route) {
     editing = false;
     draftKey = '';
     if (isNew(current, 'clip') || isNew(current, 'collection')) navigate('/clips');
-    else renderDetail(true);
+    else {
+      renderDetail(true);
+      placeClipEditor();
+    }
   }
 
   function render() {
@@ -678,6 +767,7 @@ export function mountClipsView(container, route) {
     );
     renderLists();
     renderDetail(false);
+    placeClipEditor();
   }
 
   function onKey(e) {
