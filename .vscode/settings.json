@@ -28,5 +28,6 @@
     "**/.nojekyll":true,
     "**/css":true,
     "**/index.html":true,
+    "**/.cursor":true,
   }
 }

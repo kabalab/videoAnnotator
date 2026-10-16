@@ -176,6 +176,61 @@
       "tags": [
         "song"
       ]
+    },
+    {
+      "id": "c_herofg7wnm",
+      "videoId": "nyc23-session-3",
+      "start": 2220,
+      "end": 2387,
+      "title": "Phenomena (Da Da) by Hillsong Young & Free",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_1bf2vnv1hg",
+      "videoId": "nyc23-session-3",
+      "start": 2399,
+      "end": 2608,
+      "title": "Fake Love by Elevation Rhythm",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_1enzpx0ax9",
+      "videoId": "nyc23-session-3",
+      "start": 3374,
+      "end": 3679,
+      "title": "Rest on Us with Spanish by Maverick City Music and UPPERROOM",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_18lrk6e88z",
+      "videoId": "nyc23-session-3",
+      "start": 3695,
+      "end": 4158,
+      "title": "Same God by Elevation Worship",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_1ajdlxw15n",
+      "videoId": "nyc23-session-3",
+      "start": 4177,
+      "end": 4537,
+      "title": "No Other King by Centricity Worship",
+      "description": "",
+      "tags": [
+        "song"
+      ]
     }
   ],
   "collections": [
@@ -197,7 +252,10 @@
         "c_caib1p16ia",
         "c_g33tdsecfh",
         "c_35xphm16dj",
-        "c_d0zg8312hl"
+        "c_d0zg8312hl",
+        "c_1enzpx0ax9",
+        "c_18lrk6e88z",
+        "c_1ajdlxw15n"
       ],
       "shuffle": true
     }

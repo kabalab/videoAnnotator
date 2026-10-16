@@ -11,7 +11,7 @@
   },
   "duration": 8035,
   "createdAt": "2026-10-08T22:20:57Z",
-  "updatedAt": "2026-10-15T16:49:05Z",
+  "updatedAt": "2026-10-16T18:40:59Z",
   "notes": [
     {
       "id": "n_mf1ighq11a",
@@ -30,7 +30,7 @@
     {
       "id": "n_pzbhq7kl01",
       "type": "timestamp",
-      "timestamp": 1891.8,
+      "timestamp": 1904.6,
       "title": "Recap video",
       "content": "",
       "tags": [
@@ -39,7 +39,175 @@
       "markers": [],
       "visibility": "public",
       "createdAt": "2026-10-15T16:41:30Z",
-      "updatedAt": "2026-10-15T16:49:05Z"
+      "updatedAt": "2026-10-16T15:44:45Z"
+    },
+    {
+      "id": "n_1njex4hya5",
+      "type": "timestamp",
+      "timestamp": 2077.9,
+      "title": "Drumming",
+      "content": "",
+      "tags": [
+        "start-of-worship"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-16T15:46:22Z",
+      "updatedAt": "2026-10-16T15:47:07Z"
+    },
+    {
+      "id": "n_zki29y1t3v",
+      "type": "timestamp",
+      "timestamp": 2220,
+      "title": "Phenomena (Da Da) by Hillsong Young & Free",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-16T15:49:05Z",
+      "updatedAt": "2026-10-16T15:49:57Z"
+    },
+    {
+      "id": "n_qtezya11gs",
+      "type": "timestamp",
+      "timestamp": 2399.6,
+      "title": "Fake Love by Elevation Rhythm",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-16T15:52:57Z",
+      "updatedAt": "2026-10-16T15:53:37Z"
+    },
+    {
+      "id": "n_1cpzqxd2hj",
+      "type": "timestamp",
+      "timestamp": 2611.2,
+      "title": "Stephanie Lobdell comes on stage",
+      "content": "@t@45:58\n\nled the Offering",
+      "tags": [
+        "response"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-16T16:05:55Z",
+      "updatedAt": "2026-10-16T16:18:08Z"
+    },
+    {
+      "id": "n_1mykmc21f1",
+      "type": "timestamp",
+      "timestamp": 2758,
+      "title": "Hebrews 13:15-16",
+      "content": "Through Jesus, therefore, let us continually offer to God a sacrifice of praise-the fruit of lips that openly profess his name. And do not forget to do good to share with others, for with such sacrifices God is pleased.",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-16T16:09:14Z",
+      "updatedAt": "2026-10-16T16:09:14Z"
+    },
+    {
+      "id": "n_1jpst1m1yb",
+      "type": "timestamp",
+      "timestamp": 3221.8,
+      "title": "Intro video",
+      "content": "",
+      "tags": [
+        "intro-video"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-16T16:21:12Z",
+      "updatedAt": "2026-10-16T16:21:12Z"
+    },
+    {
+      "id": "n_1l09umv1wk",
+      "type": "timestamp",
+      "timestamp": 3374,
+      "title": "Rest on Us with Spanish by Maverick City Music and UPPERROOM",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-16T16:21:34Z",
+      "updatedAt": "2026-10-16T16:24:54Z"
+    },
+    {
+      "id": "n_pnjaotmwed",
+      "type": "timestamp",
+      "timestamp": 3695,
+      "title": "Same God by Elevation Worship",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-16T16:27:35Z",
+      "updatedAt": "2026-10-16T16:28:38Z"
+    },
+    {
+      "id": "n_xga6evdabx",
+      "type": "timestamp",
+      "timestamp": 4177,
+      "title": "No Other King by Centricity Worship",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-16T16:35:43Z",
+      "updatedAt": "2026-10-16T16:37:28Z"
+    },
+    {
+      "id": "n_teqvdo1dnc",
+      "type": "timestamp",
+      "timestamp": 4546.3,
+      "title": "Chris Simning walks on stage",
+      "content": "",
+      "tags": [
+        "start-of-sermon"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-16T16:41:24Z",
+      "updatedAt": "2026-10-16T18:32:24Z"
+    },
+    {
+      "id": "n_1km7x8g104",
+      "type": "generic",
+      "timestamp": null,
+      "title": "Sermon notes",
+      "content": "Talks about his puddle in church story. \n\nWhat's something that you have been avoiding / sidestepping (Whats your puddle)",
+      "tags": [
+        "sermon-notes"
+      ],
+      "markers": [
+        "rewatch-october-26"
+      ],
+      "visibility": "public",
+      "createdAt": "2026-10-16T18:29:20Z",
+      "updatedAt": "2026-10-16T18:40:45Z"
+    },
+    {
+      "id": "n_158an0n1v8",
+      "type": "timestamp",
+      "timestamp": 5080.3,
+      "title": "Where I left off",
+      "content": "",
+      "tags": [],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-16T18:40:59Z",
+      "updatedAt": "2026-10-16T18:40:59Z"
     }
   ]
 }
