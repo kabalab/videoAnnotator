@@ -12,6 +12,7 @@ const fallbackNames = {
 function fileKind(path) {
   if (path === config.paths.library) return 'library';
   if (path === config.paths.descriptors) return 'descriptors';
+  if (path === config.paths.clips) return 'clips';
   if (VIDEO_FILE.test(path)) return 'video';
   return 'other';
 }
@@ -271,10 +272,87 @@ function videoIntro(draft) {
   return { kind: 'added', title: draft?.title || draft?.id || 'New video file', lines };
 }
 
+function clipHeading(clip) {
+  const name = String(clip?.title || clip?.id || 'Clip').trim() || 'Clip';
+  if (clip?.start == null && clip?.end == null) return name;
+  return `${name} (${clock(clip?.start)}\u2013${clock(clip?.end)})`;
+}
+
+function clipFacts(clip, names) {
+  const lines = [];
+  if (clip?.videoId) lines.push(`Video: ${names.videoTitle(clip.videoId)}`);
+  const tags = list(clip?.tags).map(names.tagName);
+  if (tags.length) lines.push(`Tags: ${tags.join(', ')}`);
+  if (clip?.description) lines.push(clip.description);
+  return lines;
+}
+
+function clipChanges(before, after, names) {
+  const lines = [];
+  if ((before?.title || '') !== (after?.title || '')) lines.push(`Title: ${show(before?.title)} \u2192 ${show(after?.title)}`);
+  if ((before?.videoId || '') !== (after?.videoId || '')) lines.push(`Video: ${names.videoTitle(before?.videoId)} \u2192 ${names.videoTitle(after?.videoId)}`);
+  if (before?.start !== after?.start || before?.end !== after?.end) lines.push(`Range: ${clock(before?.start)}\u2013${clock(before?.end)} \u2192 ${clock(after?.start)}\u2013${clock(after?.end)}`);
+  const tags = idChanges(before?.tags, after?.tags, names.tagName, 'Tags');
+  if (tags) lines.push(tags);
+  if ((before?.description || '') !== (after?.description || '')) lines.push('Description differs from the project file.');
+  return lines;
+}
+
+function collectionHeading(collection) {
+  return String(collection?.title || collection?.id || 'Collection').trim() || 'Collection';
+}
+
+function clipNames(ids, clips) {
+  const byId = new Map(objectsNamed(clips));
+  return list(ids).map((id) => byId.get(id) || id).join(', ');
+}
+
+function objectsNamed(clips) {
+  return list(clips).filter((clip) => clip && typeof clip === 'object' && clip.id).map((clip) => [clip.id, clip.title || clip.id]);
+}
+
+function collectionChanges(before, after, clips) {
+  const lines = [];
+  if ((before?.title || '') !== (after?.title || '')) lines.push(`Title: ${show(before?.title)} \u2192 ${show(after?.title)}`);
+  if ((before?.description || '') !== (after?.description || '')) lines.push('Description differs from the project file.');
+  if (JSON.stringify(before?.clipIds || []) !== JSON.stringify(after?.clipIds || [])) {
+    lines.push(`Clips: ${clipNames(before?.clipIds, clips) || 'none'} \u2192 ${clipNames(after?.clipIds, clips) || 'none'}`);
+  }
+  return lines;
+}
+
+function diffById(beforeList, afterList, noun, heading, facts, changes) {
+  const items = [];
+  const before = list(beforeList).filter((item) => item && typeof item === 'object');
+  const after = list(afterList).filter((item) => item && typeof item === 'object');
+  const beforeById = new Map(before.filter((item) => item.id).map((item) => [item.id, item]));
+  const afterById = new Map(after.filter((item) => item.id).map((item) => [item.id, item]));
+  for (const item of after) {
+    if (!item.id || !beforeById.has(item.id)) items.push({ kind: 'added', title: `${noun} \u201c${heading(item)}\u201d`, lines: facts(item) });
+    else {
+      const lines = changes(beforeById.get(item.id), item);
+      if (lines.length) items.push({ kind: 'changed', title: `${noun} \u201c${heading(item)}\u201d`, lines });
+    }
+  }
+  for (const item of before) {
+    if (!item.id || !afterById.has(item.id)) items.push({ kind: 'removed', title: `${noun} \u201c${heading(item)}\u201d`, lines: ['Still in the project file.'] });
+  }
+  return items;
+}
+
+function clipsItems(saved, draft, names) {
+  const clips = [...list(saved?.clips), ...list(draft?.clips)];
+  return [
+    ...diffById(saved?.clips, draft?.clips, 'Clip', clipHeading, (clip) => clipFacts(clip, names), (before, after) => clipChanges(before, after, names)),
+    ...diffById(saved?.collections, draft?.collections, 'Collection', collectionHeading, (collection) => (collection?.description ? [collection.description] : []), (before, after) => collectionChanges(before, after, clips)),
+  ];
+}
+
 function diffFile(path, saved, draft, names) {
   const kind = fileKind(path);
   if (kind === 'library') return libraryItems(saved, draft, names);
   if (kind === 'descriptors') return [...diffNamedList(saved?.tags, draft?.tags, 'Tag'), ...diffNamedList(saved?.markers, draft?.markers, 'Marker')];
+  if (kind === 'clips') return clipsItems(saved, draft, names);
   if (kind === 'video') return [...videoDetailChanges(saved, draft), ...videoNotes(saved, draft, names)];
   return genericChanges(saved, draft);
 }
@@ -285,6 +363,10 @@ function addedFile(path, draft, names) {
   if (kind === 'descriptors') {
     const items = [...diffNamedList([], draft?.tags, 'Tag'), ...diffNamedList([], draft?.markers, 'Marker')];
     return items.length ? items : [{ kind: 'added', title: 'New descriptors file', lines: ['This file is not in the project yet.'] }];
+  }
+  if (kind === 'clips') {
+    const items = clipsItems(null, draft, names);
+    return items.length ? items : [{ kind: 'added', title: 'New clips file', lines: ['This file is not in the project yet.'] }];
   }
   if (kind === 'video') return [videoIntro(draft), ...videoNotes(null, draft, names)];
   return [{ kind: 'added', title: 'New file', lines: ['This file is not in the project yet.'] }];
@@ -315,6 +397,7 @@ function removedFile(path, saved) {
   }
   if (kind === 'library') return [{ kind: 'removed', title: 'Library file', lines: ['data/library.json is marked for deletion and is still in the project.'] }];
   if (kind === 'descriptors') return [{ kind: 'removed', title: 'Tags and markers', lines: ['data/descriptors.json is marked for deletion and is still in the project.'] }];
+  if (kind === 'clips') return [{ kind: 'removed', title: 'Clips and collections', lines: ['data/clips.json is marked for deletion and is still in the project.'] }];
   return [{ kind: 'removed', title: 'Marked for deletion', lines: ['This file is still in the project.'] }];
 }
 

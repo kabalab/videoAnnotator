@@ -266,3 +266,102 @@ export function validateVideo(raw, expectedId, path) {
   video.__quarantine = quarantine;
   return { video, issues };
 }
+
+function stringListKeep(value) {
+  if (value == null) return { list: [], ok: true };
+  if (!Array.isArray(value)) return { list: [], ok: false };
+  const list = value.filter((v) => typeof v === 'string' && v.trim()).map((v) => v.trim());
+  return { list, ok: list.length === value.length };
+}
+
+function normalizeClip(item) {
+  if (!isObject(item)) return { error: 'is not an object.' };
+  const clip = { ...item };
+  const notes = [];
+  if (typeof item.id !== 'string' || !ID_PATTERN.test(item.id)) {
+    clip.id = randomId('c');
+    notes.push(`had no valid id; using "${clip.id}".`);
+  }
+  clip.videoId = str(item.videoId).trim();
+  if (!clip.videoId) return { error: 'has no source video.' };
+  const start = parseTime(item.start);
+  const end = parseTime(item.end);
+  if (start == null || end == null || !(end > start)) return { error: 'needs a start and an end, with the end after the start.' };
+  clip.start = start;
+  clip.end = end;
+  clip.title = str(item.title).trim();
+  if (!clip.title) {
+    clip.title = clip.id;
+    notes.push('has no title.');
+  }
+  clip.description = str(item.description);
+  const tags = stringList(item.tags);
+  if (!tags.ok) notes.push('"tags" should be a list of tag ids.');
+  clip.tags = tags.list;
+  return { value: clip, notes };
+}
+
+function normalizeCollection(item) {
+  if (!isObject(item)) return { error: 'is not an object.' };
+  const collection = { ...item };
+  const notes = [];
+  if (typeof item.id !== 'string' || !ID_PATTERN.test(item.id)) {
+    collection.id = randomId('k');
+    notes.push(`had no valid id; using "${collection.id}".`);
+  }
+  collection.title = str(item.title).trim();
+  if (!collection.title) {
+    collection.title = collection.id;
+    notes.push('has no title.');
+  }
+  collection.description = str(item.description);
+  const clipIds = stringListKeep(item.clipIds);
+  if (!clipIds.ok) notes.push('"clipIds" should be a list of clip ids.');
+  collection.clipIds = clipIds.list;
+  return { value: collection, notes };
+}
+
+export function validateClips(raw, path) {
+  if (!isObject(raw)) throw new DataError(path, `${path} should be an object with "clips" and "collections" arrays.`);
+  const issues = [];
+  const quarantine = { clips: [], collections: [] };
+  const { clips: rawClips, collections: rawCollections, schemaVersion, ...extra } = raw;
+
+  const collect = (list, kind, normalize) => {
+    const out = [];
+    if (list === undefined) return out;
+    if (!Array.isArray(list)) {
+      issues.push(issue(path, `"${kind}" should be an array. It's ignored and will be replaced the next time clips are saved.`, 'error'));
+      return out;
+    }
+    const seen = new Set();
+    list.forEach((item, i) => {
+      const noun = kind === 'clips' ? 'Clip' : 'Collection';
+      const label = `${noun} ${isObject(item) && item.id ? `"${item.id}"` : `#${i + 1}`}`;
+      const result = normalize(item);
+      if (result.error) {
+        issues.push(issue(path, `${label} ${result.error} Kept in the file but not shown.`));
+        quarantine[kind].push(item);
+        return;
+      }
+      result.notes.forEach((note) => issues.push(issue(path, `${label} ${note}`)));
+      if (seen.has(result.value.id)) {
+        issues.push(issue(path, `${label} duplicates an earlier id. Only the first is used; the duplicate stays in the file.`));
+        quarantine[kind].push(item);
+        return;
+      }
+      seen.add(result.value.id);
+      out.push(result.value);
+    });
+    return out;
+  };
+
+  const clips = {
+    ...extra,
+    clips: collect(rawClips, 'clips', normalizeClip),
+    collections: collect(rawCollections, 'collections', normalizeCollection),
+    __quarantine: quarantine,
+  };
+  if (schemaVersion > SCHEMA_VERSION) issues.push(issue(path, `Written by a newer version (schemaVersion ${schemaVersion}).`));
+  return { clips, extra, issues };
+}

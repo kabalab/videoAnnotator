@@ -131,9 +131,8 @@ function renderPieces(pieces, opts) {
   return out;
 }
 
-// Formatting inside a reference label. The label is already the note's words, so @ and #
-// stay as text instead of becoming another button inside this one.
-export function formattedText(text) {
+// One line of formatted text. plain: true leaves @ and # as characters, for text that is already a link label.
+export function inlineRich(text, opts = {}) {
   const src = String(text ?? '').replace(/\r\n?/g, '\n');
   if (!src) return [];
   const lines = src.split('\n');
@@ -141,7 +140,7 @@ export function formattedText(text) {
   lines.forEach((line, index) => {
     if (index) nodes.push('\n');
     const { indent, level, pieces } = parseLine(line);
-    const bits = renderPieces(pieces, { plain: true });
+    const bits = renderPieces(pieces, opts);
     if (!bits.length) return;
     if (!indent && !level) {
       nodes.push(...bits);
@@ -159,6 +158,12 @@ export function formattedText(text) {
     );
   });
   return nodes;
+}
+
+// Formatting inside a reference label. The label is already the note's words, so @ and #
+// stay as text instead of becoming another button inside this one.
+export function formattedText(text) {
+  return inlineRich(text, { plain: true });
 }
 
 // Plain text -> paragraphs (blank line) and line breaks, with URLs as links.

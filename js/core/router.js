@@ -4,6 +4,9 @@ const routes = [
   { name: 'search', pattern: /^\/search$/ },
   { name: 'tags', pattern: /^\/tags(?:\/([^/]+))?$/, keys: ['id'] },
   { name: 'markers', pattern: /^\/markers(?:\/([^/]+))?$/, keys: ['id'] },
+  { name: 'clips', pattern: /^\/clips$/ },
+  { name: 'clip', pattern: /^\/clip\/([^/]+)$/, keys: ['id'] },
+  { name: 'collection', pattern: /^\/collection\/([^/]+)$/, keys: ['id'] },
 ];
 
 export function parseHash(hash = window.location.hash) {

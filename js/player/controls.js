@@ -24,6 +24,10 @@ export function createControls(p) {
   let ticks = [];
   let nextNoteId = null;
   let lastLiveSeek = 0;
+  let winStart = 0;
+  let winEnd = null;
+  let span = null;
+  let handleDrag = null;
 
   const playBtn = iconButton('play', 'Play (Space)', p.togglePlay, 'ctl-play');
   const backBtn = iconButton('rewind', 'Back 10 seconds (J)', () => p.seekBy(-10), 'ctl-skip');
@@ -40,6 +44,7 @@ export function createControls(p) {
   const notesBtn = labeledButton('list', 'Notes', 'Show notes (C)', p.toggleOverlayNotes, 'ctl-immersive-only');
   const addTsBtn = labeledButton('clock', 'Timestamp', 'Add a timestamp note at the current time (N)', () => p.addNote('timestamp'), 'ctl-accent');
   const addNoteBtn = labeledButton('note', 'Note', 'Add a general note (G)', () => p.addNote('generic'));
+  const addClipBtn = labeledButton('film', 'Clip', 'Make a clip starting at the current time', () => p.addClip?.());
   const rateSelect = h('select', { class: 'ctl-select ctl-rate', 'aria-label': 'Playback speed', title: 'Playback speed', onchange: (e) => p.setRate(Number(e.target.value)) });
   const immersiveLabel = p.fullscreenSupported ? 'Fullscreen (F)' : 'Theater mode (F)';
   const fsBtn = iconButton(p.fullscreenSupported ? 'fullscreen' : 'theater', immersiveLabel, p.toggleImmersive);
@@ -50,6 +55,9 @@ export function createControls(p) {
   const seekProgress = h('div', { class: 'seek-progress' });
   const seekThumb = h('div', { class: 'seek-thumb' });
   const ticksEl = h('div', { class: 'seek-ticks' });
+  const seekSpan = h('div', { class: 'seek-span', hidden: true });
+  const startHandle = h('button', { class: 'seek-handle seek-handle-start', type: 'button', hidden: true, 'aria-label': 'Clip start' });
+  const endHandle = h('button', { class: 'seek-handle seek-handle-end', type: 'button', hidden: true, 'aria-label': 'Clip end' });
   const tooltipTime = h('span', { class: 'seek-tooltip-time' });
   const tooltipLabel = h('span', { class: 'seek-tooltip-label' });
   const tooltip = h('div', { class: 'seek-tooltip', hidden: true }, tooltipTime, tooltipLabel);
@@ -57,10 +65,30 @@ export function createControls(p) {
     'div',
     { class: 'seek', role: 'slider', tabindex: '0', 'aria-label': 'Seek', 'aria-orientation': 'horizontal', 'aria-valuemin': '0', 'aria-valuemax': '0', 'aria-valuenow': '0' },
     h('div', { class: 'seek-track' }, seekBuffer, seekHover, seekProgress),
+    seekSpan,
     ticksEl,
+    startHandle,
+    endHandle,
     seekThumb,
     tooltip,
   );
+
+  function windowBounds() {
+    const start = winStart || 0;
+    const end = winEnd == null ? duration : winEnd;
+    return { start, end, length: Math.max(0, end - start) };
+  }
+
+  function fractionOfTime(t) {
+    const bounds = windowBounds();
+    if (!bounds.length) return 0;
+    return Math.min(1, Math.max(0, (t - bounds.start) / bounds.length));
+  }
+
+  function timeAtFraction(f) {
+    const bounds = windowBounds();
+    return bounds.start + Math.min(1, Math.max(0, f)) * bounds.length;
+  }
 
   const fractionAt = (x) => {
     const r = seek.getBoundingClientRect();
@@ -72,11 +100,27 @@ export function createControls(p) {
     seekThumb.style.left = `${f * 100}%`;
   }
 
+  function placeSpan() {
+    const bounds = windowBounds();
+    const hasStart = span && Number.isFinite(span.start) && bounds.length;
+    seekSpan.hidden = !hasStart || !Number.isFinite(span.end);
+    startHandle.hidden = !hasStart;
+    endHandle.hidden = !hasStart || !Number.isFinite(span.end);
+    if (!hasStart) return;
+    const a = fractionOfTime(span.start);
+    startHandle.style.left = `${a * 100}%`;
+    if (!Number.isFinite(span.end)) return;
+    const b = fractionOfTime(span.end);
+    seekSpan.style.left = `${Math.min(a, b) * 100}%`;
+    seekSpan.style.width = `${Math.max(0, Math.abs(b - a)) * 100}%`;
+    endHandle.style.left = `${b * 100}%`;
+  }
+
   function showTooltip(f, clientX) {
-    if (!duration) return;
-    const t = f * duration;
+    if (!windowBounds().length) return;
+    const t = timeAtFraction(f);
     const r = seek.getBoundingClientRect();
-    const near = ticks.find((tk) => Math.abs((tk.time / duration) * r.width - (clientX - r.left)) <= 6);
+    const near = ticks.find((tk) => Math.abs(fractionOfTime(tk.time) * r.width - (clientX - r.left)) <= 6);
     tooltipTime.textContent = formatTime(near ? near.time : t);
     fill(tooltipLabel, near?.label ? formattedText(near.label) : null);
     tooltip.classList.toggle('has-label', !!near);
@@ -90,32 +134,60 @@ export function createControls(p) {
   }
 
   seek.addEventListener('pointerdown', (e) => {
-    if (e.button !== 0 || !duration || e.target.closest('.seek-tick')) return;
+    if (e.button !== 0 || !windowBounds().length || e.target.closest('.seek-tick, .seek-handle')) return;
     dragging = true;
     seek.setPointerCapture(e.pointerId);
     seek.classList.add('is-dragging');
     const f = fractionAt(e.clientX);
     paintProgress(f);
-    timeCurrent.textContent = formatTime(f * duration);
+    timeCurrent.textContent = formatTime(timeAtFraction(f));
   });
   seek.addEventListener('pointermove', (e) => {
     const f = fractionAt(e.clientX);
     showTooltip(f, e.clientX);
     if (!dragging) return;
     paintProgress(f);
-    timeCurrent.textContent = formatTime(f * duration);
+    timeCurrent.textContent = formatTime(timeAtFraction(f));
     const now = performance.now();
     if (now - lastLiveSeek > 150) {
       lastLiveSeek = now;
-      p.seekTo(f * duration);
+      p.seekTo(timeAtFraction(f));
     }
   });
   const endDrag = (e, commit) => {
     if (!dragging) return;
     dragging = false;
     seek.classList.remove('is-dragging');
-    if (commit) p.seekTo(fractionAt(e.clientX) * duration);
+    if (commit) p.seekTo(timeAtFraction(fractionAt(e.clientX)));
   };
+
+  function bindHandle(el, which) {
+    el.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      e.stopPropagation();
+      e.preventDefault();
+      handleDrag = which;
+      el.setPointerCapture(e.pointerId);
+      seek.classList.add('is-dragging');
+    });
+    el.addEventListener('pointermove', (e) => {
+      if (handleDrag !== which || !span) return;
+      const t = timeAtFraction(fractionAt(e.clientX));
+      if (which === 'start') span = { ...span, start: Math.max(0, Math.min(t, (Number.isFinite(span.end) ? span.end : duration) - 0.1)) };
+      else span = { ...span, end: Math.max((span.start || 0) + 0.1, t) };
+      placeSpan();
+      p.onSpan?.(span.start, span.end);
+    });
+    const finish = () => {
+      if (handleDrag !== which) return;
+      handleDrag = null;
+      seek.classList.remove('is-dragging');
+    };
+    el.addEventListener('pointerup', finish);
+    el.addEventListener('pointercancel', finish);
+  }
+  bindHandle(startHandle, 'start');
+  bindHandle(endHandle, 'end');
   seek.addEventListener('pointerup', (e) => endDrag(e, true));
   seek.addEventListener('pointercancel', (e) => endDrag(e, false));
   seek.addEventListener('pointerleave', () => {
@@ -125,18 +197,19 @@ export function createControls(p) {
   });
 
   function renderTicks() {
-    if (!duration) {
+    const bounds = windowBounds();
+    if (!bounds.length) {
       ticksEl.replaceChildren();
       return;
     }
     ticksEl.replaceChildren(
       ...ticks
-        .filter((t) => t.time <= duration + 1)
+        .filter((t) => t.time >= bounds.start - 0.05 && t.time <= bounds.end + 0.05)
         .map((t) =>
           h('button', {
             class: ['seek-tick', t.noteId === nextNoteId && 'is-next'],
             type: 'button',
-            style: { left: `${Math.min(100, (t.time / duration) * 100)}%`, '--tick': t.color },
+            style: { left: `${Math.min(100, fractionOfTime(t.time) * 100)}%`, '--tick': t.color },
             'aria-label': `${t.noteId === nextNoteId ? 'Next note. ' : ''}Jump to ${formatTime(t.time)}: ${plainTitle(t.label)}`,
             onpointerdown: (e) => e.stopPropagation(),
             onclick: (e) => {
@@ -149,26 +222,48 @@ export function createControls(p) {
   }
 
   const left = h('div', { class: 'ctl-group' }, playBtn, backBtn, fwdBtn, h('div', { class: 'ctl-volume-wrap' }, muteBtn, volume), timeEl, goBack);
-  const right = h('div', { class: 'ctl-group ctl-group-right' }, sourceSelect, notesBtn, addTsBtn, addNoteBtn, rateSelect, fsBtn);
+  const right = h('div', { class: 'ctl-group ctl-group-right' }, sourceSelect, notesBtn, addTsBtn, addNoteBtn, addClipBtn, rateSelect, fsBtn);
   const el = h('div', { class: 'player-controls' }, seek, h('div', { class: 'ctl-row' }, left, right));
 
   return {
     el,
     setTime(t) {
-      if (dragging) return;
+      if (dragging || handleDrag) return;
+      const bounds = windowBounds();
       timeCurrent.textContent = formatTime(t);
-      paintProgress(duration ? Math.min(1, t / duration) : 0);
+      timeTotal.textContent = formatTime(bounds.end || duration);
+      paintProgress(fractionOfTime(t));
+      seek.setAttribute('aria-valuemin', String(Math.floor(bounds.start)));
+      seek.setAttribute('aria-valuemax', String(Math.floor(bounds.end || 0)));
       seek.setAttribute('aria-valuenow', String(Math.floor(t)));
-      seek.setAttribute('aria-valuetext', `${formatTime(t)} of ${formatTime(duration)}`);
+      seek.setAttribute('aria-valuetext', `${formatTime(t)} of ${formatTime(bounds.end || duration)}`);
     },
     setDuration(d) {
       duration = Number.isFinite(d) && d > 0 ? d : 0;
-      timeTotal.textContent = formatTime(duration);
-      seek.setAttribute('aria-valuemax', String(Math.floor(duration)));
+      const bounds = windowBounds();
+      timeTotal.textContent = formatTime(bounds.end || duration);
+      seek.setAttribute('aria-valuemax', String(Math.floor(bounds.end || duration)));
       renderTicks();
+      placeSpan();
+    },
+    setWindow(next) {
+      if (!next) {
+        winStart = 0;
+        winEnd = null;
+      } else {
+        winStart = Number(next.start) || 0;
+        winEnd = Number.isFinite(next.end) ? next.end : null;
+      }
+      renderTicks();
+      placeSpan();
+    },
+    setSpan(next) {
+      span = next && Number.isFinite(next.start) ? { start: next.start, end: Number.isFinite(next.end) ? next.end : null } : null;
+      placeSpan();
     },
     setBuffered(b) {
-      seekBuffer.style.width = duration ? `${Math.min(100, (b / duration) * 100)}%` : '0';
+      const bounds = windowBounds();
+      seekBuffer.style.width = bounds.length ? `${Math.min(100, Math.max(0, ((b - bounds.start) / bounds.length) * 100))}%` : '0';
     },
     setPlaying(playing) {
       playBtn.setIcon(playing ? 'pause' : 'play');
@@ -212,6 +307,7 @@ export function createControls(p) {
     setEditable(editable) {
       addTsBtn.hidden = !editable;
       addNoteBtn.hidden = !editable;
+      addClipBtn.hidden = !editable;
     },
     setNotesOpen(on) {
       notesBtn.classList.toggle('is-active', on);

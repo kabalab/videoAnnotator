@@ -1,5 +1,5 @@
 import { h, autoGrow } from '../../core/dom.js';
-import { state, listVideos } from '../../core/store.js';
+import { state, listClips, listCollections, listVideos } from '../../core/store.js';
 import { navigate } from '../../core/router.js';
 import * as repo from '../../data/repository.js';
 import { openModal, confirmDanger } from '../../ui/modal.js';
@@ -49,7 +49,7 @@ export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTim
     id: 'video-description',
     class: 'input textarea',
     rows: '3',
-    placeholder: 'What is this video about? Type @ for a time or a note, or # to link another video. Leave a blank line between paragraphs.',
+    placeholder: 'What is this video about? Type @ for a time or a note, or # to link a video, clip, or collection. Leave a blank line between paragraphs.',
   });
   descInput.value = init.description;
   bindTextIndent(descInput);
@@ -60,9 +60,17 @@ export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTim
   })();
   const descNotes = () => (isEdit ? video.notes : []);
   const descHint = isEdit
-    ? 'Type @ to link a timestamp or general note, @now or @10:40 for a time you can click, or # to link another video. Put t between the marks (@t@ or #t#) to show only the title. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. These marks work in the title too. Tab indents.'
-    : 'Leave a blank line between paragraphs. Type @10:40 for a time you can click, or #Lecture to link another video. Put t between the marks (@t@ or #t#) to show only the title. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. These marks work in the title too. Tab indents.';
-  const descHighlight = attachComposerHighlight(descInput, () => ({ notes: descNotes(), videos: listVideos() }));
+    ? 'Type @ to link a timestamp or general note, @now or @10:40 for a time you can click, or # to link a video, clip, or collection. #Highlights/Opening starts that collection at a clip. Put t between the marks (@t@ or #t#) to show only the title. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. These marks work in the title too. Tab indents.'
+    : 'Leave a blank line between paragraphs. Type @10:40 for a time you can click, #Lecture to link another video, or #Opening and #Highlights for a clip or collection. Put t between the marks (@t@ or #t#) to show only the title. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. These marks work in the title too. Tab indents.';
+  const titleMenu = attachMentionMenu(titleInput, {
+    getNotes: () => descNotes(),
+    getVideos: () => listVideos(),
+    getClips: () => listClips(),
+    getCollections: () => listCollections(),
+    sigils: '@#',
+    includeNow: () => (getCurrentTime ? `@${formatTime(getCurrentTime())}` : null),
+  });
+  const descHighlight = attachComposerHighlight(descInput, () => ({ notes: descNotes(), videos: listVideos(), clips: listClips(), collections: listCollections() }));
   const descTimes = watchTimeTokens(descInput, {
     getSeconds: () => (openedAt == null ? 0 : openedAt),
     keepNow: (value, index) => {
@@ -75,6 +83,8 @@ export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTim
   const descMenu = attachMentionMenu(descInput, {
     getNotes: descNotes,
     getVideos: () => listVideos(),
+    getClips: () => listClips(),
+    getCollections: () => listCollections(),
     sigils: '@#',
     includeNow: openedAt == null ? null : () => `@${formatTime(openedAt)}`,
   });
@@ -292,7 +302,7 @@ export function openVideoDialog({ mode, video = null, preset = {}, getCurrentTim
   const form = h(
     'form',
     { class: 'form video-form', novalidate: true, onsubmit: (e) => { e.preventDefault(); save(); } },
-    field('Title', titleInput, idHint),
+    field('Title', h('div', {}, titleInput, titleMenu), idHint),
     h(
       'fieldset',
       { class: 'fieldset' },

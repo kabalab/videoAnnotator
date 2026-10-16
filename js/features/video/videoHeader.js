@@ -1,10 +1,10 @@
-import { fill, formattedText, h, richText } from '../../core/dom.js';
-import { canEdit, listVideos, showPrivate } from '../../core/store.js';
+import { fill, h, inlineRich, richText } from '../../core/dom.js';
+import { canEdit, listClips, listCollections, listVideos, showPrivate } from '../../core/store.js';
 import { icon } from '../../ui/icons.js';
 import { privateBadge } from '../descriptors/chips.js';
 import { mentionAt } from './mentionLink.js';
 
-export function createVideoHeader({ onEdit, onNote, onVideo, onTime }) {
+export function createVideoHeader({ onEdit, onNote, onVideo, onClip, onTime }) {
   const el = h('section', { class: 'video-header' });
   let expanded = false;
   let current = null;
@@ -22,12 +22,24 @@ export function createVideoHeader({ onEdit, onNote, onVideo, onTime }) {
 
     fill(
       el,
-      h('div', { class: 'video-title-row' }, h('h1', { class: 'video-title' }, formattedText(video.title)), meta.length ? h('div', { class: 'video-title-meta' }, meta) : null),
+      h(
+        'div',
+        { class: 'video-title-row' },
+        h(
+          'h1',
+          { class: 'video-title' },
+          inlineRich(video.title, {
+            onTime,
+            onMention: (line, index) => mentionAt(line, index, { notes: video.notes, videos: listVideos(), clips: listClips(), collections: listCollections(), onNote, onVideo, onClip }),
+          }),
+        ),
+        meta.length ? h('div', { class: 'video-title-meta' }, meta) : null,
+      ),
       desc
         ? richText(desc, {
             className: `rich-text video-desc${long && !expanded ? ' is-clamped' : ''}`,
             onTime: onTime || undefined,
-            onMention: (line, index) => mentionAt(line, index, { notes: video.notes, videos: listVideos(), onNote, onVideo }),
+            onMention: (line, index) => mentionAt(line, index, { notes: video.notes, videos: listVideos(), clips: listClips(), collections: listCollections(), onNote, onVideo, onClip }),
           })
         : null,
       desc && long

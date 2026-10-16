@@ -13,3 +13,21 @@ export function applyVisibility(video, showPrivate) {
   if (!video.sources?.youtube) return null;
   return { ...video, notes: video.notes.filter(isPublic), __quarantine: [] };
 }
+
+// Public visitors only see clips whose source video is visible, and collections that still have one of those clips.
+export function applyClipVisibility(model, videos, showPrivate) {
+  const clips = model?.clips || [];
+  const collections = model?.collections || [];
+  if (showPrivate) return model;
+  const visible = new Set((videos || []).map((video) => video?.id).filter(Boolean));
+  const shown = clips.filter((clip) => visible.has(clip.videoId));
+  const ids = new Set(shown.map((clip) => clip.id));
+  return {
+    ...model,
+    clips: shown,
+    collections: collections
+      .map((collection) => ({ ...collection, clipIds: (collection.clipIds || []).filter((id) => ids.has(id)) }))
+      .filter((collection) => collection.clipIds.length),
+    __quarantine: { clips: [], collections: [] },
+  };
+}

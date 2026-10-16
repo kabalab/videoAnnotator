@@ -283,6 +283,31 @@
   transform: translate(-50%, -50%) scale(1);
 }
 
+.seek-span {
+  position: absolute;
+  top: 50%;
+  height: 6px;
+  border-radius: 4px;
+  background: rgba(91, 140, 255, 0.55);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.seek-handle {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(47, 91, 211, 0.85);
+  transform: translate(-50%, -50%);
+  cursor: ew-resize;
+  z-index: 2;
+}
+
 .seek-ticks {
   position: absolute;
   inset: 0;

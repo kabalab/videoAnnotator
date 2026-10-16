@@ -1,5 +1,5 @@
-import { formattedText, h, richText } from '../../core/dom.js';
-import { listVideos, showPrivate } from '../../core/store.js';
+import { h, inlineRich, richText } from '../../core/dom.js';
+import { listClips, listCollections, listVideos, showPrivate } from '../../core/store.js';
 import { formatTime } from '../../core/time.js';
 import { icon } from '../../ui/icons.js';
 import { noteChips, privateBadge } from '../descriptors/chips.js';
@@ -12,7 +12,7 @@ function paragraphs(text) {
     .filter((para) => para.trim());
 }
 
-export function renderNoteItem(note, { onJump, onOpen, onVideoRef, onNote, notes = [], editable }) {
+export function renderNoteItem(note, { onJump, onOpen, onVideoRef, onClipRef, onNote, notes = [], editable }) {
   const isTs = note.type === 'timestamp';
   const brokenTime = showPrivate() && '__originalTimestamp' in note;
   const meta = [noteChips(note), note.visibility === 'private' && privateBadge(), brokenTime && h('span', { class: 'badge badge-warning' }, icon('warning'), 'Invalid timestamp in file')].filter(Boolean);
@@ -25,8 +25,11 @@ export function renderNoteItem(note, { onJump, onOpen, onVideoRef, onNote, notes
         mentionAt(line, index, {
           notes: notes.filter((item) => item.id !== note.id),
           videos: listVideos(),
+          clips: listClips(),
+          collections: listCollections(),
           onNote,
           onVideo: onVideoRef,
+          onClip: onClipRef,
         }),
     });
   const content =
@@ -39,7 +42,24 @@ export function renderNoteItem(note, { onJump, onOpen, onVideoRef, onNote, notes
   const body = h(
     'div',
     { class: 'note-body' },
-    note.title && h('div', { class: 'note-title' }, formattedText(note.title)),
+    note.title &&
+      h(
+        'div',
+        { class: 'note-title' },
+        inlineRich(note.title, {
+          onTime: onJump ? (seconds) => onJump({ id: note.id, type: 'timestamp', timestamp: seconds }) : undefined,
+          onMention: (line, index) =>
+            mentionAt(line, index, {
+              notes: notes.filter((item) => item.id !== note.id),
+              videos: listVideos(),
+              clips: listClips(),
+              collections: listCollections(),
+              onNote,
+              onVideo: onVideoRef,
+              onClip: onClipRef,
+            }),
+        }),
+      ),
     content,
     meta.length ? h('div', { class: 'note-meta' }, meta) : null,
   );

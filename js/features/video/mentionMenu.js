@@ -1,13 +1,15 @@
 import { formattedText, h } from '../../core/dom.js';
 import { icon } from '../../ui/icons.js';
+import { hashMentionChoices, hashMentionClosed } from '../clips/clipRefs.js';
 import { mentionChoices, mentionClosed, mentionQuery } from './noteRefs.js';
-import { videoMentionChoices, videoMentionClosed } from './videoRefs.js';
 
 // Dropdown under a text field while the caret is in an @ note or a # video reference.
 // sigils limits which marks open the list. includeNow adds a clock-time row while typing @.
 export function attachMentionMenu(textarea, source) {
   const getNotes = typeof source === 'function' ? source : source?.getNotes;
   const getVideos = typeof source === 'function' ? null : source?.getVideos;
+  const getClips = typeof source === 'function' ? null : source?.getClips;
+  const getCollections = typeof source === 'function' ? null : source?.getCollections;
   const sigils = typeof source === 'function' ? '@' : source?.sigils || '@#';
   const includeNow = typeof source === 'function' ? null : source?.includeNow;
   const menuId = `mention-${Math.random().toString(36).slice(2, 8)}`;
@@ -66,7 +68,7 @@ export function attachMentionMenu(textarea, source) {
       return `${sigil}t${token}`;
     };
     if (found.sigil === '#') {
-      return videoMentionChoices(getVideos?.() || [], found.query).map((item) => ({ ...item, token: wrap(item.token) }));
+      return hashMentionChoices(getVideos?.() || [], getClips?.() || [], getCollections?.() || [], found.query).map((item) => ({ ...item, token: wrap(item.token) }));
     }
     const items = mentionChoices(getNotes?.() || [], found.query).map((item) => ({
       token: wrap(item.token),
@@ -94,10 +96,12 @@ export function attachMentionMenu(textarea, source) {
     if (!found || !sigils.includes(found.sigil)) return hide();
     const notes = getNotes?.() || [];
     const videos = getVideos?.() || [];
-    const closed = found.sigil === '#' ? videoMentionClosed(textarea.value, textarea.selectionStart, videos) : mentionClosed(textarea.value, textarea.selectionStart, notes);
+    const clips = getClips?.() || [];
+    const collections = getCollections?.() || [];
+    const closed = found.sigil === '#' ? hashMentionClosed(textarea.value, textarea.selectionStart, { videos, clips, collections }) : mentionClosed(textarea.value, textarea.selectionStart, notes);
     if (closed) return hide();
     if (found.sigil === '@' && !notes.length && !includeNow) return hide();
-    if (found.sigil === '#' && !videos.length) return hide();
+    if (found.sigil === '#' && !videos.length && !clips.length && !collections.length) return hide();
     const queryKey = `${found.titleOnly ? 't' : ''}${found.sigil}${found.query}`;
     if (queryKey !== queryText) {
       queryText = queryKey;
@@ -110,7 +114,7 @@ export function attachMentionMenu(textarea, source) {
     if (index >= items.length) index = 0;
     const opening = menu.hidden;
     menu.hidden = false;
-    menu.setAttribute('aria-label', items.some((item) => item.icon === 'film') ? 'Videos to link' : 'Notes to link');
+    menu.setAttribute('aria-label', 'Links');
     textarea.setAttribute('aria-expanded', 'true');
     menu.replaceChildren(
       ...items.map((item, i) => {

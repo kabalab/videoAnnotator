@@ -5,10 +5,10 @@ import { parseTime } from '../core/time.js';
 import { fetchText, parseJson, LoadError } from '../storage/httpSource.js';
 import { draftStore } from '../storage/draftStore.js';
 import { downloadText, downloadMany } from '../storage/exporter.js';
-import { encodeChangeCode, decodeChangeCode } from '../storage/changeCode.js';
-import { validateLibrary, validateDescriptors, validateVideo } from './validate.js';
-import { applyVisibility } from './visibility.js';
-import { serializeVideo, serializeDescriptors, serializeLibrary, toJsonText, nowIso, newVideo } from './schema.js';
+import { encodeChangeCode, decodeChangeCode, applyChange } from '../storage/changeCode.js';
+import { validateLibrary, validateDescriptors, validateVideo, validateClips } from './validate.js';
+import { applyVisibility, applyClipVisibility } from './visibility.js';
+import { serializeVideo, serializeDescriptors, serializeLibrary, serializeClips, toJsonText, nowIso, newVideo } from './schema.js';
 
 // The only module that changes application data. Every mutation follows the same steps:
 // validate -> update the in-memory model -> emit a store event -> persist -> emit 'save'.
@@ -21,6 +21,7 @@ let libraryExtra = {};
 let libraryQuarantine = [];
 let libraryBroken = false;
 let descriptorsBroken = false;
+let clipsBroken = false;
 
 export const hooks = {
   // Replaced by main.js with a dialog. Returns 'overwrite' | 'reload' | 'cancel'.
@@ -195,7 +196,18 @@ export async function loadAll() {
     if (visible) videos.set(r.id, visible);
   }
 
-  store.set({ libraryIds, descriptors, videos, videoErrors, issues: showPrivate() ? issues : [], fatal }, ['data', 'descriptors', 'issues']);
+  let clips = { clips: [], collections: [], __quarantine: { clips: [], collections: [] } };
+  try {
+    const r = validateClips(await readJson(P.clips), P.clips);
+    clips = applyClipVisibility(r.clips, [...videos.values()], showPrivate());
+    issues.push(...r.issues);
+    clipsBroken = false;
+  } catch (e) {
+    clipsBroken = true;
+    issues.push({ path: P.clips, level: 'error', message: `${e.message} Clips are unavailable, and can't be edited, until it's fixed.` });
+  }
+
+  store.set({ libraryIds, descriptors, clips, videos, videoErrors, issues: showPrivate() ? issues : [], fatal }, ['data', 'descriptors', 'clips', 'issues']);
   if (editorActive()) refreshDrafts();
   scanUnregistered();
 }
@@ -300,6 +312,16 @@ function persistDescriptors() {
   return persist(P.descriptors, toJsonText(serializeDescriptors(state.descriptors)));
 }
 
+function persistClips() {
+  if (clipsBroken) throw new Error(`${P.clips} couldn't be loaded, so clips can't be saved until it's fixed.`);
+  return persist(P.clips, toJsonText(serializeClips(state.clips)));
+}
+
+function commitClips(next) {
+  state.clips = next;
+  store.emit('clips');
+}
+
 function commitVideo(video) {
   state.videos.set(video.id, video);
   store.emit('data', { videoId: video.id });
@@ -329,7 +351,7 @@ function cleanNote(input) {
   if (!out.content.trim() && !out.title) throw new ValidationError('Write something before saving.', 'content');
   out.tags = [...new Set(input.tags || [])];
   out.markers = [...new Set(input.markers || [])];
-  if (out.markers.length > 1) throw new ValidationError('A note can only have one marker.', 'markers');
+  if (out.type !== 'timestamp' && out.markers.length > 1) throw new ValidationError('A note can only have one marker.', 'markers');
   out.visibility = input.visibility === 'private' ? 'private' : 'public';
   return out;
 }
@@ -510,6 +532,9 @@ export function usageCounts(kind) {
   for (const v of state.videos.values()) {
     for (const n of v.notes) for (const id of n[key]) counts.set(id, (counts.get(id) || 0) + 1);
   }
+  if (kind === 'tag') {
+    for (const clip of state.clips?.clips || []) for (const id of clip.tags || []) counts.set(id, (counts.get(id) || 0) + 1);
+  }
   return counts;
 }
 
@@ -531,10 +556,133 @@ export async function deleteDescriptor(kind, id, { removeReferences = false } = 
       results.push(await persistVideo(updated));
     }
   }
+  if (removeReferences && kind === 'tag' && !clipsBroken) {
+    const clips = state.clips?.clips || [];
+    if (clips.some((clip) => (clip.tags || []).includes(id))) {
+      commitClips({
+        ...state.clips,
+        clips: clips.map((clip) => ((clip.tags || []).includes(id) ? { ...clip, tags: clip.tags.filter((tag) => tag !== id) } : clip)),
+      });
+      results.push(await persistClips());
+    }
+  }
   state.descriptors = { ...state.descriptors, [key]: state.descriptors[key].filter((x) => x.id !== id) };
   store.emit('descriptors');
   results.push(await persistDescriptors());
   return results;
+}
+
+// ---------------------------------------------------------------- clips
+
+function roundTenth(n) {
+  return Math.round(n * 10) / 10;
+}
+
+function cleanClip(input) {
+  const title = String(input.title || '').trim();
+  if (!title) throw new ValidationError('Give the clip a title.', 'title');
+  const videoId = String(input.videoId || '').trim();
+  if (!getVideo(videoId)) throw new ValidationError('Choose a source video.', 'video');
+  const start = parseTime(input.start);
+  const end = parseTime(input.end);
+  if (start == null) throw new ValidationError('Enter a start time like 1:30.', 'start');
+  if (end == null) throw new ValidationError('Enter an end time like 3:30.', 'end');
+  if (!(end > start)) throw new ValidationError('End must be after start.', 'end');
+  return {
+    videoId,
+    start: roundTenth(start),
+    end: roundTenth(end),
+    title,
+    description: String(input.description || '').replace(/\s+$/, ''),
+    tags: [...new Set(input.tags || [])],
+  };
+}
+
+export async function saveClip(input) {
+  assertWritable();
+  if (clipsBroken) throw new Error(`${P.clips} couldn't be loaded, so clips can't be saved until it's fixed.`);
+  const clean = cleanClip(input);
+  const clips = [...(state.clips.clips || [])];
+  const idx = input.id ? clips.findIndex((clip) => clip.id === input.id) : -1;
+  const saved = idx >= 0 ? { ...clips[idx], ...clean, id: clips[idx].id } : { ...clean, id: randomId('c') };
+  if (idx >= 0) clips[idx] = saved;
+  else clips.push(saved);
+  commitClips({ ...state.clips, clips });
+  const result = await persistClips();
+  return { clip: saved, result };
+}
+
+export async function deleteClip(id) {
+  assertWritable();
+  if (clipsBroken) throw new Error(`${P.clips} couldn't be loaded, so clips can't be saved until it's fixed.`);
+  const clip = (state.clips.clips || []).find((item) => item.id === id);
+  if (!clip) return null;
+  const previousCollections = (state.clips.collections || []).map((collection) => ({ ...collection, clipIds: [...(collection.clipIds || [])] }));
+  const collections = previousCollections.map((collection) => ({
+    ...collection,
+    clipIds: collection.clipIds.filter((clipId) => clipId !== id),
+  }));
+  commitClips({
+    ...state.clips,
+    clips: state.clips.clips.filter((item) => item.id !== id),
+    collections,
+  });
+  const result = await persistClips();
+  return { clip, collections: previousCollections, result };
+}
+
+export async function restoreClip(clip, collections) {
+  assertWritable();
+  if (clipsBroken) throw new Error(`${P.clips} couldn't be loaded, so clips can't be saved until it's fixed.`);
+  if (!clip || (state.clips.clips || []).some((item) => item.id === clip.id)) return null;
+  commitClips({
+    ...state.clips,
+    clips: [...state.clips.clips, clip],
+    collections: collections || state.clips.collections,
+  });
+  return persistClips();
+}
+
+function cleanCollection(input) {
+  const title = String(input.title || '').trim();
+  if (!title) throw new ValidationError('Give the collection a title.', 'title');
+  return {
+    title,
+    description: String(input.description || '').replace(/\s+$/, ''),
+    clipIds: (input.clipIds || []).map((id) => String(id || '').trim()).filter(Boolean),
+  };
+}
+
+export async function saveCollection(input) {
+  assertWritable();
+  if (clipsBroken) throw new Error(`${P.clips} couldn't be loaded, so collections can't be saved until it's fixed.`);
+  const clean = cleanCollection(input);
+  const collections = [...(state.clips.collections || [])];
+  const idx = input.id ? collections.findIndex((collection) => collection.id === input.id) : -1;
+  const saved = idx >= 0 ? { ...collections[idx], ...clean, id: collections[idx].id } : { ...clean, id: randomId('k') };
+  if (idx >= 0) collections[idx] = saved;
+  else collections.push(saved);
+  commitClips({ ...state.clips, collections });
+  const result = await persistClips();
+  return { collection: saved, result };
+}
+
+export async function deleteCollection(id) {
+  assertWritable();
+  if (clipsBroken) throw new Error(`${P.clips} couldn't be loaded, so collections can't be saved until it's fixed.`);
+  const collection = (state.clips.collections || []).find((item) => item.id === id);
+  if (!collection) return null;
+  commitClips({ ...state.clips, collections: state.clips.collections.filter((item) => item.id !== id) });
+  const result = await persistClips();
+  return { collection, result };
+}
+
+export async function restoreCollection(collection) {
+  assertWritable();
+  if (clipsBroken) throw new Error(`${P.clips} couldn't be loaded, so collections can't be saved until it's fixed.`);
+  if (!collection || (state.clips.collections || []).some((item) => item.id === collection.id)) return null;
+  commitClips({ ...state.clips, collections: [...state.clips.collections, collection] });
+  return persistClips();
 }
 
 // ---------------------------------------------------------------- folder connection
@@ -605,9 +753,15 @@ export function downloadAllDrafts() {
   return downloadMany(draftStore.list().filter((d) => !d.deleted));
 }
 
-export function exportChangeCode() {
+export async function exportChangeCode() {
   if (!editorActive()) throw new Error('Editing is turned off on the public site.');
-  const code = encodeChangeCode(draftStore.list());
+  const drafts = draftStore.list();
+  const bases = {};
+  for (const draft of drafts) {
+    if (draft.deleted) continue;
+    bases[draft.path] = await readProjectText(draft.path);
+  }
+  const code = encodeChangeCode(drafts, bases);
   if (!code) throw new Error('There are no unsaved changes to copy.');
   return code;
 }
@@ -616,9 +770,10 @@ export function exportChangeCode() {
 export async function importChangeCode(code) {
   if (!editorActive()) throw new Error('Editing is turned off on the public site.');
   const files = decodeChangeCode(code);
-  for (const f of files) {
-    if (f.deleted) draftStore.putDeleted(f.path);
-    else draftStore.put(f.path, f.text);
+  for (const file of files) {
+    if (file.deleted) draftStore.putDeleted(file.path);
+    else if (typeof file.text === 'string') draftStore.put(file.path, file.text);
+    else draftStore.put(file.path, applyChange(file.path, await readProjectText(file.path), file.delta));
   }
   if (connected()) {
     try {

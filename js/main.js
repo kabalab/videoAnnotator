@@ -16,6 +16,7 @@ import { mountVideoView } from './features/video/videoView.js';
 import { mountSearchView } from './features/search/searchView.js';
 import { mountTagView } from './features/tags/tagView.js';
 import { mountMarkerView } from './features/markers/markerView.js';
+import { mountClipsView } from './features/clips/clipsView.js';
 
 const MOUNTS = {
   library: mountLibraryView,
@@ -23,6 +24,9 @@ const MOUNTS = {
   search: mountSearchView,
   tags: mountTagView,
   markers: mountMarkerView,
+  clips: mountClipsView,
+  clip: mountClipsView,
+  collection: mountClipsView,
 };
 
 const viewEl = document.getElementById('view');
@@ -94,7 +98,7 @@ function renderRoute(route) {
     return;
   }
   topbar.setRoute(route);
-  const key = route.name === 'video' ? `video:${route.params.id}` : route.name;
+  const key = route.name === 'video' ? `video:${route.params.id}` : route.name === 'clip' || route.name === 'collection' ? 'clips' : route.name;
   if (current?.key === key && current.view.update) {
     current.view.update(route);
     hasRouted = true;
@@ -251,6 +255,7 @@ function wireEvents() {
     else if (!current) renderRoute(parseHash());
   });
   store.on('descriptors', () => rebuildIndex());
+  store.on('clips', () => rebuildIndex());
   store.on('persistence', syncBanners);
   store.on('drafts', syncBanners);
   store.on('issues', syncBanners);

@@ -1,8 +1,8 @@
 import { plainTitle } from '../../core/markup.js';
-import { state, getTag, getMarker, listVideos } from '../../core/store.js';
+import { state, getTag, getMarker, listClips, listCollections, listVideos } from '../../core/store.js';
 import { displayTimeTokens, formatTime } from '../../core/time.js';
+import { displayHashRefs } from '../clips/clipRefs.js';
 import { displayNoteRefs } from '../video/noteRefs.js';
-import { displayVideoRefs } from '../video/videoRefs.js';
 import { passesFilters } from './filters.js';
 
 // Flat in-memory index: one document per video (title, description) and one per note.
@@ -28,7 +28,7 @@ function buildDocs(video) {
   for (const d of docs) {
     d.fields = {
       title: normalize(plainTitle(d.title)),
-      content: normalize(`${d.content} ${displayTimeTokens(displayVideoRefs(displayNoteRefs(d.content, video.notes), listVideos()))}`),
+      content: normalize(`${d.content} ${displayTimeTokens(displayHashRefs(displayNoteRefs(d.content, video.notes), { videos: listVideos(), clips: listClips(), collections: listCollections() }))}`),
       labels: normalize([...d.tagIds.map(tagName), ...d.markerIds.map(markerName)].join(' ')),
       time: d.timestamp != null ? formatTime(d.timestamp) : '',
     };

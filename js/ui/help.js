@@ -52,6 +52,7 @@ const WATCHING = [
   { text: 'The Library lists every video you can open. Open one to watch it and read its notes.' },
   { when: 'public', text: 'Private videos are hidden, and so is a video with no YouTube link.' },
   { text: 'Search looks through titles, descriptions, notes, tags, and markers. Filters can limit results to a video, a note type, a tag, or a marker.' },
+  { text: 'Clips are titled ranges of a video. A collection plays clips in order, including clips from different videos. Open Clips in the top bar.' },
   { when: 'editor', text: 'Search can also filter by public or private.' },
   { text: 'Timestamp notes belong to a moment. Click the time to jump there. Go back returns you to where you were before the jump.' },
   { text: 'On the Timeline, the note you have reached is highlighted, and the next one is marked so you can see what is coming, including on the seek bar.' },
@@ -123,7 +124,13 @@ const TEXT_WRITING = [
       code('#Lecture/0:25'),
       ' opens a timestamp in it, and ',
       code('#Lecture/Summary'),
-      ' opens a general note. These work in descriptions and in notes.',
+      ' opens a general note. ',
+      code('#Opening'),
+      ' links a clip, ',
+      code('#Highlights'),
+      ' links a collection, and ',
+      code('#Highlights/Opening'),
+      ' starts that collection at that clip. These work in descriptions, notes, and clip text.',
     ],
   },
   {
@@ -146,7 +153,7 @@ const TEXT_WRITING = [
       code('@'),
       ' to link a note or insert a time, or ',
       code('#'),
-      ' to link a video, then pick from the list. ',
+      ' to link a video, clip, or collection, then pick from the list. ',
       code('@now'),
       ' uses the time you started from. Arrow keys move through the list, and Tab or Enter inserts the highlighted match. A finished link or time is highlighted in the box before you save.',
     ],
@@ -170,13 +177,13 @@ const TEXT_WRITING = [
 
 const LABELS = [
   { text: 'A tag is a colored label for what a note is about, such as Important or Question. A note can have several tags.' },
-  { text: 'A marker records the viewing or session a note was made in, such as a first watch. A note can have one marker, shown with a flag.' },
+  { text: 'A marker records the viewing or session a note was made in, such as a first watch. A general note can have one marker, shown with a flag. Timestamp notes do not take a marker.' },
   { text: 'Tags describe the note. Markers describe when it was written. They are separate, and a note can have both.' },
-  { text: 'The Tags page lists every note with that tag, across all videos. The Markers page lists every note from one viewing session, across all videos.' },
+  { text: 'The Tags page lists every note and clip with that tag, across all videos. The Markers page lists every note from one viewing session, across all videos.' },
   { text: 'On a video, when notes use more than one tag or marker, the notes list can be filtered by them. Search can filter by them too.' },
   { when: 'view', text: 'Switch to Edit in the top bar to create or change tags and markers.' },
   { when: 'edit', text: 'The tag button in the top bar creates, renames, recolors, and deletes tags and markers.' },
-  { when: 'edit', text: 'While editing a note, the tag and marker fields attach existing ones. Typing a new name can create it.' },
+  { when: 'edit', text: 'While editing a general note, the tag and marker fields attach existing ones. A timestamp note can take tags, and keeps any marker it already had, but a new marker cannot be added. Typing a new name can create a tag or marker.' },
 ];
 
 const ACCESS_PUBLIC = [

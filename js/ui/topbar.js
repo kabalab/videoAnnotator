@@ -48,6 +48,7 @@ export function createTopbar(el) {
   const navLibrary = h('a', { class: 'nav-link', href: '#/', 'aria-label': 'Library' }, icon('grid'), h('span', {}, 'Library'));
   const navTags = h('a', { class: 'nav-link', href: '#/tags', 'aria-label': 'Tags' }, icon('tag'), h('span', {}, 'Tags'));
   const navMarkers = h('a', { class: 'nav-link', href: '#/markers', 'aria-label': 'Markers' }, icon('flag'), h('span', {}, 'Markers'));
+  const navClips = h('a', { class: 'nav-link', href: '#/clips', 'aria-label': 'Clips' }, icon('film'), h('span', {}, 'Clips'));
   const right = h('div', { class: 'topbar-right' });
 
   el.replaceChildren(
@@ -55,7 +56,7 @@ export function createTopbar(el) {
       'div',
       { class: 'topbar-inner' },
       h('a', { class: 'brand', href: '#/', 'aria-label': 'Video Annotator home' }, h('span', { class: 'brand-mark' }, icon('play')), h('span', { class: 'brand-name' }, 'Annotator')),
-      h('nav', { class: 'topbar-nav', 'aria-label': 'Main' }, navLibrary, navTags, navMarkers),
+      h('nav', { class: 'topbar-nav', 'aria-label': 'Main' }, navLibrary, navClips, navTags, navMarkers),
       h('label', { class: 'search' }, icon('search', 'search-icon'), input, h('kbd', { class: 'search-kbd', 'aria-hidden': 'true' }, '/')),
       right,
     ),
@@ -147,6 +148,10 @@ export function createTopbar(el) {
       navMarkers.classList.toggle('is-active', onMarkers);
       if (onMarkers) navMarkers.setAttribute('aria-current', 'page');
       else navMarkers.removeAttribute('aria-current');
+      const onClips = route.name === 'clips' || route.name === 'clip' || route.name === 'collection';
+      navClips.classList.toggle('is-active', onClips);
+      if (onClips) navClips.setAttribute('aria-current', 'page');
+      else navClips.removeAttribute('aria-current');
       if (route.name === 'search') {
         if (document.activeElement !== input) input.value = route.query.q || '';
       } else if (document.activeElement !== input) input.value = '';

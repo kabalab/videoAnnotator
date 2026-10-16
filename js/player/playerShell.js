@@ -34,6 +34,12 @@ export function createPlayer({ video, isLocal, editable = false, startTime = 0, 
   let clickTimer = null;
   let noticeTimer = null;
   let overControls = false;
+  let bounds = null;
+  let rangeHeld = false;
+  let rangeArmed = false;
+  let stopAt = null;
+  let stopHeld = false;
+  let stopArmed = false;
 
   const stage = h('div', { class: 'player-stage' });
   const clickLayer = h('div', { class: 'player-click-layer', 'aria-hidden': 'true' });
@@ -56,6 +62,8 @@ export function createPlayer({ video, isLocal, editable = false, startTime = 0, 
     setRate: (r) => setRate(r),
     goBack: () => api.goBack(),
     addNote: (type) => em.emit('add-note', type),
+    addClip: () => em.emit('add-clip'),
+    onSpan: (start, end) => em.emit('span', { start, end }),
     toggleImmersive: () => api.toggleImmersive(),
     toggleOverlayNotes: () => em.emit('toggle-overlay-notes'),
     switchSource: (kind) => api.switchSource(kind),
@@ -228,11 +236,41 @@ export function createPlayer({ video, isLocal, editable = false, startTime = 0, 
       if (rates.includes(prefs.rate)) a.setRate(prefs.rate);
       controls.setRates(rates, rates.includes(prefs.rate) ? prefs.rate : 1);
       em.emit('ready', { duration: lastDuration, kind: src.kind });
-      if (play) a.play();
+      if (play || wantPlay) a.play();
       if (!reason && localVia === 'external videos folder') showNotice('Playing from your external videos folder.');
     });
     a.on('time', (t) => {
       if (token !== loadToken) return;
+      if (bounds && t >= bounds.start - 0.05 && t <= bounds.end + 0.2) rangeArmed = true;
+      if (bounds && rangeArmed && t >= bounds.end - 0.12) {
+        if (!rangeHeld) {
+          rangeHeld = true;
+          wantPlay = false;
+          a.pause();
+          lastTime = bounds.end;
+          a.seek(bounds.end);
+          controls.setTime(bounds.end);
+          setPlaying(false);
+          em.emit('range-end');
+        }
+        return;
+      }
+      if (stopAt != null && t < stopAt - 0.12) stopArmed = true;
+      if (stopAt != null && stopArmed && t >= stopAt - 0.12) {
+        if (!stopHeld) {
+          stopHeld = true;
+          const end = stopAt;
+          stopAt = null;
+          wantPlay = false;
+          a.pause();
+          lastTime = end;
+          a.seek(end);
+          controls.setTime(end);
+          setPlaying(false);
+        }
+        return;
+      }
+      rangeHeld = false;
       lastTime = t;
       controls.setTime(t);
       em.emit('time', t);
@@ -246,6 +284,12 @@ export function createPlayer({ video, isLocal, editable = false, startTime = 0, 
     a.on('buffer', () => controls.setBuffered(a.getBuffered()));
     a.on('play', () => {
       wantPlay = true;
+      if (bounds && lastTime >= bounds.end - 0.12) {
+        rangeHeld = false;
+        lastTime = bounds.start;
+        a.seek(bounds.start);
+        controls.setTime(bounds.start);
+      }
       setPlaying(true);
     });
     a.on('pause', () => {
@@ -315,7 +359,9 @@ export function createPlayer({ video, isLocal, editable = false, startTime = 0, 
     },
     seek(t) {
       const max = lastDuration || Infinity;
-      const target = Math.max(0, Math.min(t, max));
+      let target = Math.max(0, Math.min(t, max));
+      if (bounds) target = Math.max(bounds.start, Math.min(target, bounds.end));
+      rangeHeld = bounds ? target >= bounds.end - 0.12 : false;
       lastTime = target;
       adapter?.seek(target);
       controls.setTime(target);
@@ -341,6 +387,34 @@ export function createPlayer({ video, isLocal, editable = false, startTime = 0, 
       loadSource(i, { time: api.getTime(), play: !api.isPaused() });
     },
     setTicks: (list) => controls.setTicks(list),
+    setWindow: (next) => {
+      bounds = next && Number.isFinite(next.start) && Number.isFinite(next.end) ? { start: next.start, end: next.end } : null;
+      rangeHeld = false;
+      rangeArmed = false;
+      controls.setWindow(bounds);
+      controls.setTime(api.getTime());
+    },
+    setSpan: (next) => controls.setSpan(next),
+    armStop: (seconds) => {
+      stopAt = Number.isFinite(seconds) ? seconds : null;
+      stopHeld = false;
+      stopArmed = false;
+    },
+    loadVideo(nextVideo, { time = 0, play = false } = {}) {
+      video = nextVideo;
+      lastTime = Number.isFinite(time) ? time : 0;
+      lastDuration = nextVideo.duration || 0;
+      controls.setDuration(lastDuration);
+      sources = resolveSources(video, { isLocal });
+      failures.clear();
+      wantPlay = !!play;
+      rangeHeld = false;
+      if (sources.length) loadSource(0, { time: lastTime, play: !!play });
+      else {
+        teardownAdapter();
+        showError();
+      }
+    },
     setNextTick: (noteId) => controls.setNextTick(noteId),
     setEditable(b) {
       canEditNow = b;

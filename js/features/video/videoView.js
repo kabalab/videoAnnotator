@@ -63,9 +63,10 @@ export function mountVideoView(container, route) {
     onEdit: () => openEditVideoDialog(getVideo(id), { getCurrentTime: () => player.getTime() }),
     onNote: openLocalNote,
     onVideo: openVideoRef,
+    onClip: openClipRef,
     onTime: (seconds) => player.jumpTo(seconds),
   });
-  const panel = createNotesPanel({ onJump: jumpToNote, onOpen: openEditor, onAdd: addNote, onVideoRef: openVideoRef, onNote: openLocalNote });
+  const panel = createNotesPanel({ onJump: jumpToNote, onOpen: openEditor, onAdd: addNote, onVideoRef: openVideoRef, onClipRef: openClipRef, onNote: openLocalNote });
   const editor = createNoteEditor({
     getCurrentTime: () => player.getTime(),
     getNotes: () => getVideo(id)?.notes || [],
@@ -111,7 +112,7 @@ export function mountVideoView(container, route) {
     overlayMode = mode;
     if (mode === 'editor') player.setOverlay(editor.el);
     else if (mode === 'notes') {
-      overlayNotes ||= createNotesPanel({ compact: true, onJump: jumpToNote, onOpen: openEditor, onAdd: addNote, onVideoRef: openVideoRef, onNote: openLocalNote, onClose: () => setOverlay(null) });
+      overlayNotes ||= createNotesPanel({ compact: true, onJump: jumpToNote, onOpen: openEditor, onAdd: addNote, onVideoRef: openVideoRef, onClipRef: openClipRef, onNote: openLocalNote, onClose: () => setOverlay(null) });
       overlayNotes.update(video);
       overlayNotes.setCurrentTime(player.getTime());
       player.setOverlay(overlayNotes.el);
@@ -187,6 +188,12 @@ export function mountVideoView(container, route) {
     highlightNote(note.id);
   }
 
+  function openClipRef(ref) {
+    if (ref.kind === 'collection-clip') navigate(`/collection/${encodeURIComponent(ref.collection.id)}`, { clip: ref.clip.id });
+    else if (ref.kind === 'collection') navigate(`/collection/${encodeURIComponent(ref.collection.id)}`);
+    else if (ref.clip) navigate(`/clip/${encodeURIComponent(ref.clip.id)}`);
+  }
+
   function openVideoRef(ref) {
     const seconds = ref.note?.type === 'timestamp' ? ref.note.timestamp : ref.seconds;
     if (ref.video.id === id) {
@@ -228,6 +235,10 @@ export function mountVideoView(container, route) {
   });
   player.on('ready', ({ duration, kind }) => repo.updateDuration(id, duration, kind));
   player.on('add-note', addNote);
+  player.on('add-clip', () => {
+    if (!canEdit()) return;
+    navigate('/clip/new', { video: id, start: String(Math.round(player.getTime() * 10) / 10) });
+  });
   player.on('tick', highlightNote);
   function toggleOverlayNotes() {
     if (overlayMode === 'notes') setOverlay(null);

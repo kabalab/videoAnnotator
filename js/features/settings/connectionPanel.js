@@ -68,7 +68,7 @@ async function signOutAction() {
 async function copyChangeCode() {
   let code = '';
   try {
-    code = repo.exportChangeCode();
+    code = await repo.exportChangeCode();
   } catch (e) {
     toast(e.message, { kind: 'error', duration: 6000 });
     return;

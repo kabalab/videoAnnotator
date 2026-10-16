@@ -1,5 +1,5 @@
 import { h, autoGrow } from '../../core/dom.js';
-import { getMarker, listVideos } from '../../core/store.js';
+import { getMarker, listClips, listCollections, listVideos } from '../../core/store.js';
 import { formatTime, parseTime } from '../../core/time.js';
 import { attachComposerHighlight, watchTimeTokens } from '../video/composerLinks.js';
 import { matchNoteRef } from '../video/noteRefs.js';
@@ -80,7 +80,7 @@ export function createNoteEditor({ getCurrentTime, getNotes, onSave, onDelete, o
     fitTitle();
   });
   titleInput.addEventListener('keydown', (e) => {
-    if (e.key !== 'Enter' || e.ctrlKey || e.metaKey) return;
+    if (e.defaultPrevented || e.key !== 'Enter' || e.ctrlKey || e.metaKey) return;
     e.preventDefault();
     content.focus();
   });
@@ -95,20 +95,34 @@ export function createNoteEditor({ getCurrentTime, getNotes, onSave, onDelete, o
   const content = h('textarea', { class: 'input textarea editor-content', rows: '4', placeholder: 'Write your note\u2026 Leave a blank line to start another part.', 'aria-label': 'Note text' });
   bindTextIndent(content);
   const fit = autoGrow(content, 420);
-  const highlight = attachComposerHighlight(content, () => ({
+  const linkContext = () => ({
     notes: (getNotes?.() || []).filter((note) => note.id !== editingId),
     videos: listVideos(),
-  }));
-  const mentionMenu = attachMentionMenu(content, {
-    getNotes: () => (getNotes?.() || []).filter((note) => note.id !== editingId),
+    clips: listClips(),
+    collections: listCollections(),
+  });
+  const titleHighlight = attachComposerHighlight(titleInput, linkContext);
+  const titleMenu = attachMentionMenu(titleInput, {
+    getNotes: () => linkContext().notes,
     getVideos: () => listVideos(),
+    getClips: () => listClips(),
+    getCollections: () => listCollections(),
+    sigils: '@#',
+    includeNow: () => `@${formatTime(secondsForNow())}`,
+  });
+  const highlight = attachComposerHighlight(content, linkContext);
+  const mentionMenu = attachMentionMenu(content, {
+    getNotes: () => linkContext().notes,
+    getVideos: () => listVideos(),
+    getClips: () => listClips(),
+    getCollections: () => listCollections(),
     sigils: '@#',
     includeNow: () => `@${formatTime(secondsForNow())}`,
   });
   const refHint = h(
     'span',
     { class: 'field-hint' },
-    'Type @ to link a timestamp or general note on this video. Type #Lecture to link another video, then pick one of its timestamps or general notes. Put t between the marks (@t@ or #t#) to show only the title. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. These marks work in the title too. Tab indents.',
+    'Type @ to link a timestamp or general note on this video. Type #Lecture to link another video, #Opening for a clip, #Highlights for a collection, or #Highlights/Opening to start that collection at a clip. Put t between the marks (@t@ or #t#) to show only the title. $ makes a line bigger. **bold**, __underline__, ~~italic~~, ^^exponent^^, %%lower%%. These marks work in the title too. Tab indents.',
   );
   const tagPicker = createDescriptorPicker({ kind: 'tag', label: 'Tags' });
   const markerPicker = createDescriptorPicker({
@@ -145,7 +159,7 @@ export function createNoteEditor({ getCurrentTime, getNotes, onSave, onDelete, o
       { class: 'editor-body' },
       typeSeg.el,
       tsRow,
-      titleInput,
+      h('div', { class: 'field' }, titleHighlight.el, titleMenu),
       h('div', { class: 'field' }, highlight.el, refHint, mentionMenu),
       tagPicker.el,
       markerPicker.el,
@@ -200,6 +214,7 @@ export function createNoteEditor({ getCurrentTime, getNotes, onSave, onDelete, o
   function syncType() {
     const ts = typeSeg.value === 'timestamp';
     tsRow.hidden = !ts;
+    markerPicker.el.hidden = ts;
     content.placeholder = ts
       ? 'Write your note\u2026 Type @ to link a timestamp, or @10:40 for a time.'
       : 'Write your note\u2026 Leave a blank line to start another part. Type @ to link a timestamp, @now for this moment, or @10:40 for another time.';
@@ -250,14 +265,14 @@ export function createNoteEditor({ getCurrentTime, getNotes, onSave, onDelete, o
       title: titleInput.value,
       content: content.value,
       tags: tagPicker.value,
-      markers: markerPicker.value,
+      markers: type === 'timestamp' ? (original?.type === 'timestamp' ? original.markers || [] : []) : markerPicker.value,
       visibility: visSeg.value,
     };
     busy = true;
     saveBtn.disabled = true;
     try {
       await onSave(input);
-      rememberMarkers(input.markers);
+      if (type !== 'timestamp') rememberMarkers(input.markers);
       close();
     } catch (e) {
       showError(e.message, e.field);
@@ -323,7 +338,8 @@ export function createNoteEditor({ getCurrentTime, getNotes, onSave, onDelete, o
       deleteBtn.hidden = isNew;
       formError.hidden = true;
       highlight.refresh();
-      if (base.markers.length > 1) showError('A note can only have one marker. Remove the extras before saving.');
+      titleHighlight.refresh();
+      if (base.type !== 'timestamp' && base.markers.length > 1) showError('A note can only have one marker. Remove the extras before saving.');
       pauseToggle.checked = getPref('pauseWhileTyping');
       syncType();
       syncVis();

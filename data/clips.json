@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "clips": [
+    {
+      "id": "c_1jm1d7mce7",
+      "videoId": "nyc23-session-1",
+      "start": 1058,
+      "end": 1255,
+      "title": "Grace Like a Wave by Elevation Worship",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_1dght6e13k",
+      "videoId": "nyc23-session-1",
+      "start": 1266,
+      "end": 1505,
+      "title": "King of Kings by Hillsong Worship",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_loxgv3k7nq",
+      "videoId": "nyc23-session-1",
+      "start": 2322,
+      "end": 2675,
+      "title": "Take You at Your word by Cody Carnes",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_91hptlqc7a",
+      "videoId": "nyc23-session-1",
+      "start": 2816,
+      "end": 3087,
+      "title": "Call me (I'm yours) by Royal company",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_1iel6de1b5",
+      "videoId": "nyc23-session-1",
+      "start": 3216,
+      "end": 3665,
+      "title": "Son of Suffering by Maverick City Music",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    }
+  ],
+  "collections": []
+}

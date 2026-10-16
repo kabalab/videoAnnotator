@@ -22,6 +22,7 @@ export const config = {
   paths: {
     library: 'data/library.json',
     descriptors: 'data/descriptors.json',
+    clips: 'data/clips.json',
     videoData: (id) => `data/videos/${id}.json`,
     videosDir: 'videos',
   },

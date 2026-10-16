@@ -1,10 +1,10 @@
 import { h } from '../../core/dom.js';
 import { expandTimeTokens, matchClockToken } from '../../core/time.js';
+import { matchHashRef } from '../clips/clipRefs.js';
 import { canStartMention, matchNoteRef } from './noteRefs.js';
-import { matchVideoRef } from './videoRefs.js';
 
-// Finished @ notes, # videos, and clock times, as ranges inside the text being typed.
-function linkRanges(text, { notes = [], videos = [] } = {}) {
+// Finished @ notes, # videos, clips, collections, and clock times, as ranges inside the text being typed.
+function linkRanges(text, { notes = [], videos = [], clips = [], collections = [] } = {}) {
   const src = String(text || '');
   const ranges = [];
   let i = 0;
@@ -12,9 +12,10 @@ function linkRanges(text, { notes = [], videos = [] } = {}) {
     const ch = src[i];
     if ((ch === '@' || ch === '#') && canStartMention(i > 0 ? src[i - 1] : '')) {
       if (ch === '#') {
-        const ref = matchVideoRef(src.slice(i), videos);
+        const ref = matchHashRef(src.slice(i), { videos, clips, collections });
         if (ref) {
-          ranges.push({ kind: 'video', start: i, end: i + ref.length });
+          const kind = ref.kind === 'clip' || ref.kind === 'collection-clip' ? 'clip' : ref.kind === 'collection' ? 'collection' : 'video';
+          ranges.push({ kind, start: i, end: i + ref.length });
           i += ref.length;
           continue;
         }

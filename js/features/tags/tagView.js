@@ -1,6 +1,8 @@
 import { fill, h, plural } from '../../core/dom.js';
-import { store, canEdit, getTag, sortedTags } from '../../core/store.js';
+import { plainTitle } from '../../core/markup.js';
+import { store, canEdit, getTag, getVideo, listClips, sortedTags } from '../../core/store.js';
 import { href } from '../../core/router.js';
+import { formatTime } from '../../core/time.js';
 import { usageCounts } from '../../data/repository.js';
 import { icon } from '../../ui/icons.js';
 import { search } from '../search/searchIndex.js';
@@ -41,15 +43,33 @@ export function mountTagView(container, route) {
     let main;
     if (selected) {
       const results = search({ filters: { tag: [selected.id] } }).filter((r) => r.doc.kind === 'note');
+      const taggedClips = listClips().filter((clip) => (clip.tags || []).includes(selected.id));
+      const counts = [results.length ? plural(results.length, 'note') : '', taggedClips.length ? plural(taggedClips.length, 'clip') : ''].filter(Boolean);
       main = [
         h(
           'header',
           { class: 'tag-head' },
           h('h2', { class: 'tag-title' }, swatch(selected.color), selected.name),
-          h('p', { class: 'muted' }, plural(results.length, 'note')),
+          h('p', { class: 'muted' }, counts.join(', ') || 'Nothing uses this tag yet.'),
           selected.description && h('p', { class: 'tag-desc' }, selected.description),
         ),
-        renderResults(results, { emptyText: 'No notes use this tag yet.' }),
+        results.length ? renderResults(results, { emptyText: 'No notes use this tag yet.' }) : taggedClips.length ? null : renderResults(results, { emptyText: 'No notes use this tag yet.' }),
+        taggedClips.length
+          ? h(
+              'section',
+              { class: 'tag-clips' },
+              h('h3', { class: 'clips-block-title' }, 'Clips'),
+              ...taggedClips.map((clip) => {
+                const video = getVideo(clip.videoId);
+                return h(
+                  'a',
+                  { class: 'clips-item', href: href(`/clip/${encodeURIComponent(clip.id)}`) },
+                  h('span', { class: 'clips-item-title' }, clip.title),
+                  h('span', { class: 'clips-item-meta' }, video ? plainTitle(video.title) : 'Missing video', ` · ${formatTime(clip.start)}\u2013${formatTime(clip.end)}`),
+                );
+              }),
+            )
+          : null,
       ];
     } else if (selectedId) {
       main = h('div', { class: 'empty-state empty-state-sm' }, h('p', {}, `There\u2019s no tag called \u201c${selectedId}\u201d.`));
@@ -58,8 +78,8 @@ export function mountTagView(container, route) {
         'div',
         { class: 'empty-state empty-state-sm' },
         icon('tag', 'empty-icon'),
-        h('p', {}, 'Tags are colored labels you can put on any note.'),
-        h('p', { class: 'muted' }, 'Choose one to see its notes across every video.'),
+        h('p', {}, 'Tags are colored labels you can put on notes and clips.'),
+        h('p', { class: 'muted' }, 'Choose one to see its notes and clips across every video.'),
       );
     }
 
@@ -68,14 +88,14 @@ export function mountTagView(container, route) {
       h(
         'header',
         { class: 'page-header' },
-        h('div', {}, h('h1', { class: 'page-title' }, 'Tags'), h('p', { class: 'page-sub' }, 'Notes grouped by tag, across all videos')),
+        h('div', {}, h('h1', { class: 'page-title' }, 'Tags'), h('p', { class: 'page-sub' }, 'Notes and clips grouped by tag, across all videos')),
         canEdit() && h('button', { class: 'btn btn-secondary', type: 'button', onclick: () => openDescriptorManager('tag') }, icon('edit'), 'Manage tags'),
       ),
       h('div', { class: 'tags-layout' }, sidebar, h('div', { class: 'tags-main' }, main)),
     );
   }
 
-  const offs = ['data', 'descriptors', 'mode'].map((e) => store.on(e, render));
+  const offs = ['data', 'descriptors', 'clips', 'mode'].map((e) => store.on(e, render));
   render();
   return {
     update(r) {

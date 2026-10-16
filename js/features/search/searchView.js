@@ -1,10 +1,10 @@
 import { fill, formattedText, h, plural } from '../../core/dom.js';
 import { plainMarkup } from '../../core/markup.js';
-import { store, getVideo, listVideos } from '../../core/store.js';
+import { store, getVideo, listClips, listCollections, listVideos } from '../../core/store.js';
 import { navigate, videoHref } from '../../core/router.js';
 import { displayTimeTokens, formatTime } from '../../core/time.js';
+import { displayHashRefs } from '../clips/clipRefs.js';
 import { displayNoteRefs } from '../video/noteRefs.js';
-import { displayVideoRefs } from '../video/videoRefs.js';
 import { icon } from '../../ui/icons.js';
 import { noteChips, privateBadge } from '../descriptors/chips.js';
 import { videoThumb } from '../library/libraryView.js';
@@ -72,7 +72,7 @@ function snippetAround(text, terms, max = 220) {
 }
 
 function readableContent(doc, video) {
-  return displayVideoRefs(displayNoteRefs(doc.content, video.notes), listVideos());
+  return displayHashRefs(displayNoteRefs(doc.content, video.notes), { videos: listVideos(), clips: listClips(), collections: listCollections() });
 }
 
 function resultRow({ doc }, video, terms) {

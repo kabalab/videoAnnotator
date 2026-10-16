@@ -9,6 +9,8 @@ const SOURCE_KEYS = ['local', 'youtube', 'offsetSeconds', 'noFile'];
 const NOTE_KEYS = ['id', 'type', 'timestamp', 'title', 'content', 'tags', 'markers', 'visibility', 'createdAt', 'updatedAt'];
 const TAG_KEYS = ['id', 'name', 'color', 'description'];
 const MARKER_KEYS = ['id', 'name', 'description', 'date', 'order'];
+const CLIP_KEYS = ['id', 'videoId', 'start', 'end', 'title', 'description', 'tags'];
+const COLLECTION_KEYS = ['id', 'title', 'description', 'clipIds'];
 
 export function nowIso() {
   return new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
@@ -89,6 +91,19 @@ export function serializeDescriptors(d) {
       markers: [...markers.map((m) => ordered(m, MARKER_KEYS)), ...(d.__quarantine?.markers || [])],
     },
     ['schemaVersion', 'tags', 'markers'],
+  );
+}
+
+export function serializeClips(model) {
+  const { clips, collections, __quarantine, ...rest } = model || {};
+  return ordered(
+    {
+      ...rest,
+      schemaVersion: SCHEMA_VERSION,
+      clips: [...(clips || []).map((clip) => ordered(clip, CLIP_KEYS)), ...(__quarantine?.clips || [])],
+      collections: [...(collections || []).map((collection) => ordered(collection, COLLECTION_KEYS)), ...(__quarantine?.collections || [])],
+    },
+    ['schemaVersion', 'clips', 'collections'],
   );
 }
 

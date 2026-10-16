@@ -8,5 +8,25 @@
     "data/**",
     "videos/**"
   ],
-  "liveServer.settings.port": 5501
+  "liveServer.settings.port": 5501,
+
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": false,
+    "**/.hg": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/js/core":true,
+    "**/js/data":true,
+    "**/js/features":true,
+    "**/js/player":true,
+    "**/js/storage":true,
+    "**/js/ui":true,
+    "**/js/main.js":true,
+    "videos":true,
+    "**/.gitignore":true,
+    "**/.nojekyll":true,
+    "**/css":true,
+    "**/index.html":true,
+  }
 }
