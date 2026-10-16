@@ -7,6 +7,7 @@ import { parseTime } from '../../core/time.js';
 import { getPref } from '../../core/prefs.js';
 import * as repo from '../../data/repository.js';
 import { createPlayer } from '../../player/playerShell.js';
+import { bindTextCommands } from '../../player/textCommands.js';
 import { toast } from '../../ui/toast.js';
 import { createNotesPanel } from '../notes/notesPanel.js';
 import { createNoteEditor } from '../notes/noteEditor.js';
@@ -353,74 +354,7 @@ export function mountVideoView(container, route) {
     e.preventDefault();
   }
   document.addEventListener('keydown', onKey);
-
-  // /t \t pause or play, /q \q and /e \e step, /a \a and /d \d big step, /b \b go back.
-  // /j1:25 \j1:25 waits for Space, then jumps. The typed command is removed.
-  const textCommands = {
-    t: () => player.togglePlay(),
-    q: () => player.seekBy(-config.player.seekStep),
-    e: () => player.seekBy(config.player.seekStep),
-    a: () => player.seekBy(-config.player.bigSeekStep),
-    d: () => player.seekBy(config.player.bigSeekStep),
-    b: () => player.goBack(),
-  };
-  let applyingCommand = false;
-
-  function commandFor(sigil, letter) {
-    if (sigil !== '/' && sigil !== '\\') return null;
-    return textCommands[String(letter || '').toLowerCase()] || null;
-  }
-
-  function fieldCaret(el) {
-    try {
-      if (typeof el.selectionStart !== 'number' || typeof el.selectionEnd !== 'number') return null;
-      return { start: el.selectionStart, end: el.selectionEnd };
-    } catch {
-      return null;
-    }
-  }
-
-  function isCommandField(el) {
-    if (!(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)) return false;
-    if (!isTypingTarget(el) || el.hasAttribute('data-no-text-command')) return false;
-    return true;
-  }
-
-  // /j1:25 or \j1:25, finished by the Space just typed. Returns where that command starts.
-  function jumpCommand(value, caret) {
-    if (value[caret - 1] !== ' ') return null;
-    let i = caret - 2;
-    while (i >= 0 && /[\d:.]/.test(value[i])) i -= 1;
-    if (i < 1 || value[i].toLowerCase() !== 'j') return null;
-    const sigil = value[i - 1];
-    if (sigil !== '/' && sigil !== '\\') return null;
-    const timeText = value.slice(i + 1, caret - 1);
-    const seconds = parseTime(timeText);
-    if (seconds == null) return null;
-    return { start: i - 1, seconds };
-  }
-
-  function onTextCommand(e) {
-    if (applyingCommand || e.isComposing) return;
-    if (e.inputType !== 'insertText' && e.inputType !== 'insertFromPaste' && e.inputType !== 'insertFromDrop') return;
-    const el = e.target;
-    if (!isCommandField(el) || el.closest('.settings')) return;
-    const caret = fieldCaret(el);
-    if (!caret || caret.start !== caret.end || caret.start < 2) return;
-    const fn = commandFor(el.value[caret.start - 2], el.value[caret.start - 1]);
-    const jump = fn ? null : jumpCommand(el.value, caret.start);
-    if (!fn && !jump) return;
-    applyingCommand = true;
-    try {
-      el.setRangeText('', jump ? jump.start : caret.start - 2, caret.start, 'end');
-      if (fn) fn();
-      else player.jumpTo(jump.seconds);
-    } finally {
-      applyingCommand = false;
-    }
-  }
-
-  document.addEventListener('input', onTextCommand, true);
+  const unbindTextCommands = bindTextCommands(() => player);
 
   render();
   if (route.query.note) requestAnimationFrame(() => panel.highlight(route.query.note));
@@ -434,7 +368,7 @@ export function mountVideoView(container, route) {
     destroy() {
       offs.forEach((off) => off());
       document.removeEventListener('keydown', onKey);
-      document.removeEventListener('input', onTextCommand, true);
+      unbindTextCommands();
       player.destroy();
     },
   };

@@ -52,7 +52,7 @@ const WATCHING = [
   { text: 'The Library lists every video you can open. Open one to watch it and read its notes.' },
   { when: 'public', text: 'Private videos are hidden, and so is a video with no YouTube link.' },
   { text: 'Search looks through titles, descriptions, notes, tags, and markers. Filters can limit results to a video, a note type, a tag, or a marker.' },
-  { text: 'Clips are titled ranges of a video. A collection plays clips in order, including clips from different videos. Open Clips in the top bar.' },
+  { text: 'Clips are titled ranges of a video. A collection plays clips in order, or in a random order when Shuffle is on. Open Clips in the top bar.' },
   { when: 'editor', text: 'Search can also filter by public or private.' },
   { text: 'Timestamp notes belong to a moment. Click the time to jump there. Go back returns you to where you were before the jump.' },
   { text: 'On the Timeline, the note you have reached is highlighted, and the next one is marked so you can see what is coming, including on the seek bar.' },
@@ -249,7 +249,7 @@ function keyboardPanel() {
       'section',
       { class: 'help-section' },
       renderShortcutList(shortcuts),
-      h('p', { class: 'help-note' }, 'Shortcuts on the video page are ignored while you are typing in a text field.'),
+      h('p', { class: 'help-note' }, 'Shortcuts on the video page and the Clips page are ignored while you are typing in a text field.'),
     ),
     h(
       'section',
@@ -258,7 +258,7 @@ function keyboardPanel() {
       h(
         'p',
         { class: 'help-tab-lead' },
-        'Type these in any text field on the video page. The command is removed when it runs. /j waits until you type a time and press Space.',
+        'Type these in a text field on the video page or the Clips page. The command is removed when it runs. /j waits until you type a time and press Space.',
       ),
       renderShortcutList(WHILE_TYPING),
     ),

@@ -6,6 +6,7 @@ import { href, navigate } from '../../core/router.js';
 import { formatTime, parseTime } from '../../core/time.js';
 import * as repo from '../../data/repository.js';
 import { createPlayer } from '../../player/playerShell.js';
+import { bindTextCommands } from '../../player/textCommands.js';
 import { icon } from '../../ui/icons.js';
 import { toast } from '../../ui/toast.js';
 import { tagChip } from '../descriptors/chips.js';
@@ -54,16 +55,29 @@ function playableQueue(collection) {
   return out;
 }
 
+function shuffleItems(items) {
+  const out = items.slice();
+  for (let i = out.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const swap = out[i];
+    out[i] = out[j];
+    out[j] = swap;
+  }
+  return out;
+}
+
 export function mountClipsView(container, route) {
   let current = route;
   let editing = isNew(route, 'clip') || isNew(route, 'collection');
   let applied = '';
   let playIndex = 0;
   let queue = [];
+  let shuffleOn = false;
   let player = null;
   let playerVideoId = null;
   let draftIds = [];
   let draftKey = '';
+  let draftShuffle = false;
 
   const playerHost = h('div', { class: 'clips-stage' });
   const listHost = h('div', { class: 'clips-side' });
@@ -277,17 +291,56 @@ export function mountClipsView(container, route) {
     player?.seek(note.timestamp);
   }
 
+  function applyClipFromNote(note, next) {
+    const startInput = detailHost.querySelector('[data-clip-start]');
+    const endInput = detailHost.querySelector('[data-clip-end]');
+    if (!startInput || !endInput) return;
+    startInput.value = formatTime(note.timestamp);
+    startInput.dispatchEvent(new Event('input', { bubbles: true }));
+    if (next) {
+      endInput.value = formatTime(next.timestamp);
+      endInput.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    const titleArea = detailHost.querySelector('[data-clip-title]');
+    const noteTitle = String(note.title || '').trim();
+    if (titleArea && !titleArea.value.trim() && noteTitle) {
+      titleArea.value = noteTitle;
+      titleArea.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    player?.seek(note.timestamp);
+  }
+
   function timestampRows(video) {
     const notes = (video?.notes || []).filter((note) => note.type === 'timestamp').sort((a, b) => a.timestamp - b.timestamp);
     if (!notes.length) return [h('p', { class: 'muted' }, 'This video has no timestamp notes.')];
-    return notes.map((note) =>
+    return notes.map((note, index) =>
       h(
         'div',
         { class: 'clips-ts' },
         h(
+          'div',
+          { class: 'clips-ts-mark' },
+          h(
+            'button',
+            { class: 'clips-ts-jump', type: 'button', onclick: () => player?.seek(note.timestamp) },
+            h('span', { class: 'clips-ts-time' }, formatTime(note.timestamp)),
+          ),
+          h(
+            'button',
+            {
+              class: 'note-clip',
+              type: 'button',
+              title: 'Make a clip from this timestamp',
+              'aria-label': 'Make a clip from this timestamp',
+              onclick: () => applyClipFromNote(note, notes[index + 1]),
+            },
+            icon('film'),
+            'Clip',
+          ),
+        ),
+        h(
           'button',
           { class: 'clips-ts-jump', type: 'button', onclick: () => player?.seek(note.timestamp) },
-          h('span', { class: 'clips-ts-time' }, formatTime(note.timestamp)),
           h('span', { class: 'clips-ts-title' }, tickLabel(note)),
         ),
         tagChips(note.tags),
@@ -352,6 +405,7 @@ export function mountClipsView(container, route) {
     const endInput = h('input', { class: 'input mono', 'data-clip-end': 'true', value: endValue, placeholder: '3:30', 'aria-label': 'End', spellcheck: 'false' });
     const notes = () => getVideo(videoSelect.value)?.notes || [];
     const title = proseField('Title', clip?.title || (!clip ? current.query.title || '' : ''), notes);
+    title.el.querySelector('textarea')?.setAttribute('data-clip-title', 'true');
     const description = proseField('Description', clip?.description || '', notes);
     const tags = createDescriptorPicker({ kind: 'tag', label: 'Tags' });
     tags.setValue(clip?.tags || []);
@@ -479,7 +533,7 @@ export function mountClipsView(container, route) {
       title.el,
       description.el,
       tags.el,
-      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Timestamp notes'), h('p', { class: 'field-hint' }, 'Set start or end from a note, or click the note to move the playhead there.'), tsList),
+      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Timestamp notes'), h('p', { class: 'field-hint' }, 'Clip uses that note as the start and the next note as the end. Set start or end on its own, or click the note to move the playhead there.'), tsList),
       error,
       h(
         'div',
@@ -496,6 +550,7 @@ export function mountClipsView(container, route) {
     if (draftKey !== key) {
       draftKey = key;
       draftIds = uniqueIds(collection?.clipIds);
+      draftShuffle = !!collection?.shuffle;
     }
     const title = proseField('Title', collection?.title || '', () => []);
     const description = proseField('Description', collection?.description || '', () => []);
@@ -509,10 +564,29 @@ export function mountClipsView(container, route) {
       h('button', { class: 'btn btn-secondary btn-sm', type: 'button', onclick: () => addClip() }, 'Add'),
     );
     const addNote = h('p', { class: 'muted' });
-    const shuffleBtn = h('button', { class: 'btn btn-secondary btn-sm', type: 'button', disabled: true, onclick: () => shuffle() }, icon('swap'), 'Shuffle');
+    const shuffleBtn = h(
+      'button',
+      {
+        class: 'btn btn-secondary btn-sm clips-shuffle',
+        type: 'button',
+        title: 'When on, opening this collection plays its clips in a new random order',
+        onclick: () => {
+          draftShuffle = !draftShuffle;
+          paintShuffle();
+        },
+      },
+      icon('swap'),
+      'Shuffle',
+    );
+    const shuffleHint = h('p', { class: 'field-hint' }, 'On: each time you open this collection, the clips play in a new random order. The list below stays the saved order.');
+
+    function paintShuffle() {
+      shuffleBtn.classList.toggle('is-pressed', draftShuffle);
+      shuffleBtn.setAttribute('aria-pressed', draftShuffle ? 'true' : 'false');
+      shuffleHint.hidden = !draftShuffle;
+    }
 
     function paintOrder() {
-      shuffleBtn.disabled = draftIds.length < 2;
       const available = listClips().filter((clip) => !draftIds.includes(clip.id));
       addSelect.replaceChildren(...available.map((clip) => h('option', { value: clip.id }, clip.title)));
       const anyClips = listClips().length > 0;
@@ -554,16 +628,7 @@ export function mountClipsView(container, route) {
       paintOrder();
     }
 
-    function shuffle() {
-      for (let i = draftIds.length - 1; i > 0; i -= 1) {
-        const j = Math.floor(Math.random() * (i + 1));
-        const swap = draftIds[i];
-        draftIds[i] = draftIds[j];
-        draftIds[j] = swap;
-      }
-      paintOrder();
-    }
-
+    paintShuffle();
     paintOrder();
 
     async function save() {
@@ -575,6 +640,7 @@ export function mountClipsView(container, route) {
           title: title.value(),
           description: description.value(),
           clipIds: draftIds,
+          shuffle: draftShuffle,
         });
         draftKey = '';
         editing = false;
@@ -601,7 +667,7 @@ export function mountClipsView(container, route) {
       h('h2', { class: 'clips-detail-title' }, collection ? 'Edit collection' : 'New collection'),
       title.el,
       description.el,
-      h('div', { class: 'field' }, h('div', { class: 'clips-order-head' }, h('span', { class: 'field-label' }, 'Clips, in play order'), shuffleBtn), order),
+      h('div', { class: 'field' }, h('div', { class: 'clips-order-head' }, h('span', { class: 'field-label' }, 'Clips, in saved order'), shuffleBtn), shuffleHint, order),
       addRow,
       addNote,
       error,
@@ -631,14 +697,76 @@ export function mountClipsView(container, route) {
     );
   }
 
+  function collectionRowIds(collection) {
+    const authored = collection.clipIds || [];
+    if (!shuffleOn) return authored;
+    const playing = queue.map((clip) => clip.id);
+    return [...playing, ...authored.filter((id) => !playing.includes(id))];
+  }
+
+  function armPlayback(collection) {
+    shuffleOn = !!collection?.shuffle;
+    const base = playableQueue(collection);
+    const wanted = current.query.clip;
+    if (shuffleOn && base.length > 1) {
+      const first = wanted ? base.find((clip) => clip.id === wanted) : null;
+      const rest = shuffleItems(first ? base.filter((clip) => clip.id !== first.id) : base);
+      queue = first ? [first, ...rest] : rest;
+      playIndex = 0;
+      return;
+    }
+    queue = base.slice();
+    const found = queue.findIndex((item) => item.id === wanted);
+    playIndex = found >= 0 ? found : 0;
+  }
+
+  function retargetPlayback(on, collection) {
+    const currentId = queue[playIndex]?.id || '';
+    shuffleOn = on;
+    const base = playableQueue(collection);
+    if (on && base.length > 1) {
+      const current = currentId ? base.find((clip) => clip.id === currentId) : null;
+      const rest = shuffleItems(current ? base.filter((clip) => clip.id !== current.id) : base);
+      queue = current ? [current, ...rest] : rest;
+      playIndex = 0;
+      return;
+    }
+    queue = base;
+    const at = currentId ? queue.findIndex((clip) => clip.id === currentId) : -1;
+    playIndex = at >= 0 ? at : 0;
+  }
+
+  async function toggleCollectionShuffle(collection) {
+    const previousOn = shuffleOn;
+    const previousQueue = queue.slice();
+    const previousIndex = playIndex;
+    retargetPlayback(!shuffleOn, collection);
+    renderWatchCollection(collection);
+    if (!canEdit()) return;
+    try {
+      await repo.saveCollection({
+        id: collection.id,
+        title: collection.title,
+        description: collection.description,
+        clipIds: collection.clipIds,
+        shuffle: shuffleOn,
+      });
+    } catch (e) {
+      shuffleOn = previousOn;
+      queue = previousQueue;
+      playIndex = previousIndex;
+      const latest = selectedCollection() || collection;
+      renderWatchCollection(latest);
+      toast(e.message, { kind: 'error' });
+    }
+  }
+
   function renderWatchCollection(collection) {
-    queue = playableQueue(collection);
-    let seen = 0;
-    const rows = (collection.clipIds || []).map((id) => {
+    const rows = collectionRowIds(collection).map((id) => {
       const clip = getClip(id);
       const video = clip ? getVideo(clip.videoId) : null;
       const missing = !clip || !video;
-      const playableIndex = missing ? -1 : seen++;
+      const playableIndex = missing ? -1 : queue.findIndex((item) => item.id === clip.id);
       const label = !clip ? 'Missing clip' : !video ? `${clip.title} (video missing)` : clip.title;
       return h(
         'button',
@@ -646,7 +774,7 @@ export function mountClipsView(container, route) {
           class: ['clips-order-row', 'is-button', playableIndex === playIndex && !missing && 'is-current'],
           type: 'button',
           disabled: missing,
-          'data-queue': missing ? '' : String(playableIndex),
+          'data-queue': playableIndex < 0 ? '' : String(playableIndex),
           onclick: () => {
             if (missing) return;
             playIndex = playableIndex;
@@ -663,14 +791,32 @@ export function mountClipsView(container, route) {
         ),
       );
     });
+    const shuffleBtn = h(
+      'button',
+      {
+        class: ['btn', 'btn-secondary', 'btn-sm', 'clips-shuffle', shuffleOn && 'is-pressed'],
+        type: 'button',
+        title: 'When on, this collection plays in a new random order each time you open it',
+        'aria-pressed': shuffleOn ? 'true' : 'false',
+        onclick: () => toggleCollectionShuffle(collection),
+      },
+      icon('swap'),
+      'Shuffle',
+    );
     fill(
       detailHost,
       h(
         'div',
         { class: 'clips-watch-head' },
         h('h2', { class: 'clips-detail-title' }, linked(collection.title, [])),
-        canEdit() && h('button', { class: 'btn btn-secondary btn-sm', type: 'button', onclick: () => { editing = true; draftKey = ''; renderDetail(true); } }, icon('edit'), 'Edit'),
+        h(
+          'div',
+          { class: 'clips-header-actions' },
+          shuffleBtn,
+          canEdit() && h('button', { class: 'btn btn-secondary btn-sm', type: 'button', onclick: () => { editing = true; draftKey = ''; renderDetail(true); } }, icon('edit'), 'Edit'),
+        ),
       ),
+      shuffleOn && h('p', { class: 'field-hint' }, 'Shuffle is on. Clips play in the order shown, and a new order is picked each time you open this collection.'),
       collection.description && h('div', { class: 'clips-copy' }, linked(collection.description, [])),
       h('div', { class: 'clips-order' }, rows.length ? rows : h('p', { class: 'muted' }, 'This collection has no clips.')),
     );
@@ -724,10 +870,7 @@ export function mountClipsView(container, route) {
       return;
     }
     if (collection) {
-      queue = playableQueue(collection);
-      const wanted = current.query.clip;
-      const found = queue.findIndex((item) => item.id === wanted);
-      playIndex = found >= 0 ? found : 0;
+      armPlayback(collection);
       renderWatchCollection(collection);
       if (queue[playIndex]) watchClip(queue[playIndex], false);
       else showPrompt('None of the clips in this collection can be played.');
@@ -810,6 +953,7 @@ export function mountClipsView(container, route) {
     }),
   );
   document.addEventListener('keydown', onKey);
+  const unbindTextCommands = bindTextCommands(() => player);
   render();
 
   return {
@@ -823,6 +967,7 @@ export function mountClipsView(container, route) {
     destroy() {
       offs.forEach((off) => off());
       document.removeEventListener('keydown', onKey);
+      unbindTextCommands();
       destroyPlayer();
     },
   };

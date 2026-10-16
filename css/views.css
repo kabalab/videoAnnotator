@@ -1821,6 +1821,29 @@ a.clips-item:hover,
   background: var(--surface);
 }
 
+.clips-ts-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+
+.clips-ts-mark .clips-ts-jump {
+  flex: none;
+}
+
+.clips-shuffle.is-pressed {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.clips-shuffle.is-pressed:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  color: #fff;
+}
+
 .clips-ts-jump {
   display: flex;
   gap: 10px;

@@ -318,6 +318,7 @@ function collectionChanges(before, after, clips) {
   if (JSON.stringify(before?.clipIds || []) !== JSON.stringify(after?.clipIds || [])) {
     lines.push(`Clips: ${clipNames(before?.clipIds, clips) || 'none'} \u2192 ${clipNames(after?.clipIds, clips) || 'none'}`);
   }
+  if (!!before?.shuffle !== !!after?.shuffle) lines.push(after?.shuffle ? 'Shuffle turned on.' : 'Shuffle turned off.');
   return lines;
 }
 

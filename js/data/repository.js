@@ -658,11 +658,13 @@ function uniqueClipIds(ids) {
 function cleanCollection(input) {
   const title = String(input.title || '').trim();
   if (!title) throw new ValidationError('Give the collection a title.', 'title');
-  return {
+  const collection = {
     title,
     description: String(input.description || '').replace(/\s+$/, ''),
     clipIds: uniqueClipIds(input.clipIds),
   };
+  if (input.shuffle) collection.shuffle = true;
+  return collection;
 }
 
 export async function saveCollection(input) {
@@ -672,6 +674,7 @@ export async function saveCollection(input) {
   const collections = [...(state.clips.collections || [])];
   const idx = input.id ? collections.findIndex((collection) => collection.id === input.id) : -1;
   const saved = idx >= 0 ? { ...collections[idx], ...clean, id: collections[idx].id } : { ...clean, id: randomId('k') };
+  if (!clean.shuffle) delete saved.shuffle;
   if (idx >= 0) collections[idx] = saved;
   else collections.push(saved);
   commitClips({ ...state.clips, collections });

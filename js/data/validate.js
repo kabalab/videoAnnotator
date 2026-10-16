@@ -318,6 +318,9 @@ function normalizeCollection(item) {
   const clipIds = stringListKeep(item.clipIds);
   if (!clipIds.ok) notes.push('"clipIds" should be a list of clip ids.');
   collection.clipIds = clipIds.list;
+  if ('shuffle' in item && item.shuffle !== true && item.shuffle !== false) notes.push('"shuffle" should be true or false.');
+  if (item.shuffle === true) collection.shuffle = true;
+  else delete collection.shuffle;
   return { value: collection, notes };
 }
 

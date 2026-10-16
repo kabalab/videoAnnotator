@@ -10,7 +10,7 @@ const NOTE_KEYS = ['id', 'type', 'timestamp', 'title', 'content', 'tags', 'marke
 const TAG_KEYS = ['id', 'name', 'color', 'description'];
 const MARKER_KEYS = ['id', 'name', 'description', 'date', 'order'];
 const CLIP_KEYS = ['id', 'videoId', 'start', 'end', 'title', 'description', 'tags'];
-const COLLECTION_KEYS = ['id', 'title', 'description', 'clipIds'];
+const COLLECTION_KEYS = ['id', 'title', 'description', 'clipIds', 'shuffle'];
 
 export function nowIso() {
   return new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
