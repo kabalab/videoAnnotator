@@ -11,7 +11,7 @@
   },
   "duration": 8618.7,
   "createdAt": "2026-10-08T04:41:19Z",
-  "updatedAt": "2026-10-13T16:39:34Z",
+  "updatedAt": "2026-10-14T16:33:53Z",
   "notes": [
     {
       "id": "n_howty3mg6c",
@@ -131,7 +131,7 @@
       "type": "generic",
       "timestamp": null,
       "title": "Sermon notes",
-      "content": "Talks a little about her. She tried so hard for this Gold cup, which is this trophy for getting 1st all 4 years of high school, she practiced and practiced but the day of the competition she's running a little late she makes on stage and can't play the piano she goes back to her car she gets a parking ticket. The reasons its such a memorable day is because she felt like her value had been shaken. People will find value in what they do, the **identify** with the things they do. __People live life with clenched fists.__ We do it unknowingly we do it when we put up an image for others. God doesn't want us to do this he wants us to let go he wants us to be free.\n\n@t@58:16 She is likely abandoned, forgotten feeling hopeless and out of control. Most woman in this time married older man. So most likely she had been divorced or widowed multiple times. Woman also didn't have the right to education, So woman needed to be married to live somewhere.\n\n@1:16:55 \n\nYou never know when God will give you a message to change your life.You never know what you will get out of a sermon.\n\n$ God won't leave you stranded, He will help you through it.\n\n$ Jesus will meet you where you are.",
+      "content": "Talks a little about her. She tried so hard for this Gold cup, which is this trophy for getting 1st all 4 years of high school, she practiced and practiced but the day of the competition she's running a little late she makes on stage and can't play the piano she goes back to her car she gets a parking ticket. The reasons its such a memorable day is because she felt like her value had been shaken. People will find value in what they do, the **identify** with the things they do. __People live life with clenched fists.__ We do it unknowingly we do it when we put up an image for others. God doesn't want us to do this he wants us to let go he wants us to be free.\n\n@t@58:16 She is likely abandoned, forgotten feeling hopeless and out of control. Most woman in this time married older man. So most likely she had been divorced or widowed multiple times. Woman also didn't have the right to education, So woman needed to be married to live somewhere.\n\n@1:16:55 \n\nYou never know when God will give you a message to change your life.You never know what you will get out of a sermon.\n\n$ God won't leave you stranded, He will help you through it.\n\n$ Jesus will meet you where you are.\n\n@1:37:53\n\nAs God pours his love and hope into you, you can pour back into your community and help those who are stuck with clenched fists.",
       "tags": [
         "sermon-notes"
       ],
@@ -140,7 +140,7 @@
       ],
       "visibility": "public",
       "createdAt": "2026-10-12T18:10:01Z",
-      "updatedAt": "2026-10-13T16:39:24Z"
+      "updatedAt": "2026-10-14T15:52:08Z"
     },
     {
       "id": "n_1fwwoe0wy6",
@@ -198,16 +198,126 @@
       "updatedAt": "2026-10-13T16:26:30Z"
     },
     {
-      "id": "n_1ei6y02n80",
+      "id": "n_2yr3ld1cii",
       "type": "timestamp",
-      "timestamp": 5175.8,
-      "title": "Where I left off",
+      "timestamp": 5260.1,
+      "title": "Closer by Brandon Lake / Maverick City Music",
+      "content": "",
+      "tags": [
+        "song",
+        "start-of-worship"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-13T23:27:05Z",
+      "updatedAt": "2026-10-13T23:27:05Z"
+    },
+    {
+      "id": "n_1r4fqz319e",
+      "type": "timestamp",
+      "timestamp": 5574.2,
+      "title": "Living God by Red Rocks Worship",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-13T23:32:48Z",
+      "updatedAt": "2026-10-13T23:32:48Z"
+    },
+    {
+      "id": "n_1yzkyvkd8t",
+      "type": "timestamp",
+      "timestamp": 5873,
+      "title": "Carly Bartlett walks back on stage",
       "content": "",
       "tags": [],
       "markers": [],
       "visibility": "public",
-      "createdAt": "2026-10-13T16:39:34Z",
-      "updatedAt": "2026-10-13T16:39:34Z"
+      "createdAt": "2026-10-13T23:39:24Z",
+      "updatedAt": "2026-10-13T23:39:24Z"
+    },
+    {
+      "id": "n_cjrpj1csuv",
+      "type": "timestamp",
+      "timestamp": 6522.2,
+      "title": "Response",
+      "content": "",
+      "tags": [
+        "response"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-14T16:00:51Z",
+      "updatedAt": "2026-10-14T16:00:51Z"
+    },
+    {
+      "id": "n_17hcmg31dg",
+      "type": "timestamp",
+      "timestamp": 6799.8,
+      "title": "Lord Send Revival by Hillsong Young & Free",
+      "content": "",
+      "tags": [
+        "song",
+        "start-of-worship"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-14T16:02:46Z",
+      "updatedAt": "2026-10-14T16:02:46Z"
+    },
+    {
+      "id": "n_188zuhw16z",
+      "type": "timestamp",
+      "timestamp": 7125.6,
+      "title": "Fake Love by Elevation Rhythm",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-14T16:09:43Z",
+      "updatedAt": "2026-10-14T16:09:43Z"
+    },
+    {
+      "id": "n_7cb1c21x7k",
+      "type": "timestamp",
+      "timestamp": 7388.2,
+      "title": "Thanks to all the peoples by Shane Lima",
+      "content": "",
+      "tags": [],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-14T16:14:01Z",
+      "updatedAt": "2026-10-14T16:14:01Z"
+    },
+    {
+      "id": "n_pj7c4f1g47",
+      "type": "timestamp",
+      "timestamp": 7449.3,
+      "title": "NYC live",
+      "content": "Interviews Carly Bartlett\n\n^^@2:17:22^^ Video about someone that wanted to go to and was really happy about being able to go to NYC",
+      "tags": [
+        "nyc-live"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-14T16:14:42Z",
+      "updatedAt": "2026-10-14T16:32:40Z"
+    },
+    {
+      "id": "n_1sbtteiy8q",
+      "type": "timestamp",
+      "timestamp": 8533.1,
+      "title": "Video ends",
+      "content": "",
+      "tags": [],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-14T16:33:45Z",
+      "updatedAt": "2026-10-14T16:33:53Z"
     }
   ]
 }

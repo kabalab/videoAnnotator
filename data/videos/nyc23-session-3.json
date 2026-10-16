@@ -11,6 +11,35 @@
   },
   "duration": 8035,
   "createdAt": "2026-10-08T22:20:57Z",
-  "updatedAt": "2026-10-08T22:26:20Z",
-  "notes": []
+  "updatedAt": "2026-10-15T16:49:05Z",
+  "notes": [
+    {
+      "id": "n_mf1ighq11a",
+      "type": "timestamp",
+      "timestamp": 1125,
+      "title": "NYC live",
+      "content": "Interviews two of the singers from Royal company, Chad & Makayla.\n\n@28:18 Video showing the rec hall and interviews people in the rec hall.",
+      "tags": [
+        "nyc-live"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-15T16:40:00Z",
+      "updatedAt": "2026-10-15T16:40:00Z"
+    },
+    {
+      "id": "n_pzbhq7kl01",
+      "type": "timestamp",
+      "timestamp": 1891.8,
+      "title": "Recap video",
+      "content": "",
+      "tags": [
+        "recap-video"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-15T16:41:30Z",
+      "updatedAt": "2026-10-15T16:49:05Z"
+    }
+  ]
 }

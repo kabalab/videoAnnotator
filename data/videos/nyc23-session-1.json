@@ -11,7 +11,7 @@
   },
   "duration": 7855.1,
   "createdAt": "2026-10-08T04:33:42Z",
-  "updatedAt": "2026-10-11T23:48:06Z",
+  "updatedAt": "2026-10-14T16:34:08Z",
   "notes": [
     {
       "id": "n_1ebu0jb12b",
@@ -486,13 +486,13 @@
       "id": "n_ptaqu8jgtf",
       "type": "timestamp",
       "timestamp": 7751.9,
-      "title": "Video Ends",
+      "title": "Video ends",
       "content": "",
       "tags": [],
       "markers": [],
       "visibility": "public",
       "createdAt": "2026-10-11T03:51:35Z",
-      "updatedAt": "2026-10-11T03:51:35Z"
+      "updatedAt": "2026-10-14T16:34:08Z"
     },
     {
       "id": "n_2u3r8q15iz",

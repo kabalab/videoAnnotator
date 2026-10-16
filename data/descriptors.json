@@ -72,6 +72,12 @@
       "name": "Start of worship",
       "color": "#ffffff",
       "description": ""
+    },
+    {
+      "id": "recap-video",
+      "name": "Recap video",
+      "color": "#e0a43b",
+      "description": ""
     }
   ],
   "markers": [
