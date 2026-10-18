@@ -11,7 +11,7 @@
   },
   "duration": 8035,
   "createdAt": "2026-10-08T22:20:57Z",
-  "updatedAt": "2026-10-16T18:40:59Z",
+  "updatedAt": "2026-10-17T00:16:01Z",
   "notes": [
     {
       "id": "n_mf1ighq11a",
@@ -186,7 +186,7 @@
       "type": "generic",
       "timestamp": null,
       "title": "Sermon notes",
-      "content": "Talks about his puddle in church story. \n\nWhat's something that you have been avoiding / sidestepping (Whats your puddle)",
+      "content": "Talks about his puddle in church story. \n\nWhat's something that you have been avoiding / sidestepping (What's your puddle) \n\nJesus doesn't want to cover up your puddles he'll use them\n\n$ Jesus wants your puddles\n\n@1:27:03 in spite of all your sins God still wants to use you. \n\n$ God will use you in mysterious ways.\nHe wants you to flourish, he wants your puddles.\n\n@1:30:59\n\nYour not junk **your life matters** \n\n$$ Your puddles are beautiful",
       "tags": [
         "sermon-notes"
       ],
@@ -195,19 +195,134 @@
       ],
       "visibility": "public",
       "createdAt": "2026-10-16T18:29:20Z",
-      "updatedAt": "2026-10-16T18:40:45Z"
+      "updatedAt": "2026-10-17T00:00:09Z"
     },
     {
-      "id": "n_158an0n1v8",
+      "id": "n_q6fx7g142n",
       "type": "timestamp",
-      "timestamp": 5080.3,
-      "title": "Where I left off",
-      "content": "",
-      "tags": [],
+      "timestamp": 5223.2,
+      "title": "Isaiah 45:8",
+      "content": "You heavens above, rain down my righteousness; let the clouds shower it down. Let the earth open wide, let salvation spring up, let righteousness flourish with it; I, the Lord, have created it.",
+      "tags": [
+        "verse"
+      ],
       "markers": [],
       "visibility": "public",
-      "createdAt": "2026-10-16T18:40:59Z",
-      "updatedAt": "2026-10-16T18:40:59Z"
+      "createdAt": "2026-10-16T23:32:12Z",
+      "updatedAt": "2026-10-16T23:32:12Z"
+    },
+    {
+      "id": "n_q623p71un5",
+      "type": "timestamp",
+      "timestamp": 5442.6,
+      "title": "He wants the thing in your life that you think is ugly about you, so that he can use it for his almighty glory!",
+      "content": "",
+      "tags": [
+        "one-liner"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-16T23:38:28Z",
+      "updatedAt": "2026-10-16T23:38:28Z"
+    },
+    {
+      "id": "n_2lxco8hq9w",
+      "type": "timestamp",
+      "timestamp": 5459.1,
+      "title": "Isaiah 45:9",
+      "content": "Wow to those who quarrel with their Maker, those are nothing but potsherds among the potsherds on the ground. Does the clay say to the potter, \"What are you making?\" Does your work say, \"The potter has no hands\"?",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-16T23:39:46Z",
+      "updatedAt": "2026-10-16T23:41:39Z"
+    },
+    {
+      "id": "n_1t03c5gl62",
+      "type": "timestamp",
+      "timestamp": 5565,
+      "title": "When rain pounds the ground it saturates it, then things start to grow because of it and things begin to bloom. God is saturating your life with his glory.",
+      "content": "",
+      "tags": [
+        "one-liner"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-16T23:46:29Z",
+      "updatedAt": "2026-10-16T23:46:29Z"
+    },
+    {
+      "id": "n_1gjy89h1rf",
+      "type": "timestamp",
+      "timestamp": 5700,
+      "title": "Your puddles align your life, and they may seem like chaos but they **ALWAYS** come with a purpose",
+      "content": "",
+      "tags": [
+        "one-liner"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-16T23:50:04Z",
+      "updatedAt": "2026-10-16T23:50:04Z"
+    },
+    {
+      "id": "n_bg361xl2q3",
+      "type": "timestamp",
+      "timestamp": 5743,
+      "title": "Roman 6:3-4",
+      "content": "Or don't you know that all of us who were baptized into Christ Jesus were baptized into his death? We were therefore buried with him through baptism into death in order that, just as Christ was raised from the dead though the glory of the Father, we too may live a new life.",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-16T23:53:04Z",
+      "updatedAt": "2026-10-16T23:54:00Z"
+    },
+    {
+      "id": "n_7l4ikdhovw",
+      "type": "timestamp",
+      "timestamp": 6123.6,
+      "title": "Shane Lima walks on stage",
+      "content": "@1:44:34 \nWhat's the puddle for your life?\n\nAfter this message what does surrender mean to you now?",
+      "tags": [
+        "response"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-17T00:00:49Z",
+      "updatedAt": "2026-10-17T00:07:41Z"
+    },
+    {
+      "id": "n_1npb8rmoqb",
+      "type": "timestamp",
+      "timestamp": 6449,
+      "title": "Living God by Red Rocks Worship",
+      "content": "",
+      "tags": [
+        "song",
+        "start-of-worship"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-17T00:10:45Z",
+      "updatedAt": "2026-10-17T00:10:45Z"
+    },
+    {
+      "id": "n_1h37ixa103",
+      "type": "timestamp",
+      "timestamp": 6759,
+      "title": "House of Miracles by Brandon Lake",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-17T00:16:01Z",
+      "updatedAt": "2026-10-17T00:16:01Z"
     }
   ]
 }
