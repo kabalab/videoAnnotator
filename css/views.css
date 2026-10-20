@@ -1832,13 +1832,15 @@ a.clips-item:hover,
   flex: none;
 }
 
-.clips-shuffle.is-pressed {
+.clips-shuffle.is-pressed,
+.clips-loop.is-pressed {
   background: var(--accent);
   border-color: var(--accent);
   color: #fff;
 }
 
-.clips-shuffle.is-pressed:hover:not(:disabled) {
+.clips-shuffle.is-pressed:hover:not(:disabled),
+.clips-loop.is-pressed:hover:not(:disabled) {
   background: var(--accent-hover);
   border-color: var(--accent-hover);
   color: #fff;

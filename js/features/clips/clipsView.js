@@ -73,6 +73,7 @@ export function mountClipsView(container, route) {
   let playIndex = 0;
   let queue = [];
   let shuffleOn = false;
+  let loopOn = false;
   let player = null;
   let playerVideoId = null;
   let draftIds = [];
@@ -139,11 +140,12 @@ export function mountClipsView(container, route) {
   }
 
   function onRangeEnd() {
-    if (editing || current.name !== 'collection') return;
-    if (playIndex + 1 >= queue.length) return;
-    playIndex += 1;
-    const clip = queue[playIndex];
-    watchClip(clip, true);
+    if (editing || current.name !== 'collection' || !queue.length) return;
+    if (playIndex + 1 >= queue.length) {
+      if (!loopOn) return;
+      playIndex = 0;
+    } else playIndex += 1;
+    watchClip(queue[playIndex], true);
     markCollectionRows();
   }
 
@@ -786,7 +788,7 @@ export function mountClipsView(container, route) {
           'span',
           { class: 'clips-order-main' },
           h('span', { class: 'clips-order-label' }, label),
-          clip && video && h('span', { class: 'clips-item-meta' }, `${formatTime(clip.start)}\u2013${formatTime(clip.end)}`),
+          clip && video && h('span', { class: 'clips-item-meta' }, plainTitle(video.title) || 'Untitled video', ` · ${formatTime(clip.start)}\u2013${formatTime(clip.end)}`),
           clip && tagChips(clip.tags),
         ),
       );
@@ -803,6 +805,21 @@ export function mountClipsView(container, route) {
       icon('swap'),
       'Shuffle',
     );
+    const loopBtn = h(
+      'button',
+      {
+        class: ['btn', 'btn-secondary', 'btn-sm', 'clips-loop', loopOn && 'is-pressed'],
+        type: 'button',
+        title: 'When on, the collection starts again from the first clip when it finishes',
+        'aria-pressed': loopOn ? 'true' : 'false',
+        onclick: () => {
+          loopOn = !loopOn;
+          renderWatchCollection(collection);
+        },
+      },
+      icon('repeat'),
+      'Loop',
+    );
     fill(
       detailHost,
       h(
@@ -813,6 +830,7 @@ export function mountClipsView(container, route) {
           'div',
           { class: 'clips-header-actions' },
           shuffleBtn,
+          loopBtn,
           canEdit() && h('button', { class: 'btn btn-secondary btn-sm', type: 'button', onclick: () => { editing = true; draftKey = ''; renderDetail(true); } }, icon('edit'), 'Edit'),
         ),
       ),

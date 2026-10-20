@@ -11,6 +11,64 @@
   },
   "duration": 8440.1,
   "createdAt": "2026-10-08T22:21:38Z",
-  "updatedAt": "2026-10-08T22:26:37Z",
-  "notes": []
+  "updatedAt": "2026-10-20T03:15:25Z",
+  "notes": [
+    {
+      "id": "n_3rtoi210xd",
+      "type": "timestamp",
+      "timestamp": 847.3,
+      "title": "NYC live",
+      "content": "Interviews Antonio Marshall.\n\n^^@19:29^^ Interviews Zach Williams",
+      "tags": [
+        "nyc-live"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-19T16:54:20Z",
+      "updatedAt": "2026-10-19T16:54:20Z"
+    },
+    {
+      "id": "n_t7yvd4zg9w",
+      "type": "timestamp",
+      "timestamp": 1852.8,
+      "title": "Intro video",
+      "content": "",
+      "tags": [
+        "intro-video"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-19T16:55:58Z",
+      "updatedAt": "2026-10-19T16:55:58Z"
+    },
+    {
+      "id": "n_1mjvjhv1fz",
+      "type": "timestamp",
+      "timestamp": 2080.3,
+      "title": "Firm foundation (He Won't) by Cody Carnes",
+      "content": "",
+      "tags": [
+        "song",
+        "start-of-worship"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-19T17:00:12Z",
+      "updatedAt": "2026-10-19T17:00:12Z"
+    },
+    {
+      "id": "n_yfxbop1agu",
+      "type": "timestamp",
+      "timestamp": 2510.7,
+      "title": "Rich Villodas walks on stage",
+      "content": "",
+      "tags": [
+        "start-of-sermon"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-20T03:15:25Z",
+      "updatedAt": "2026-10-20T03:15:25Z"
+    }
+  ]
 }

@@ -52,7 +52,7 @@ const WATCHING = [
   { text: 'The Library lists every video you can open. Open one to watch it and read its notes.' },
   { when: 'public', text: 'Private videos are hidden, and so is a video with no YouTube link.' },
   { text: 'Search looks through titles, descriptions, notes, tags, and markers. Filters can limit results to a video, a note type, a tag, or a marker.' },
-  { text: 'Clips are titled ranges of a video. A collection plays clips in order, or in a random order when Shuffle is on. Open Clips in the top bar.' },
+  { text: 'Clips are titled ranges of a video. A collection plays clips in order, or in a random order when Shuffle is on. Loop starts the collection again from the first clip when it finishes. Open Clips in the top bar.' },
   { when: 'editor', text: 'Search can also filter by public or private.' },
   { text: 'Timestamp notes belong to a moment. Click the time to jump there. Go back returns you to where you were before the jump.' },
   { text: 'On the Timeline, the note you have reached is highlighted, and the next one is marked so you can see what is coming, including on the seek bar.' },

@@ -11,7 +11,7 @@
   },
   "duration": 8035,
   "createdAt": "2026-10-08T22:20:57Z",
-  "updatedAt": "2026-10-17T00:16:01Z",
+  "updatedAt": "2026-10-19T16:44:15Z",
   "notes": [
     {
       "id": "n_mf1ighq11a",
@@ -25,7 +25,7 @@
       "markers": [],
       "visibility": "public",
       "createdAt": "2026-10-15T16:40:00Z",
-      "updatedAt": "2026-10-15T16:40:00Z"
+      "updatedAt": "2026-10-19T16:34:42Z"
     },
     {
       "id": "n_pzbhq7kl01",
@@ -179,7 +179,7 @@
       "markers": [],
       "visibility": "public",
       "createdAt": "2026-10-16T16:41:24Z",
-      "updatedAt": "2026-10-16T18:32:24Z"
+      "updatedAt": "2026-10-19T16:34:53Z"
     },
     {
       "id": "n_1km7x8g104",
@@ -323,6 +323,47 @@
       "visibility": "public",
       "createdAt": "2026-10-17T00:16:01Z",
       "updatedAt": "2026-10-17T00:16:01Z"
+    },
+    {
+      "id": "n_tr16so1p5m",
+      "type": "timestamp",
+      "timestamp": 7154,
+      "title": "Antonio Marshall walks on stage",
+      "content": "^^@1:59:26^^John 17",
+      "tags": [
+        "benediction",
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-19T16:28:12Z",
+      "updatedAt": "2026-10-19T16:33:39Z"
+    },
+    {
+      "id": "n_ch9qo11l9n",
+      "type": "timestamp",
+      "timestamp": 7283,
+      "title": "NYC live",
+      "content": "Interviews Chris Simning.",
+      "tags": [
+        "nyc-live"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-19T16:34:34Z",
+      "updatedAt": "2026-10-19T16:43:26Z"
+    },
+    {
+      "id": "n_1nrdjlo1kh",
+      "type": "timestamp",
+      "timestamp": 7913.2,
+      "title": "video ends",
+      "content": "",
+      "tags": [],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-19T16:44:15Z",
+      "updatedAt": "2026-10-19T16:44:15Z"
     }
   ]
 }

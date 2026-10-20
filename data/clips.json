@@ -231,6 +231,39 @@
       "tags": [
         "song"
       ]
+    },
+    {
+      "id": "c_1vi9d7mtwb",
+      "videoId": "nyc23-session-3",
+      "start": 6449,
+      "end": 6741,
+      "title": "Living God by Red Rocks Worship",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_k5yrec12ri",
+      "videoId": "nyc23-session-3",
+      "start": 6759,
+      "end": 7154,
+      "title": "House of Miracles by Brandon Lake",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_1vyrqvhugu",
+      "videoId": "nyc23-session-4",
+      "start": 2080,
+      "end": 2468,
+      "title": "Firm foundation (He Won't) by Cody Carnes",
+      "description": "",
+      "tags": [
+        "song"
+      ]
     }
   ],
   "collections": [
@@ -255,7 +288,10 @@
         "c_d0zg8312hl",
         "c_1enzpx0ax9",
         "c_18lrk6e88z",
-        "c_1ajdlxw15n"
+        "c_1ajdlxw15n",
+        "c_1vi9d7mtwb",
+        "c_k5yrec12ri",
+        "c_1vyrqvhugu"
       ],
       "shuffle": true
     }
