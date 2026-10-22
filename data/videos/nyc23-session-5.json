@@ -11,6 +11,107 @@
   },
   "duration": 7755.1,
   "createdAt": "2026-10-08T22:22:13Z",
-  "updatedAt": "2026-10-08T22:26:48Z",
-  "notes": []
+  "updatedAt": "2026-10-21T23:40:59Z",
+  "notes": [
+    {
+      "id": "n_776mi11a7p",
+      "type": "timestamp",
+      "timestamp": 516,
+      "title": "NYC live",
+      "content": "Interviews Shane Lima \n\n^^@13:10^^MWO video\n\n^^@15:28^^Interviews pastor Greg (Coordinator of MWOs)",
+      "tags": [
+        "nyc-live"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-21T18:33:48Z",
+      "updatedAt": "2026-10-21T18:33:48Z"
+    },
+    {
+      "id": "n_1wecsaamrz",
+      "type": "timestamp",
+      "timestamp": 1336.8,
+      "title": "Recap video",
+      "content": "",
+      "tags": [
+        "recap-video"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-21T18:34:03Z",
+      "updatedAt": "2026-10-21T18:34:03Z"
+    },
+    {
+      "id": "n_vh71sq1nc4",
+      "type": "timestamp",
+      "timestamp": 1507.9,
+      "title": "Mighty to Save with Spanish by Hillsong Worship",
+      "content": "",
+      "tags": [
+        "song",
+        "start-of-worship"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-21T18:36:17Z",
+      "updatedAt": "2026-10-21T18:40:51Z"
+    },
+    {
+      "id": "n_5yw2631qbl",
+      "type": "timestamp",
+      "timestamp": 1917.4,
+      "title": "See a Victory by Elevation Worship",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-21T18:44:01Z",
+      "updatedAt": "2026-10-21T18:44:01Z"
+    },
+    {
+      "id": "n_1xe09s963i",
+      "type": "timestamp",
+      "timestamp": 2338.8,
+      "title": "The pastors walk on stage",
+      "content": "Shane Lima starts off recapping about NYC so far.\n\n^^@41:19^^Brady Braaz prays with Psalm 120:7",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-21T23:37:46Z",
+      "updatedAt": "2026-10-21T23:37:46Z"
+    },
+    {
+      "id": "n_ag6dnqy4ft",
+      "type": "timestamp",
+      "timestamp": 2661.4,
+      "title": "Intro video",
+      "content": "",
+      "tags": [
+        "intro-video"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-21T23:38:24Z",
+      "updatedAt": "2026-10-21T23:38:24Z"
+    },
+    {
+      "id": "n_iyf9h4153u",
+      "type": "timestamp",
+      "timestamp": 2787,
+      "title": "Same God by Elevation Worship",
+      "content": "",
+      "tags": [
+        "song",
+        "start-of-worship"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-21T23:40:59Z",
+      "updatedAt": "2026-10-21T23:40:59Z"
+    }
+  ]
 }

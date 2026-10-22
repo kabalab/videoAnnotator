@@ -11,7 +11,7 @@
   },
   "duration": 8440.1,
   "createdAt": "2026-10-08T22:21:38Z",
-  "updatedAt": "2026-10-20T18:42:33Z",
+  "updatedAt": "2026-10-21T17:41:48Z",
   "notes": [
     {
       "id": "n_3rtoi210xd",
@@ -226,6 +226,132 @@
       "visibility": "public",
       "createdAt": "2026-10-20T18:42:33Z",
       "updatedAt": "2026-10-20T18:42:33Z"
+    },
+    {
+      "id": "n_dtz2871usu",
+      "type": "timestamp",
+      "timestamp": 5840.6,
+      "title": "Sinking Deep by Hillsong Young & Free",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-20T21:18:13Z",
+      "updatedAt": "2026-10-20T21:18:13Z"
+    },
+    {
+      "id": "n_12iabiu1lz",
+      "type": "timestamp",
+      "timestamp": 5994,
+      "title": "Pastors read out some scripture and talk",
+      "content": "Brady Braaz Philippians 2\n\n^^@1:40:56^^Shane Lima\n^^@1:41:33^^Antonio Marshall\n^^@1:42:10^^Stephanie Lobdell",
+      "tags": [
+        "benediction",
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-20T21:25:53Z",
+      "updatedAt": "2026-10-20T21:25:53Z"
+    },
+    {
+      "id": "n_1juxeke18b",
+      "type": "timestamp",
+      "timestamp": 6266.7,
+      "title": "Here It Is (I Worship You) by Passion",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-20T21:27:24Z",
+      "updatedAt": "2026-10-20T21:27:24Z"
+    },
+    {
+      "id": "n_1jvpduv1io",
+      "type": "timestamp",
+      "timestamp": 6497,
+      "title": "King of Kings by Hillsong Worship",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-21T17:18:59Z",
+      "updatedAt": "2026-10-21T17:18:59Z"
+    },
+    {
+      "id": "n_qw7y2b13yf",
+      "type": "timestamp",
+      "timestamp": 6785,
+      "title": "House of Miracles by Brandon Lake",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-21T17:23:38Z",
+      "updatedAt": "2026-10-21T17:23:38Z"
+    },
+    {
+      "id": "n_xlbow2huuv",
+      "type": "timestamp",
+      "timestamp": 7228.8,
+      "title": "Shane Lima comes back and gives praise to the lord also some of a response",
+      "content": "",
+      "tags": [
+        "response"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-21T17:32:35Z",
+      "updatedAt": "2026-10-21T17:32:35Z"
+    },
+    {
+      "id": "n_5nst5bd0fh",
+      "type": "timestamp",
+      "timestamp": 7328.3,
+      "title": "Antonio Marshal and a student leads the benediction",
+      "content": "^^@2:03:04^^Romans 15:13",
+      "tags": [
+        "benediction",
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-21T17:34:40Z",
+      "updatedAt": "2026-10-21T17:34:40Z"
+    },
+    {
+      "id": "n_tvxhuzg8ez",
+      "type": "timestamp",
+      "timestamp": 7405.7,
+      "title": "NYC live",
+      "content": "^^@2:05:55^^Interviews Rich Villodas.\n\n^^@2:15:09^^History of NYC video",
+      "tags": [
+        "nyc-live"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-21T17:41:38Z",
+      "updatedAt": "2026-10-21T17:41:38Z"
+    },
+    {
+      "id": "n_spd0x51xzr",
+      "type": "timestamp",
+      "timestamp": 8343.3,
+      "title": "Video ends",
+      "content": "",
+      "tags": [],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-21T17:41:48Z",
+      "updatedAt": "2026-10-21T17:41:48Z"
     }
   ]
 }
