@@ -35,7 +35,7 @@ export function validateLibrary(raw, path) {
   if (!isObject(raw) || !Array.isArray(raw.videos)) {
     throw new DataError(path, `${path} should be an object with a "videos" array, for example { "schemaVersion": 1, "videos": ["my-video"] }.`);
   }
-  const { videos, schemaVersion, ...extra } = raw;
+  const { videos, folders: rawFolders, schemaVersion, ...extra } = raw;
   const issues = [];
   const ids = [];
   const quarantine = [];
@@ -54,7 +54,93 @@ export function validateLibrary(raw, path) {
     ids.push(v);
   });
   if (schemaVersion > SCHEMA_VERSION) issues.push(issue(path, `Written by a newer version (schemaVersion ${schemaVersion}). Some fields may be ignored.`));
-  return { ids, extra, quarantine, issues };
+  const folderQuarantine = [];
+  const folders = collectFolders(rawFolders, path, issues, folderQuarantine, normalizeVideoFolder, 'Folder');
+  noteFolderCycles(folders, path, issues);
+  return { ids, extra, quarantine, issues, folders, folderQuarantine };
+}
+
+function collectFolders(list, path, issues, quarantine, normalize, noun) {
+  const out = [];
+  if (list === undefined) return out;
+  if (!Array.isArray(list)) {
+    issues.push(issue(path, `"folders" should be an array. It's ignored and will be replaced the next time folders are saved.`, 'error'));
+    return out;
+  }
+  const seen = new Set();
+  list.forEach((item, i) => {
+    const label = `${noun} ${isObject(item) && item.id ? `"${item.id}"` : `#${i + 1}`}`;
+    const result = normalize(item);
+    if (result.error) {
+      issues.push(issue(path, `${label} ${result.error} Kept in the file but not shown.`));
+      quarantine.push(item);
+      return;
+    }
+    result.notes.forEach((note) => issues.push(issue(path, `${label} ${note}`)));
+    if (seen.has(result.value.id)) {
+      issues.push(issue(path, `${label} duplicates an earlier id. Only the first is used; the duplicate stays in the file.`));
+      quarantine.push(item);
+      return;
+    }
+    seen.add(result.value.id);
+    out.push(result.value);
+  });
+  return out;
+}
+
+function normalizeVideoFolder(item) {
+  if (!isObject(item)) return { error: 'is not an object.' };
+  const folder = { ...item };
+  const notes = [];
+  if (typeof item.id !== 'string' || !ID_PATTERN.test(item.id)) {
+    folder.id = randomId('f');
+    notes.push(`had no valid id; using "${folder.id}".`);
+  }
+  folder.title = str(item.title).trim();
+  if (!folder.title) {
+    folder.title = folder.id;
+    notes.push('has no title.');
+  }
+  folder.description = str(item.description);
+  const videoIds = stringListKeep(item.videoIds);
+  if (!videoIds.ok) notes.push('"videoIds" should be a list of video ids.');
+  folder.videoIds = [...new Set(videoIds.list)];
+  const folderIds = stringListKeep(item.folderIds);
+  if (!folderIds.ok) notes.push('"folderIds" should be a list of folder ids.');
+  const uniqueFolderIds = [...new Set(folderIds.list)];
+  if (uniqueFolderIds.includes(folder.id)) notes.push('listed itself inside the folder; that entry was removed.');
+  folder.folderIds = uniqueFolderIds.filter((id) => id !== folder.id);
+  if (!folder.folderIds.length) delete folder.folderIds;
+  return { value: folder, notes };
+}
+
+function noteFolderCycles(folders, path, issues) {
+  const byId = new Map(folders.map((folder) => [folder.id, folder]));
+  const children = new Map(folders.map((folder) => [folder.id, []]));
+  const reaches = (from, target, seen) => {
+    if (from === target) return true;
+    if (!from || seen.has(from)) return false;
+    seen.add(from);
+    for (const id of children.get(from) || []) {
+      if (reaches(id, target, seen)) return true;
+    }
+    return false;
+  };
+  for (const folder of folders) {
+    for (const childId of folder.folderIds || []) {
+      const child = byId.get(childId);
+      if (!child || child.id === folder.id) continue;
+      if (reaches(child.id, folder.id, new Set())) {
+        issues.push(issue(path, `Folder "${folderLabel(folder)}" contains "${folderLabel(child)}", which already contains it. That link is skipped.`));
+        continue;
+      }
+      children.get(folder.id).push(child.id);
+    }
+  }
+}
+
+function folderLabel(folder) {
+  return str(folder.title).trim() || folder.id;
 }
 
 function normalizeTag(item) {
@@ -327,8 +413,8 @@ function normalizeCollection(item) {
 export function validateClips(raw, path) {
   if (!isObject(raw)) throw new DataError(path, `${path} should be an object with "clips" and "collections" arrays.`);
   const issues = [];
-  const quarantine = { clips: [], collections: [] };
-  const { clips: rawClips, collections: rawCollections, schemaVersion, ...extra } = raw;
+  const quarantine = { clips: [], collections: [], folders: [] };
+  const { clips: rawClips, collections: rawCollections, folders: rawFolders, schemaVersion, ...extra } = raw;
 
   const collect = (list, kind, normalize) => {
     const out = [];
@@ -338,8 +424,8 @@ export function validateClips(raw, path) {
       return out;
     }
     const seen = new Set();
+    const noun = kind === 'clips' ? 'Clip' : kind === 'folders' ? 'Folder' : 'Collection';
     list.forEach((item, i) => {
-      const noun = kind === 'clips' ? 'Clip' : 'Collection';
       const label = `${noun} ${isObject(item) && item.id ? `"${item.id}"` : `#${i + 1}`}`;
       const result = normalize(item);
       if (result.error) {
@@ -363,6 +449,7 @@ export function validateClips(raw, path) {
     ...extra,
     clips: collect(rawClips, 'clips', normalizeClip),
     collections: collect(rawCollections, 'collections', normalizeCollection),
+    folders: collect(rawFolders, 'folders', normalizeCollection),
     __quarantine: quarantine,
   };
   if (schemaVersion > SCHEMA_VERSION) issues.push(issue(path, `Written by a newer version (schemaVersion ${schemaVersion}).`));

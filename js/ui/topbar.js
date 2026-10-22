@@ -136,7 +136,7 @@ export function createTopbar(el) {
 
   return {
     setRoute(route) {
-      const onLibrary = route.name === 'library' || route.name === 'video';
+      const onLibrary = route.name === 'library' || route.name === 'folder' || route.name === 'video';
       navLibrary.classList.toggle('is-active', onLibrary);
       if (onLibrary) navLibrary.setAttribute('aria-current', 'page');
       else navLibrary.removeAttribute('aria-current');
@@ -148,7 +148,7 @@ export function createTopbar(el) {
       navMarkers.classList.toggle('is-active', onMarkers);
       if (onMarkers) navMarkers.setAttribute('aria-current', 'page');
       else navMarkers.removeAttribute('aria-current');
-      const onClips = route.name === 'clips' || route.name === 'clip' || route.name === 'collection';
+      const onClips = route.name === 'clips' || route.name === 'clip' || route.name === 'collection' || route.name === 'clipFolder';
       navClips.classList.toggle('is-active', onClips);
       if (onClips) navClips.setAttribute('aria-current', 'page');
       else navClips.removeAttribute('aria-current');

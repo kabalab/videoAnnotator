@@ -11,6 +11,8 @@ const TAG_KEYS = ['id', 'name', 'color', 'description'];
 const MARKER_KEYS = ['id', 'name', 'description', 'date', 'order'];
 const CLIP_KEYS = ['id', 'videoId', 'start', 'end', 'title', 'description', 'tags'];
 const COLLECTION_KEYS = ['id', 'title', 'description', 'clipIds', 'shuffle'];
+const VIDEO_FOLDER_KEYS = ['id', 'title', 'description', 'videoIds', 'folderIds'];
+const CLIP_FOLDER_KEYS = ['id', 'title', 'description', 'clipIds', 'shuffle'];
 
 export function nowIso() {
   return new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
@@ -95,20 +97,24 @@ export function serializeDescriptors(d) {
 }
 
 export function serializeClips(model) {
-  const { clips, collections, __quarantine, ...rest } = model || {};
-  return ordered(
-    {
-      ...rest,
-      schemaVersion: SCHEMA_VERSION,
-      clips: [...(clips || []).map((clip) => ordered(clip, CLIP_KEYS)), ...(__quarantine?.clips || [])],
-      collections: [...(collections || []).map((collection) => ordered(collection, COLLECTION_KEYS)), ...(__quarantine?.collections || [])],
-    },
-    ['schemaVersion', 'clips', 'collections'],
-  );
+  const { clips, collections, folders, __quarantine, ...rest } = model || {};
+  const body = {
+    ...rest,
+    schemaVersion: SCHEMA_VERSION,
+    clips: [...(clips || []).map((clip) => ordered(clip, CLIP_KEYS)), ...(__quarantine?.clips || [])],
+    collections: [...(collections || []).map((collection) => ordered(collection, COLLECTION_KEYS)), ...(__quarantine?.collections || [])],
+  };
+  const writtenFolders = [...(folders || []).map((folder) => ordered(folder, CLIP_FOLDER_KEYS)), ...(__quarantine?.folders || [])];
+  if (writtenFolders.length) body.folders = writtenFolders;
+  return ordered(body, ['schemaVersion', 'clips', 'collections', 'folders']);
 }
 
-export function serializeLibrary(ids, extra = {}, quarantine = []) {
-  return ordered({ ...extra, schemaVersion: SCHEMA_VERSION, videos: [...ids, ...quarantine] }, ['schemaVersion', 'videos']);
+export function serializeLibrary(ids, extra = {}, quarantine = [], folders = [], folderQuarantine = []) {
+  const { folders: _folders, ...rest } = extra || {};
+  const body = { ...rest, schemaVersion: SCHEMA_VERSION, videos: [...ids, ...quarantine] };
+  const writtenFolders = [...(folders || []).map((folder) => ordered(folder, VIDEO_FOLDER_KEYS)), ...(folderQuarantine || [])];
+  if (writtenFolders.length) body.folders = writtenFolders;
+  return ordered(body, ['schemaVersion', 'videos', 'folders']);
 }
 
 export function toJsonText(obj) {

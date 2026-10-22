@@ -1,5 +1,6 @@
 const routes = [
   { name: 'library', pattern: /^\/?$/ },
+  { name: 'folder', pattern: /^\/folder\/([^/]+)$/, keys: ['id'] },
   { name: 'video', pattern: /^\/video\/([^/]+)$/, keys: ['id'] },
   { name: 'search', pattern: /^\/search$/ },
   { name: 'tags', pattern: /^\/tags(?:\/([^/]+))?$/, keys: ['id'] },
@@ -7,6 +8,7 @@ const routes = [
   { name: 'clips', pattern: /^\/clips$/ },
   { name: 'clip', pattern: /^\/clip\/([^/]+)$/, keys: ['id'] },
   { name: 'collection', pattern: /^\/collection\/([^/]+)$/, keys: ['id'] },
+  { name: 'clipFolder', pattern: /^\/clip-folder\/([^/]+)$/, keys: ['id'] },
 ];
 
 export function parseHash(hash = window.location.hash) {

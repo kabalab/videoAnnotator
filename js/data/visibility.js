@@ -14,10 +14,17 @@ export function applyVisibility(video, showPrivate) {
   return { ...video, notes: video.notes.filter(isPublic), __quarantine: [] };
 }
 
-// Public visitors only see clips whose source video is visible, and collections that still have one of those clips.
+function visibleGroups(groups, ids) {
+  return (groups || [])
+    .map((group) => ({ ...group, clipIds: (group.clipIds || []).filter((id) => ids.has(id)) }))
+    .filter((group) => group.clipIds.length);
+}
+
+// Public visitors only see clips whose source video is visible, and groups that still have one of those clips.
 export function applyClipVisibility(model, videos, showPrivate) {
   const clips = model?.clips || [];
   const collections = model?.collections || [];
+  const folders = model?.folders || [];
   if (showPrivate) return model;
   const visible = new Set((videos || []).map((video) => video?.id).filter(Boolean));
   const shown = clips.filter((clip) => visible.has(clip.videoId));
@@ -25,9 +32,8 @@ export function applyClipVisibility(model, videos, showPrivate) {
   return {
     ...model,
     clips: shown,
-    collections: collections
-      .map((collection) => ({ ...collection, clipIds: (collection.clipIds || []).filter((id) => ids.has(id)) }))
-      .filter((collection) => collection.clipIds.length),
-    __quarantine: { clips: [], collections: [] },
+    collections: visibleGroups(collections, ids),
+    folders: visibleGroups(folders, ids),
+    __quarantine: { clips: [], collections: [], folders: [] },
   };
 }

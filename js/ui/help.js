@@ -49,10 +49,10 @@ function block(title, items) {
 }
 
 const WATCHING = [
-  { text: 'The Library lists every video you can open. Open one to watch it and read its notes.' },
+  { text: 'The Library lists folders and any videos that are not in a folder. A folder can contain other folders. View all shows every video, including the ones inside folders. Open a video to watch it and read its notes.' },
   { when: 'public', text: 'Private videos are hidden, and so is a video with no YouTube link.' },
   { text: 'Search looks through titles, descriptions, notes, tags, and markers. Filters can limit results to a video, a note type, a tag, or a marker.' },
-  { text: 'Clips are titled ranges of a video. A collection plays clips in order, or in a random order when Shuffle is on. Loop starts the collection again from the first clip when it finishes. Open Clips in the top bar.' },
+  { text: 'Clips are titled ranges of a video. The side list shows folders, then clips that are not in a folder. Click a folder to show the clips inside it, and click it again to close it. With nothing selected, the area beside that list shows the clips as a gallery. Click the selected clip in the side list again to return to that gallery. A collection plays its clips in order, or in a random order when Shuffle is on. Loop starts again from the first clip when playback finishes. Open Clips in the top bar.' },
   { when: 'editor', text: 'Search can also filter by public or private.' },
   { text: 'Timestamp notes belong to a moment. Click the time to jump there. Go back returns you to where you were before the jump.' },
   { text: 'On the Timeline, the note you have reached is highlighted, and the next one is marked so you can see what is coming, including on the seek bar.' },
@@ -62,7 +62,7 @@ const WATCHING = [
 ];
 
 const EDITING = [
-  { when: 'edit', text: 'On the Library, Add video creates a video. On a video, Edit video changes the title, description, visibility, and sources, including the YouTube backup. A video with no YouTube link is hidden on the public site.' },
+  { when: 'edit', text: 'On the Library, Add video creates a video and New folder groups videos. A folder has a name and a description, and it can contain other folders. Open a folder and use New folder to create one inside it, or edit a folder and check the folders that belong in it. Deleting a folder leaves its videos and the folders inside it in the library. On a video, Edit video changes the title, description, visibility, and sources, including the YouTube backup. A video with no YouTube link is hidden on the public site.' },
   { when: 'edit', text: 'Use Timestamp or Note to add a note at the current time or for the whole video. Click a note to edit it.' },
   { when: 'edit', text: 'A note or a video can be public or private. Private items are hidden on the public site. They are not secret: they stay in the project files, so keep sensitive notes out of the project.' },
   { when: 'edit', text: 'Deleting a note shows Undo for a few seconds. The file is updated immediately, and Undo writes the note back.' },

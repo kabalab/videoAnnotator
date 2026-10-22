@@ -11,8 +11,9 @@ export const state = {
   uiMode: 'view',
   persistence: { kind: 'loading' },
   descriptors: { tags: [], markers: [] },
-  clips: { clips: [], collections: [], __quarantine: { clips: [], collections: [] } },
+  clips: { clips: [], collections: [], folders: [], __quarantine: { clips: [], collections: [], folders: [] } },
   libraryIds: [],
+  libraryFolders: [],
   videos: new Map(),
   videoErrors: new Map(),
   issues: [],
@@ -120,12 +121,28 @@ export function listCollections() {
   return state.clips?.collections || [];
 }
 
+export function listVideoFolders() {
+  return state.libraryFolders || [];
+}
+
+export function listClipFolders() {
+  return state.clips?.folders || [];
+}
+
 export function getClip(id) {
   return listClips().find((clip) => clip.id === id) || null;
 }
 
 export function getCollection(id) {
   return listCollections().find((collection) => collection.id === id) || null;
+}
+
+export function getVideoFolder(id) {
+  return listVideoFolders().find((folder) => folder.id === id) || null;
+}
+
+export function getClipFolder(id) {
+  return listClipFolders().find((folder) => folder.id === id) || null;
 }
 
 export function getTag(id) {

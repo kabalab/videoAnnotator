@@ -19,6 +19,7 @@ let fsaReason = null;
 const knownModified = new Map();
 let libraryExtra = {};
 let libraryQuarantine = [];
+let libraryFolderQuarantine = [];
 let libraryBroken = false;
 let descriptorsBroken = false;
 let clipsBroken = false;
@@ -149,16 +150,20 @@ export async function loadAll() {
   const issues = [];
   let fatal = null;
   let libraryIds = [];
+  let libraryFolders = [];
   try {
     const r = validateLibrary(await readJson(P.library), P.library);
     libraryIds = r.ids;
+    libraryFolders = r.folders;
     libraryExtra = r.extra;
     libraryQuarantine = r.quarantine;
+    libraryFolderQuarantine = r.folderQuarantine;
     issues.push(...r.issues);
     libraryBroken = false;
   } catch (e) {
     fatal = { path: P.library, message: e.message };
     libraryBroken = true;
+    libraryFolderQuarantine = [];
   }
 
   let descriptors = { tags: [], markers: [], __quarantine: { tags: [], markers: [] } };
@@ -196,7 +201,7 @@ export async function loadAll() {
     if (visible) videos.set(r.id, visible);
   }
 
-  let clips = { clips: [], collections: [], __quarantine: { clips: [], collections: [] } };
+  let clips = { clips: [], collections: [], folders: [], __quarantine: { clips: [], collections: [], folders: [] } };
   try {
     const r = validateClips(await readJson(P.clips), P.clips);
     clips = applyClipVisibility(r.clips, [...videos.values()], showPrivate());
@@ -207,7 +212,7 @@ export async function loadAll() {
     issues.push({ path: P.clips, level: 'error', message: `${e.message} Clips are unavailable, and can't be edited, until it's fixed.` });
   }
 
-  store.set({ libraryIds, descriptors, clips, videos, videoErrors, issues: showPrivate() ? issues : [], fatal }, ['data', 'descriptors', 'clips', 'issues']);
+  store.set({ libraryIds, libraryFolders, descriptors, clips, videos, videoErrors, issues: showPrivate() ? issues : [], fatal }, ['data', 'descriptors', 'clips', 'issues']);
   if (editorActive()) refreshDrafts();
   scanUnregistered();
 }
@@ -304,7 +309,7 @@ const persistVideo = (video, opts) => persist(P.videoData(video.id), toJsonText(
 
 function persistLibrary() {
   if (libraryBroken) throw new Error(`${P.library} couldn't be loaded, so the library can't be saved until it's fixed.`);
-  return persist(P.library, toJsonText(serializeLibrary(state.libraryIds, libraryExtra, libraryQuarantine)));
+  return persist(P.library, toJsonText(serializeLibrary(state.libraryIds, libraryExtra, libraryQuarantine, state.libraryFolders, libraryFolderQuarantine)));
 }
 
 function persistDescriptors() {
@@ -456,6 +461,10 @@ export async function updateVideo(id, input) {
 export async function removeVideo(id) {
   assertWritable();
   state.libraryIds = state.libraryIds.filter((x) => x !== id);
+  state.libraryFolders = (state.libraryFolders || []).map((folder) => ({
+    ...folder,
+    videoIds: (folder.videoIds || []).filter((videoId) => videoId !== id),
+  }));
   state.videos.delete(id);
   state.videoErrors.delete(id);
   store.emit('data', { videoId: id, removed: true });
@@ -622,16 +631,22 @@ export async function deleteClip(id) {
     ...collection,
     clipIds: collection.clipIds.filter((clipId) => clipId !== id),
   }));
+  const previousFolders = (state.clips.folders || []).map((folder) => ({ ...folder, clipIds: [...(folder.clipIds || [])] }));
+  const folders = previousFolders.map((folder) => ({
+    ...folder,
+    clipIds: folder.clipIds.filter((clipId) => clipId !== id),
+  }));
   commitClips({
     ...state.clips,
     clips: state.clips.clips.filter((item) => item.id !== id),
     collections,
+    folders,
   });
   const result = await persistClips();
-  return { clip, collections: previousCollections, result };
+  return { clip, collections: previousCollections, folders: previousFolders, result };
 }
 
-export async function restoreClip(clip, collections) {
+export async function restoreClip(clip, collections, folders) {
   assertWritable();
   if (clipsBroken) throw new Error(`${P.clips} couldn't be loaded, so clips can't be saved until it's fixed.`);
   if (!clip || (state.clips.clips || []).some((item) => item.id === clip.id)) return null;
@@ -639,6 +654,7 @@ export async function restoreClip(clip, collections) {
     ...state.clips,
     clips: [...state.clips.clips, clip],
     collections: collections || state.clips.collections,
+    folders: folders || state.clips.folders,
   });
   return persistClips();
 }
@@ -698,6 +714,135 @@ export async function restoreCollection(collection) {
   if (!collection || (state.clips.collections || []).some((item) => item.id === collection.id)) return null;
   commitClips({ ...state.clips, collections: [...state.clips.collections, collection] });
   return persistClips();
+}
+
+function cleanClipFolder(input) {
+  const title = String(input.title || '').trim();
+  if (!title) throw new ValidationError('Give the folder a name.', 'title');
+  const folder = {
+    title,
+    description: String(input.description || '').replace(/\s+$/, ''),
+    clipIds: uniqueClipIds(input.clipIds),
+  };
+  if (input.shuffle) folder.shuffle = true;
+  return folder;
+}
+
+export async function saveClipFolder(input) {
+  assertWritable();
+  if (clipsBroken) throw new Error(`${P.clips} couldn't be loaded, so folders can't be saved until it's fixed.`);
+  const clean = cleanClipFolder(input);
+  const folders = [...(state.clips.folders || [])];
+  const idx = input.id ? folders.findIndex((folder) => folder.id === input.id) : -1;
+  const saved = idx >= 0 ? { ...folders[idx], ...clean, id: folders[idx].id } : { ...clean, id: randomId('cf') };
+  if (!clean.shuffle) delete saved.shuffle;
+  if (idx >= 0) folders[idx] = saved;
+  else folders.push(saved);
+  commitClips({ ...state.clips, folders });
+  const result = await persistClips();
+  return { folder: saved, result };
+}
+
+export async function deleteClipFolder(id) {
+  assertWritable();
+  if (clipsBroken) throw new Error(`${P.clips} couldn't be loaded, so folders can't be saved until it's fixed.`);
+  const folder = (state.clips.folders || []).find((item) => item.id === id);
+  if (!folder) return null;
+  commitClips({ ...state.clips, folders: state.clips.folders.filter((item) => item.id !== id) });
+  const result = await persistClips();
+  return { folder, result };
+}
+
+export async function restoreClipFolder(folder) {
+  assertWritable();
+  if (clipsBroken) throw new Error(`${P.clips} couldn't be loaded, so folders can't be saved until it's fixed.`);
+  if (!folder || (state.clips.folders || []).some((item) => item.id === folder.id)) return null;
+  commitClips({ ...state.clips, folders: [...state.clips.folders, folder] });
+  return persistClips();
+}
+
+function folderLinks(folders, replacementFor, replacementIds) {
+  const links = new Map((folders || []).map((folder) => [folder.id, folder.id === replacementFor ? replacementIds : folder.folderIds || []]));
+  if (replacementFor && !links.has(replacementFor)) links.set(replacementFor, replacementIds);
+  return links;
+}
+
+function folderReaches(startId, targetId, links) {
+  const seen = new Set();
+  const walk = (id) => {
+    for (const next of links.get(id) || []) {
+      if (next === targetId) return true;
+      if (seen.has(next)) continue;
+      seen.add(next);
+      if (walk(next)) return true;
+    }
+    return false;
+  };
+  return walk(startId);
+}
+
+function cleanVideoFolder(input, folders, selfId) {
+  const title = String(input.title || '').trim();
+  if (!title) throw new ValidationError('Give the folder a name.', 'title');
+  const folderIds = uniqueClipIds(input.folderIds).filter((id) => id !== selfId);
+  const links = folderLinks(folders, selfId, folderIds);
+  if (selfId && folderIds.some((id) => folderReaches(id, selfId, links))) {
+    throw new ValidationError('A folder can\u2019t contain itself, even through other folders.', 'folders');
+  }
+  return {
+    title,
+    description: String(input.description || '').replace(/\s+$/, ''),
+    videoIds: uniqueClipIds(input.videoIds),
+    folderIds,
+  };
+}
+
+export async function saveVideoFolder(input) {
+  assertWritable();
+  if (libraryBroken) throw new Error(`${P.library} couldn't be loaded, so folders can't be saved until it's fixed.`);
+  const clean = cleanVideoFolder(input, state.libraryFolders, input.id || '');
+  const folders = [...(state.libraryFolders || [])];
+  const idx = input.id ? folders.findIndex((folder) => folder.id === input.id) : -1;
+  const saved = idx >= 0 ? { ...folders[idx], ...clean, id: folders[idx].id } : { ...clean, id: randomId('f') };
+  if (!saved.folderIds.length) delete saved.folderIds;
+  if (idx >= 0) folders[idx] = saved;
+  else folders.push(saved);
+  state.libraryFolders = folders;
+  store.emit('data');
+  const result = await persistLibrary();
+  return { folder: saved, result };
+}
+
+export async function deleteVideoFolder(id) {
+  assertWritable();
+  if (libraryBroken) throw new Error(`${P.library} couldn't be loaded, so folders can't be saved until it's fixed.`);
+  const folder = (state.libraryFolders || []).find((item) => item.id === id);
+  if (!folder) return null;
+  const parentIds = [];
+  state.libraryFolders = state.libraryFolders.flatMap((item) => {
+    if (item.id === id) return [];
+    if (!(item.folderIds || []).includes(id)) return [item];
+    parentIds.push(item.id);
+    const next = { ...item, folderIds: item.folderIds.filter((folderId) => folderId !== id) };
+    if (!next.folderIds.length) delete next.folderIds;
+    return [next];
+  });
+  store.emit('data');
+  const result = await persistLibrary();
+  return { folder, parentIds, result };
+}
+
+export async function restoreVideoFolder(folder, parentIds = []) {
+  assertWritable();
+  if (libraryBroken) throw new Error(`${P.library} couldn't be loaded, so folders can't be saved until it's fixed.`);
+  if (!folder || (state.libraryFolders || []).some((item) => item.id === folder.id)) return null;
+  const parents = new Set(parentIds);
+  state.libraryFolders = [...state.libraryFolders, folder].map((item) => {
+    if (!parents.has(item.id) || (item.folderIds || []).includes(folder.id)) return item;
+    return { ...item, folderIds: [...(item.folderIds || []), folder.id] };
+  });
+  store.emit('data');
+  return persistLibrary();
 }
 
 // ---------------------------------------------------------------- folder connection

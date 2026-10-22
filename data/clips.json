@@ -295,5 +295,38 @@
       ],
       "shuffle": true
     }
+  ],
+  "folders": [
+    {
+      "id": "cf_10oh05r12a",
+      "title": "ALL MUSIC",
+      "description": "",
+      "clipIds": [
+        "c_1jm1d7mce7",
+        "c_1dght6e13k",
+        "c_loxgv3k7nq",
+        "c_91hptlqc7a",
+        "c_1iel6de1b5",
+        "c_1x40qyw1sa",
+        "c_1ox379f42k",
+        "c_1cuj0vh26s",
+        "c_1g3t6rbl0q",
+        "c_1vy3uky1v7",
+        "c_r55lpy1ruf",
+        "c_caib1p16ia",
+        "c_g33tdsecfh",
+        "c_35xphm16dj",
+        "c_d0zg8312hl",
+        "c_1oxf42qrh2",
+        "c_herofg7wnm",
+        "c_1bf2vnv1hg",
+        "c_1enzpx0ax9",
+        "c_18lrk6e88z",
+        "c_1ajdlxw15n",
+        "c_1vi9d7mtwb",
+        "c_k5yrec12ri",
+        "c_1vyrqvhugu"
+      ]
+    }
   ]
 }

@@ -20,6 +20,7 @@ import { mountClipsView } from './features/clips/clipsView.js';
 
 const MOUNTS = {
   library: mountLibraryView,
+  folder: mountLibraryView,
   video: mountVideoView,
   search: mountSearchView,
   tags: mountTagView,
@@ -27,6 +28,7 @@ const MOUNTS = {
   clips: mountClipsView,
   clip: mountClipsView,
   collection: mountClipsView,
+  clipFolder: mountClipsView,
 };
 
 const viewEl = document.getElementById('view');
@@ -98,7 +100,8 @@ function renderRoute(route) {
     return;
   }
   topbar.setRoute(route);
-  const key = route.name === 'video' ? `video:${route.params.id}` : route.name === 'clip' || route.name === 'collection' ? 'clips' : route.name;
+  const clipsRoute = route.name === 'clip' || route.name === 'collection' || route.name === 'clipFolder';
+  const key = route.name === 'video' ? `video:${route.params.id}` : route.name === 'folder' ? 'library' : clipsRoute ? 'clips' : route.name;
   if (current?.key === key && current.view.update) {
     current.view.update(route);
     hasRouted = true;

@@ -220,6 +220,69 @@ mark {
   font-size: 13px;
 }
 
+.tile-desc {
+  color: var(--text-dim);
+  font-size: 13px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.thumb-folder {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.thumb-folder-icon {
+  width: 58px;
+  height: 58px;
+}
+
+.folder-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+.folder-back:hover {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.folder-copy {
+  margin: 0 0 22px;
+  max-width: 68ch;
+  color: var(--text-dim);
+  white-space: pre-wrap;
+}
+
+.folder-picks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.folder-pick {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.folder-pick:has(input:disabled) {
+  color: var(--text-dim);
+}
+
+.gallery-section + .gallery-section {
+  margin-top: 36px;
+}
+
 .tile-badges {
   display: flex;
   flex-wrap: wrap;
@@ -1721,9 +1784,48 @@ textarea.editor-title-input {
 }
 
 a.clips-item:hover,
+button.clips-item:hover,
 .clips-order-row.is-button:hover:not(:disabled) {
   background: var(--surface);
   text-decoration: none;
+}
+
+.clips-folder-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.clips-folder-toggle {
+  flex: 1;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.clips-folder-toggle .icon {
+  margin-top: 3px;
+}
+
+.clips-folder-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.clips-folder-clips {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 0 6px 16px;
+  padding-left: 8px;
+  border-left: 1px solid var(--border);
+}
+
+.clips-missing {
+  margin: 0 0 16px;
 }
 
 .clips-item.is-active,

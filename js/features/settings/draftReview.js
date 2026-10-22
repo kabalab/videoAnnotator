@@ -255,6 +255,21 @@ function libraryItems(saved, draft, names, kind) {
   if (sameIds && before.some((id, i) => id !== after[i])) {
     items.push({ kind: 'changed', title: 'Library order', lines: ['The videos are in a different order than the project file.'] });
   }
+  items.push(
+    ...diffById(
+      saved?.folders,
+      draft?.folders,
+      'Folder',
+      folderHeading,
+      (folder) =>
+        [
+          folder?.description,
+          list(folder?.folderIds).length ? `${list(folder.folderIds).length} ${list(folder.folderIds).length === 1 ? 'folder' : 'folders'}` : '',
+          list(folder?.videoIds).length ? `${list(folder.videoIds).length} ${list(folder.videoIds).length === 1 ? 'video' : 'videos'}` : '',
+        ].filter(Boolean),
+      (beforeFolder, afterFolder) => videoFolderChanges(beforeFolder, afterFolder, names, folderTitleLookup(saved, draft)),
+    ),
+  );
   if (kind === 'added' && !items.length) {
     items.push({ kind: 'added', title: 'New library file', lines: ['This file is not in the project yet.'] });
   }
@@ -302,6 +317,32 @@ function collectionHeading(collection) {
   return String(collection?.title || collection?.id || 'Collection').trim() || 'Collection';
 }
 
+function folderHeading(folder) {
+  return String(folder?.title || folder?.id || 'Folder').trim() || 'Folder';
+}
+
+function folderTitleLookup(saved, draft) {
+  const titles = new Map();
+  for (const folder of [...list(saved?.folders), ...list(draft?.folders)]) {
+    if (folder && typeof folder === 'object' && folder.id) titles.set(folder.id, plain(folder.title) || folder.id);
+  }
+  return (id) => titles.get(id) || id;
+}
+
+function videoFolderChanges(before, after, names, folderTitle = (id) => id) {
+  const lines = [];
+  if ((before?.title || '') !== (after?.title || '')) lines.push(`Title: ${show(before?.title)} \u2192 ${show(after?.title)}`);
+  if ((before?.description || '') !== (after?.description || '')) lines.push('Description differs from the project file.');
+  if (JSON.stringify(before?.videoIds || []) !== JSON.stringify(after?.videoIds || [])) {
+    const label = (ids) => list(ids).map((id) => names.videoTitle(id)).join(', ') || 'none';
+    lines.push(`Videos: ${label(before?.videoIds)} \u2192 ${label(after?.videoIds)}`);
+  }
+  if (JSON.stringify(before?.folderIds || []) !== JSON.stringify(after?.folderIds || [])) {
+    lines.push(idChanges(before?.folderIds, after?.folderIds, folderTitle, 'Folders') || 'Folders are in a different order.');
+  }
+  return lines;
+}
+
 function clipNames(ids, clips) {
   const byId = new Map(objectsNamed(clips));
   return list(ids).map((id) => byId.get(id) || id).join(', ');
@@ -346,6 +387,14 @@ function clipsItems(saved, draft, names) {
   return [
     ...diffById(saved?.clips, draft?.clips, 'Clip', clipHeading, (clip) => clipFacts(clip, names), (before, after) => clipChanges(before, after, names)),
     ...diffById(saved?.collections, draft?.collections, 'Collection', collectionHeading, (collection) => (collection?.description ? [collection.description] : []), (before, after) => collectionChanges(before, after, clips)),
+    ...diffById(
+      saved?.folders,
+      draft?.folders,
+      'Folder',
+      folderHeading,
+      (folder) => [folder?.description, list(folder?.clipIds).length ? `${list(folder.clipIds).length} ${list(folder.clipIds).length === 1 ? 'clip' : 'clips'}` : ''].filter(Boolean),
+      (before, after) => collectionChanges(before, after, clips),
+    ),
   ];
 }
 

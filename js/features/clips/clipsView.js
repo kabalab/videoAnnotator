@@ -1,7 +1,7 @@
 import { config } from '../../config.js';
-import { fill, h, inlineRich, isTypingTarget, snippet } from '../../core/dom.js';
+import { fill, formattedText, h, hashHue, inlineRich, isTypingTarget, plural, snippet } from '../../core/dom.js';
 import { bindTextIndent, plainMarkup, plainTitle } from '../../core/markup.js';
-import { store, state, canEdit, getClip, getCollection, getTag, getVideo, listClips, listCollections, listVideos } from '../../core/store.js';
+import { store, state, canEdit, getClip, getClipFolder, getCollection, getTag, getVideo, listClipFolders, listClips, listCollections, listVideos } from '../../core/store.js';
 import { href, navigate } from '../../core/router.js';
 import { formatTime, parseTime } from '../../core/time.js';
 import * as repo from '../../data/repository.js';
@@ -9,6 +9,7 @@ import { createPlayer } from '../../player/playerShell.js';
 import { bindTextCommands } from '../../player/textCommands.js';
 import { icon } from '../../ui/icons.js';
 import { toast } from '../../ui/toast.js';
+import { videoThumb } from '../library/libraryView.js';
 import { tagChip } from '../descriptors/chips.js';
 import { createDescriptorPicker } from '../descriptors/descriptorPicker.js';
 import { attachComposerHighlight, watchTimeTokens } from '../video/composerLinks.js';
@@ -68,7 +69,7 @@ function shuffleItems(items) {
 
 export function mountClipsView(container, route) {
   let current = route;
-  let editing = isNew(route, 'clip') || isNew(route, 'collection');
+  let editing = isNew(route, 'clip') || isNew(route, 'collection') || isNew(route, 'clipFolder') || (route.name === 'clipFolder' && route.query.edit === '1' && canEdit());
   let applied = '';
   let playIndex = 0;
   let queue = [];
@@ -79,10 +80,14 @@ export function mountClipsView(container, route) {
   let draftIds = [];
   let draftKey = '';
   let draftShuffle = false;
+  const openFolders = new Set();
+  let revealedClip = '';
+  let pinnedFolder = '';
 
   const playerHost = h('div', { class: 'clips-stage' });
   const listHost = h('div', { class: 'clips-side' });
   const detailHost = h('div', { class: 'clips-detail' });
+  const main = h('div', { class: 'clips-main' }, playerHost, detailHost);
   const page = h('div', { class: 'page clips-page' });
   container.append(page);
 
@@ -94,6 +99,41 @@ export function mountClipsView(container, route) {
   function selectedCollection() {
     if (current.name !== 'collection' || isNew(current, 'collection')) return null;
     return getCollection(current.params.id);
+  }
+
+  function selectedClipFolder() {
+    if (current.name !== 'clipFolder' || isNew(current, 'clipFolder')) return null;
+    return getClipFolder(current.params.id);
+  }
+
+  function showGallery() {
+    if (editing) return false;
+    if (isNew(current, 'clip') || isNew(current, 'collection') || isNew(current, 'clipFolder')) return false;
+    if (current.name === 'clip' || current.name === 'collection') return false;
+    return current.name === 'clips' || current.name === 'clipFolder';
+  }
+
+  function filedClipIds() {
+    const ids = new Set();
+    for (const folder of listClipFolders()) {
+      for (const id of folder.clipIds || []) ids.add(id);
+    }
+    return ids;
+  }
+
+  function revealSelectedClip() {
+    const clip = selectedClip();
+    if (!clip) {
+      revealedClip = '';
+    } else if (revealedClip !== clip.id) {
+      revealedClip = clip.id;
+      for (const folder of listClipFolders()) {
+        if ((folder.clipIds || []).includes(clip.id)) openFolders.add(folder.id);
+      }
+    }
+    const folderId = current.name === 'clipFolder' && !editing ? current.params.id : '';
+    if (folderId && folderId !== pinnedFolder) openFolders.add(folderId);
+    pinnedFolder = folderId;
   }
 
   function modeToken() {
@@ -243,26 +283,92 @@ export function mountClipsView(container, route) {
     });
   }
 
+  function clipLink(item, nested) {
+    const video = getVideo(item.videoId);
+    const active = current.name === 'clip' && item.id === current.params.id;
+    return h(
+      'a',
+      {
+        class: ['clips-item', nested && 'is-nested', active && 'is-active'],
+        href: href(`/clip/${encodeURIComponent(item.id)}`),
+        title: active ? 'Back to all clips' : undefined,
+        onclick: (event) => {
+          if (!active || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+          event.preventDefault();
+          navigate('/clips');
+        },
+      },
+      h('span', { class: 'clips-item-title' }, item.title),
+      h('span', { class: 'clips-item-meta' }, video ? plainTitle(video.title) : 'Missing video', ` · ${formatTime(item.start)}\u2013${formatTime(item.end)}`),
+      tagChips(item.tags),
+    );
+  }
+
+  function toggleFolder(id) {
+    if (openFolders.has(id)) openFolders.delete(id);
+    else openFolders.add(id);
+    renderLists();
+  }
+
   function renderLists() {
+    revealSelectedClip();
     const clip = selectedClip();
     const collection = selectedCollection();
+    const folder = selectedClipFolder();
     const clips = listClips();
     const collections = listCollections();
-    const clipRows = clips.length
-      ? clips.map((item) => {
-          const video = getVideo(item.videoId);
-          return h(
-            'a',
+    const folders = listClipFolders();
+    const filed = filedClipIds();
+    const loose = clips.filter((item) => !filed.has(item.id));
+    const folderRows = folders.map((item) => {
+      const open = openFolders.has(item.id);
+      const members = (item.clipIds || []).map((id) => ({ id, clip: getClip(id) }));
+      return h(
+        'div',
+        { class: 'clips-folder' },
+        h(
+          'div',
+          { class: 'clips-folder-row' },
+          h(
+            'button',
             {
-              class: ['clips-item', current.name === 'clip' && item.id === current.params.id && 'is-active'],
-              href: href(`/clip/${encodeURIComponent(item.id)}`),
+              class: ['clips-item', 'clips-folder-toggle', open && 'is-open'],
+              type: 'button',
+              'aria-expanded': open ? 'true' : 'false',
+              onclick: () => toggleFolder(item.id),
             },
-            h('span', { class: 'clips-item-title' }, item.title),
-            h('span', { class: 'clips-item-meta' }, video ? plainTitle(video.title) : 'Missing video', ` · ${formatTime(item.start)}\u2013${formatTime(item.end)}`),
-            tagChips(item.tags),
-          );
-        })
-      : h('p', { class: 'muted clips-empty' }, 'No clips yet.');
+            icon(open ? 'chevronDown' : 'chevronRight'),
+            h(
+              'span',
+              { class: 'clips-folder-main' },
+              h('span', { class: 'clips-item-title' }, item.title),
+              h('span', { class: 'clips-item-meta' }, plural((item.clipIds || []).length, 'clip')),
+            ),
+          ),
+          canEdit() &&
+            h(
+              'button',
+              {
+                class: 'icon-btn',
+                type: 'button',
+                title: 'Edit folder',
+                'aria-label': `Edit ${item.title}`,
+                onclick: () => navigate(`/clip-folder/${encodeURIComponent(item.id)}`, { edit: '1' }),
+              },
+              icon('edit'),
+            ),
+        ),
+        open &&
+          h(
+            'div',
+            { class: 'clips-folder-clips' },
+            members.length
+              ? members.map((member) => (member.clip ? clipLink(member.clip, true) : h('p', { class: 'muted clips-empty' }, 'Missing clip')))
+              : h('p', { class: 'muted clips-empty' }, 'No clips in this folder.'),
+          ),
+      );
+    });
+    const looseRows = loose.length ? loose.map((item) => clipLink(item, false)) : h('p', { class: 'muted clips-empty' }, 'No clips yet.');
     const collectionRows = collections.length
       ? collections.map((item) =>
           h(
@@ -278,11 +384,13 @@ export function mountClipsView(container, route) {
       : h('p', { class: 'muted clips-empty' }, 'No collections yet.');
     fill(
       listHost,
+      folders.length ? h('div', { class: 'clips-block' }, h('h2', { class: 'clips-block-title' }, 'Folders'), folderRows) : null,
+      !folders.length || loose.length ? h('div', { class: 'clips-block' }, h('h2', { class: 'clips-block-title' }, 'Clips'), looseRows) : null,
       h('div', { class: 'clips-block' }, h('h2', { class: 'clips-block-title' }, 'Collections'), collectionRows),
-      h('div', { class: 'clips-block' }, h('h2', { class: 'clips-block-title' }, 'Clips'), clipRows),
     );
     if (!clip && current.name === 'clip' && !isNew(current, 'clip')) return;
     if (!collection && current.name === 'collection' && !isNew(current, 'collection')) return;
+    if (!folder && current.name === 'clipFolder' && !isNew(current, 'clipFolder')) return;
   }
 
   function useTimestamp(note, which) {
@@ -492,7 +600,7 @@ export function mountClipsView(container, route) {
         action: {
           label: 'Undo',
           fn: () => {
-            if (canEdit()) repo.restoreClip(result.clip, result.collections).catch((e) => toast(e.message, { kind: 'error' }));
+            if (canEdit()) repo.restoreClip(result.clip, result.collections, result.folders).catch((e) => toast(e.message, { kind: 'error' }));
           },
         },
       });
@@ -547,8 +655,10 @@ export function mountClipsView(container, route) {
     );
   }
 
-  function renderCollectionForm(collection) {
-    const key = collection?.id || 'new';
+  function renderCollectionForm(collection, kind = 'collection') {
+    const folderMode = kind === 'folder';
+    const noun = folderMode ? 'folder' : 'collection';
+    const key = `${kind}:${collection?.id || 'new'}`;
     if (draftKey !== key) {
       draftKey = key;
       draftIds = uniqueIds(collection?.clipIds);
@@ -571,7 +681,7 @@ export function mountClipsView(container, route) {
       {
         class: 'btn btn-secondary btn-sm clips-shuffle',
         type: 'button',
-        title: 'When on, opening this collection plays its clips in a new random order',
+        title: `When on, opening this ${noun} plays its clips in a new random order`,
         onclick: () => {
           draftShuffle = !draftShuffle;
           paintShuffle();
@@ -580,7 +690,7 @@ export function mountClipsView(container, route) {
       icon('swap'),
       'Shuffle',
     );
-    const shuffleHint = h('p', { class: 'field-hint' }, 'On: each time you open this collection, the clips play in a new random order. The list below stays the saved order.');
+    const shuffleHint = h('p', { class: 'field-hint' }, `On: each time you open this ${noun}, the clips play in a new random order. The list below stays the saved order.`);
 
     function paintShuffle() {
       shuffleBtn.classList.toggle('is-pressed', draftShuffle);
@@ -594,7 +704,7 @@ export function mountClipsView(container, route) {
       const anyClips = listClips().length > 0;
       addRow.hidden = !available.length;
       addNote.hidden = available.length > 0;
-      addNote.textContent = anyClips ? 'Every clip is already in this collection.' : 'Make a clip first, then add it here.';
+      addNote.textContent = anyClips ? `Every clip is already in this ${noun}.` : 'Make a clip first, then add it here.';
       fill(
         order,
         draftIds.length
@@ -608,10 +718,10 @@ export function mountClipsView(container, route) {
                 h('span', { class: 'clips-order-main' }, h('span', { class: 'clips-order-label' }, label), clip && tagChips(clip.tags)),
                 h('button', { class: 'icon-btn clips-nudge-up', type: 'button', title: 'Move up', 'aria-label': 'Move up', disabled: index === 0, onclick: () => move(index, -1) }, icon('chevronDown')),
                 h('button', { class: 'icon-btn', type: 'button', title: 'Move down', 'aria-label': 'Move down', disabled: index === draftIds.length - 1, onclick: () => move(index, 1) }, icon('chevronDown')),
-                h('button', { class: 'icon-btn', type: 'button', title: 'Remove', 'aria-label': 'Remove from collection', onclick: () => { draftIds.splice(index, 1); paintOrder(); } }, icon('x')),
+                h('button', { class: 'icon-btn', type: 'button', title: 'Remove', 'aria-label': `Remove from ${noun}`, onclick: () => { draftIds.splice(index, 1); paintOrder(); } }, icon('x')),
               );
             })
-          : h('p', { class: 'muted' }, 'No clips in this collection yet.'),
+          : h('p', { class: 'muted' }, `No clips in this ${noun} yet.`),
       );
     }
 
@@ -630,23 +740,28 @@ export function mountClipsView(container, route) {
       paintOrder();
     }
 
-    paintShuffle();
+    if (!folderMode) paintShuffle();
     paintOrder();
 
     async function save() {
       description.flush();
       error.hidden = true;
       try {
-        const { collection: saved } = await repo.saveCollection({
+        const persist = folderMode ? repo.saveClipFolder : repo.saveCollection;
+        const savedGroup = await persist({
           id: collection?.id,
           title: title.value(),
           description: description.value(),
           clipIds: draftIds,
-          shuffle: draftShuffle,
+          shuffle: folderMode ? false : draftShuffle,
         });
+        const saved = folderMode ? savedGroup.folder : savedGroup.collection;
         draftKey = '';
         editing = false;
-        navigate(`/collection/${encodeURIComponent(saved.id)}`, {}, { replace: true });
+        if (folderMode) {
+          openFolders.add(saved.id);
+          navigate('/clips', {}, { replace: true });
+        } else navigate(`/collection/${encodeURIComponent(saved.id)}`, {}, { replace: true });
       } catch (e) {
         error.textContent = e.message;
         error.hidden = false;
@@ -654,11 +769,18 @@ export function mountClipsView(container, route) {
     }
 
     async function remove() {
-      const result = await repo.deleteCollection(collection.id);
+      const result = folderMode ? await repo.deleteClipFolder(collection.id) : await repo.deleteCollection(collection.id);
       if (!result) return;
-      toast('Collection deleted', {
+      toast(folderMode ? 'Folder deleted' : 'Collection deleted', {
         duration: config.undoMs,
-        action: { label: 'Undo', fn: () => { if (canEdit()) repo.restoreCollection(result.collection).catch((e) => toast(e.message, { kind: 'error' })); } },
+        action: {
+          label: 'Undo',
+          fn: () => {
+            if (!canEdit()) return;
+            const restore = folderMode ? repo.restoreClipFolder(result.folder) : repo.restoreCollection(result.collection);
+            restore.catch((e) => toast(e.message, { kind: 'error' }));
+          },
+        },
       });
       editing = false;
       navigate('/clips');
@@ -666,10 +788,16 @@ export function mountClipsView(container, route) {
 
     fill(
       detailHost,
-      h('h2', { class: 'clips-detail-title' }, collection ? 'Edit collection' : 'New collection'),
+      h('h2', { class: 'clips-detail-title' }, collection ? `Edit ${noun}` : `New ${noun}`),
       title.el,
       description.el,
-      h('div', { class: 'field' }, h('div', { class: 'clips-order-head' }, h('span', { class: 'field-label' }, 'Clips, in saved order'), shuffleBtn), shuffleHint, order),
+      h(
+        'div',
+        { class: 'field' },
+        h('div', { class: 'clips-order-head' }, h('span', { class: 'field-label' }, folderMode ? 'Clips' : 'Clips, in saved order'), !folderMode && shuffleBtn),
+        !folderMode && shuffleHint,
+        order,
+      ),
       addRow,
       addNote,
       error,
@@ -738,15 +866,16 @@ export function mountClipsView(container, route) {
     playIndex = at >= 0 ? at : 0;
   }
 
-  async function toggleCollectionShuffle(collection) {
+  async function toggleCollectionShuffle(collection, kind = 'collection') {
     const previousOn = shuffleOn;
     const previousQueue = queue.slice();
     const previousIndex = playIndex;
     retargetPlayback(!shuffleOn, collection);
-    renderWatchCollection(collection);
+    renderWatchCollection(collection, kind);
     if (!canEdit()) return;
     try {
-      await repo.saveCollection({
+      const save = kind === 'folder' ? repo.saveClipFolder : repo.saveCollection;
+      await save({
         id: collection.id,
         title: collection.title,
         description: collection.description,
@@ -757,13 +886,14 @@ export function mountClipsView(container, route) {
       shuffleOn = previousOn;
       queue = previousQueue;
       playIndex = previousIndex;
-      const latest = selectedCollection() || collection;
-      renderWatchCollection(latest);
+      const latest = (kind === 'folder' ? selectedClipFolder() : selectedCollection()) || collection;
+      renderWatchCollection(latest, kind);
       toast(e.message, { kind: 'error' });
     }
   }
 
-  function renderWatchCollection(collection) {
+  function renderWatchCollection(collection, kind = 'collection') {
+    const noun = kind === 'folder' ? 'folder' : 'collection';
     const rows = collectionRowIds(collection).map((id) => {
       const clip = getClip(id);
       const video = clip ? getVideo(clip.videoId) : null;
@@ -798,9 +928,9 @@ export function mountClipsView(container, route) {
       {
         class: ['btn', 'btn-secondary', 'btn-sm', 'clips-shuffle', shuffleOn && 'is-pressed'],
         type: 'button',
-        title: 'When on, this collection plays in a new random order each time you open it',
+        title: `When on, this ${noun} plays in a new random order each time you open it`,
         'aria-pressed': shuffleOn ? 'true' : 'false',
-        onclick: () => toggleCollectionShuffle(collection),
+        onclick: () => toggleCollectionShuffle(collection, kind),
       },
       icon('swap'),
       'Shuffle',
@@ -810,11 +940,11 @@ export function mountClipsView(container, route) {
       {
         class: ['btn', 'btn-secondary', 'btn-sm', 'clips-loop', loopOn && 'is-pressed'],
         type: 'button',
-        title: 'When on, the collection starts again from the first clip when it finishes',
+        title: `When on, the ${noun} starts again from the first clip when it finishes`,
         'aria-pressed': loopOn ? 'true' : 'false',
         onclick: () => {
           loopOn = !loopOn;
-          renderWatchCollection(collection);
+          renderWatchCollection(collection, kind);
         },
       },
       icon('repeat'),
@@ -834,9 +964,9 @@ export function mountClipsView(container, route) {
           canEdit() && h('button', { class: 'btn btn-secondary btn-sm', type: 'button', onclick: () => { editing = true; draftKey = ''; renderDetail(true); } }, icon('edit'), 'Edit'),
         ),
       ),
-      shuffleOn && h('p', { class: 'field-hint' }, 'Shuffle is on. Clips play in the order shown, and a new order is picked each time you open this collection.'),
+      shuffleOn && h('p', { class: 'field-hint' }, `Shuffle is on. Clips play in the order shown, and a new order is picked each time you open this ${noun}.`),
       collection.description && h('div', { class: 'clips-copy' }, linked(collection.description, [])),
-      h('div', { class: 'clips-order' }, rows.length ? rows : h('p', { class: 'muted' }, 'This collection has no clips.')),
+      h('div', { class: 'clips-order' }, rows.length ? rows : h('p', { class: 'muted' }, `This ${noun} has no clips.`)),
     );
   }
 
@@ -853,6 +983,7 @@ export function mountClipsView(container, route) {
     applied = token;
     const clip = selectedClip();
     const collection = selectedCollection();
+    const folder = selectedClipFolder();
     if (current.name === 'clip' && !clip && !isNew(current, 'clip')) {
       showPrompt('That clip doesn\u2019t exist or isn\u2019t available.');
       fill(detailHost, h('p', {}, 'That clip doesn\u2019t exist or isn\u2019t available.'));
@@ -861,6 +992,11 @@ export function mountClipsView(container, route) {
     if (current.name === 'collection' && !collection && !isNew(current, 'collection')) {
       showPrompt('That collection doesn\u2019t exist or isn\u2019t available.');
       fill(detailHost, h('p', {}, 'That collection doesn\u2019t exist or isn\u2019t available.'));
+      return;
+    }
+    if (current.name === 'clipFolder' && !folder && !isNew(current, 'clipFolder')) {
+      showPrompt('That folder doesn\u2019t exist or isn\u2019t available.');
+      fill(detailHost, h('p', {}, 'That folder doesn\u2019t exist or isn\u2019t available.'));
       return;
     }
     if (!canEdit()) editing = false;
@@ -879,6 +1015,11 @@ export function mountClipsView(container, route) {
         player.setSpan(null);
         player.setTicks(ticksFor(video));
       } else showPrompt('Add clips, then play the collection.');
+      return;
+    }
+    if (isNew(current, 'clipFolder') || (editing && (folder || isNew(current, 'clipFolder')))) {
+      renderCollectionForm(folder, 'folder');
+      showPrompt('Folders hold clips. Pick a clip from the list to play it.');
       return;
     }
     if (clip) {
@@ -901,32 +1042,114 @@ export function mountClipsView(container, route) {
   function cancelEdit() {
     editing = false;
     draftKey = '';
-    if (isNew(current, 'clip') || isNew(current, 'collection')) navigate('/clips');
+    if (isNew(current, 'clip') || isNew(current, 'collection') || isNew(current, 'clipFolder') || current.name === 'clipFolder') navigate('/clips');
     else {
       renderDetail(true);
       placeClipEditor();
     }
   }
 
-  function render() {
-    document.title = 'Clips \u00b7 Video Annotator';
-    fill(
-      page,
+  function groupTile(item, path, iconName, meta) {
+    const description = snippet(plainMarkup(item.description), 140);
+    return h(
+      'a',
+      { class: 'tile', href: href(path) },
+      h('div', { class: 'tile-media' }, h('div', { class: 'thumb thumb-folder', style: { '--hue': hashHue(item.id) } }, icon(iconName, 'thumb-folder-icon'))),
       h(
-        'header',
-        { class: 'page-header' },
-        h('div', {}, h('h1', { class: 'page-title' }, 'Clips'), h('p', { class: 'page-sub' }, 'Saved ranges, and collections that play them in order')),
-        canEdit() &&
-          h(
-            'div',
-            { class: 'clips-header-actions' },
-            h('a', { class: 'btn btn-secondary btn-sm', href: href('/clip/new') }, icon('plus'), 'New clip'),
-            h('a', { class: 'btn btn-secondary btn-sm', href: href('/collection/new') }, icon('plus'), 'New collection'),
-          ),
+        'div',
+        { class: 'tile-body' },
+        h('h3', { class: 'tile-title' }, formattedText(item.title)),
+        description && h('p', { class: 'tile-desc' }, description),
+        h('p', { class: 'tile-meta' }, meta),
       ),
-      h('div', { class: 'clips-layout' }, listHost, h('div', { class: 'clips-main' }, playerHost, detailHost)),
     );
+  }
+
+  function clipTile(clip) {
+    const video = getVideo(clip.videoId);
+    return h(
+      'a',
+      { class: 'tile', href: href(`/clip/${encodeURIComponent(clip.id)}`) },
+      h(
+        'div',
+        { class: 'tile-media' },
+        video ? videoThumb(video) : h('div', { class: 'thumb', style: { '--hue': hashHue(clip.id) } }, icon('film')),
+        h('span', { class: 'tile-play', 'aria-hidden': 'true' }, icon('play')),
+        h('span', { class: 'tile-duration' }, `${formatTime(clip.start)}\u2013${formatTime(clip.end)}`),
+      ),
+      h(
+        'div',
+        { class: 'tile-body' },
+        h('h3', { class: 'tile-title' }, formattedText(clip.title)),
+        h('p', { class: 'tile-meta' }, video ? plainTitle(video.title) : 'Missing video'),
+        tagChips(clip.tags),
+      ),
+    );
+  }
+
+  function gallerySection(title, tiles) {
+    if (!tiles.length) return null;
+    return h(
+      'section',
+      { class: 'gallery-section' },
+      title && h('div', { class: 'section-head' }, h('h2', { class: 'section-title' }, title)),
+      h('div', { class: 'tile-grid' }, tiles),
+    );
+  }
+
+  function renderGallery() {
+    const clips = listClips();
+    const collections = listCollections();
+    const sections = [
+      gallerySection(collections.length ? 'Clips' : '', clips.map(clipTile)),
+      gallerySection('Collections', collections.map((item) => groupTile(item, `/collection/${encodeURIComponent(item.id)}`, 'list', plural(item.clipIds.length, 'clip')))),
+    ].filter(Boolean);
+    if (sections.length) return sections;
+    return [
+      h(
+        'div',
+        { class: 'empty-state' },
+        icon('film', 'empty-icon'),
+        h('h2', {}, 'No clips yet'),
+        h('p', {}, canEdit() ? 'Make a clip, then group clips into a folder from the list.' : 'Check back later.'),
+        canEdit() && h('a', { class: 'btn btn-primary', href: href('/clip/new') }, icon('plus'), 'New clip'),
+      ),
+    ];
+  }
+
+  function pageHeader() {
+    const clip = selectedClip();
+    const folder = selectedClipFolder();
+    const collection = selectedCollection();
+    const title = clip?.title || folder?.title || collection?.title || '';
+    document.title = title ? `${plainTitle(title) || title} \u00b7 Clips` : 'Clips \u00b7 Video Annotator';
+    return h(
+      'header',
+      { class: 'page-header' },
+      h('div', {}, h('h1', { class: 'page-title' }, 'Clips'), h('p', { class: 'page-sub' }, 'Folders group clips. Collections play them in order.')),
+      canEdit() &&
+        h(
+          'div',
+          { class: 'clips-header-actions' },
+          h('a', { class: 'btn btn-secondary btn-sm', href: href('/clip/new') }, icon('plus'), 'New clip'),
+          h('a', { class: 'btn btn-secondary btn-sm', href: href('/clip-folder/new') }, icon('plus'), 'New folder'),
+          h('a', { class: 'btn btn-secondary btn-sm', href: href('/collection/new') }, icon('plus'), 'New collection'),
+        ),
+    );
+  }
+
+  function render() {
+    const header = pageHeader();
+    fill(page, header, h('div', { class: 'clips-layout' }, listHost, main));
     renderLists();
+    if (showGallery()) {
+      destroyPlayer();
+      applied = '';
+      const missing = current.name === 'clipFolder' && !selectedClipFolder();
+      fill(main, missing ? h('p', { class: 'muted clips-missing' }, 'That folder doesn\u2019t exist or isn\u2019t available.') : null, renderGallery());
+      return;
+    }
+    if (!main.contains(playerHost)) fill(main, playerHost, detailHost);
     renderDetail(false);
     placeClipEditor();
   }
@@ -978,8 +1201,9 @@ export function mountClipsView(container, route) {
     update(next) {
       const sameClip = next.name === current.name && next.params.id === current.params.id;
       current = next;
-      if (!sameClip) editing = isNew(next, 'clip') || isNew(next, 'collection');
-      if (isNew(next, 'clip') || isNew(next, 'collection')) editing = true;
+      if (!sameClip) editing = isNew(next, 'clip') || isNew(next, 'collection') || isNew(next, 'clipFolder');
+      if (isNew(next, 'clip') || isNew(next, 'collection') || isNew(next, 'clipFolder')) editing = true;
+      if (next.name === 'clipFolder' && next.query.edit === '1' && canEdit()) editing = true;
       render();
     },
     destroy() {
