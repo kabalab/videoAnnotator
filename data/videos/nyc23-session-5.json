@@ -11,7 +11,7 @@
   },
   "duration": 7755.1,
   "createdAt": "2026-10-08T22:22:13Z",
-  "updatedAt": "2026-10-21T23:40:59Z",
+  "updatedAt": "2026-10-24T02:57:10Z",
   "notes": [
     {
       "id": "n_776mi11a7p",
@@ -112,6 +112,186 @@
       "visibility": "public",
       "createdAt": "2026-10-21T23:40:59Z",
       "updatedAt": "2026-10-21T23:40:59Z"
+    },
+    {
+      "id": "n_g4chjv18ab",
+      "type": "timestamp",
+      "timestamp": 3481.9,
+      "title": "Rest on Us by Maverick City Music and UPPERROOM",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-23T00:13:11Z",
+      "updatedAt": "2026-10-23T00:13:11Z"
+    },
+    {
+      "id": "n_mhvlba1or6",
+      "type": "timestamp",
+      "timestamp": 3807,
+      "title": "Take You at Your word by Cody Carnes",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-23T00:15:25Z",
+      "updatedAt": "2026-10-23T00:15:25Z"
+    },
+    {
+      "id": "n_f5cbjo1vd4",
+      "type": "timestamp",
+      "timestamp": 4110,
+      "title": "Jason Ballard walks on stage",
+      "content": "",
+      "tags": [
+        "start-of-sermon"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-23T00:20:23Z",
+      "updatedAt": "2026-10-23T00:20:23Z"
+    },
+    {
+      "id": "n_se566k115j",
+      "type": "generic",
+      "timestamp": null,
+      "title": "Sermon notes",
+      "content": "@1:12:18  Overflow -> More than enough. There's enough for others. God fills us so much that he can touch us enough to touch others through us. \n\nFill us with hope = Share hope with others\n\nYou are a missionary at school. You are there to spread God's love at school.",
+      "tags": [
+        "sermon-notes"
+      ],
+      "markers": [
+        "rewatch-october-26"
+      ],
+      "visibility": "public",
+      "createdAt": "2026-10-23T23:56:42Z",
+      "updatedAt": "2026-10-24T01:48:18Z"
+    },
+    {
+      "id": "n_1srmh4nbk3",
+      "type": "timestamp",
+      "timestamp": 4338.3,
+      "title": "Romans 15:13",
+      "content": "May the God of hope fill you with all joy and peace as you trust in him, so that you may **OVERFLOW** with hope by the power of the Holy Spirit.",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-23T23:58:51Z",
+      "updatedAt": "2026-10-23T23:59:05Z"
+    },
+    {
+      "id": "n_zf0zyea7xo",
+      "type": "timestamp",
+      "timestamp": 4954.1,
+      "title": "Luke 19:1-10",
+      "content": "Jesus entered Jericho and was passing through. A man was there by the name of Zacchaeus; he was a chief tax collector and was wealthy. He  wanted to see who Jesus was, but because he was short he could not see over the crowd. So he ran ahead and climbed a sycamore-fig tree to see him, since Jesus was coming that way. When Jesus reached the spot, he looked up and said to him, \"Zacchaeus, come down immediately. I must stay at your house today.\" So he came down at once and welcomed him gladly. All the people saw this and began to mutter, \"He has gone to be the guest of a sinner.\" But Zacchaeus stood up and said to the Lord, \"Look, Lord! Here and now I give half of my possessions to the poor, and if I have cheated anybody out of anything, I will pay back four times the amount.\" Jesus said to him, \"Today salvation had come to this house because this man, too, is a son of Abraham. For the Son of Man came to seek and to save the lost.",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-24T00:18:37Z",
+      "updatedAt": "2026-10-24T00:18:37Z"
+    },
+    {
+      "id": "n_12p7o8mull",
+      "type": "timestamp",
+      "timestamp": 5035.7,
+      "title": "Context to @t@1:22:34",
+      "content": "",
+      "tags": [],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-24T00:19:11Z",
+      "updatedAt": "2026-10-24T00:19:11Z"
+    },
+    {
+      "id": "n_ju565y1wus",
+      "type": "timestamp",
+      "timestamp": 5454.2,
+      "title": "Teran's partial story",
+      "content": "",
+      "tags": [],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-24T00:28:35Z",
+      "updatedAt": "2026-10-24T00:28:35Z"
+    },
+    {
+      "id": "n_1vydb5dy7o",
+      "type": "timestamp",
+      "timestamp": 6090,
+      "title": "Antonio Marshall walks on stage",
+      "content": "^^@1:42:27^^Questions pop on screen\n1. Do I leave margin in my life to bless others?\n2. Do I consider other's needs before my own need?\n3. How am I caring for the poor, orphans, the prisoner, or the lonely, the weak, and the vulnerable?\n4. For whom am I praying that does not know Christ as their Lord and Savior?\n5. Am I a friend to those who do not follow Christ (specific person)?\n6. Do my non-Christian friends enjoy my company? \n\tAm I a blessing to them?",
+      "tags": [
+        "response"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-24T01:54:42Z",
+      "updatedAt": "2026-10-24T01:54:42Z"
+    },
+    {
+      "id": "n_1n4lkj2165",
+      "type": "timestamp",
+      "timestamp": 6352,
+      "title": "Lord Send Revival by Hillsong Young & Free",
+      "content": "",
+      "tags": [
+        "song",
+        "start-of-worship"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-24T01:56:24Z",
+      "updatedAt": "2026-10-24T02:57:10Z"
+    },
+    {
+      "id": "n_w01ldlrel5",
+      "type": "timestamp",
+      "timestamp": 6744.6,
+      "title": "Stephanie Lobdell and student do benediction",
+      "content": "^^@1:54:57^^Reading Romans 15:13 \"May the God of hope fill you with all joy and peace as you trust in him, so that you may **OVERFLOW WITH HOPE** by the power of the Holy Spirit.\"",
+      "tags": [
+        "benediction",
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-24T02:07:10Z",
+      "updatedAt": "2026-10-24T02:07:10Z"
+    },
+    {
+      "id": "n_22aqv252vx",
+      "type": "timestamp",
+      "timestamp": 6927.1,
+      "title": "NYC live",
+      "content": "Interviews Jason Ballard",
+      "tags": [
+        "nyc-live"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-24T02:18:13Z",
+      "updatedAt": "2026-10-24T02:18:13Z"
+    },
+    {
+      "id": "n_10r6udpdop",
+      "type": "timestamp",
+      "timestamp": 7673.2,
+      "title": "Video ends",
+      "content": "",
+      "tags": [],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-24T02:20:06Z",
+      "updatedAt": "2026-10-24T02:20:06Z"
     }
   ]
 }

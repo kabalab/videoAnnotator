@@ -264,6 +264,160 @@
       "tags": [
         "song"
       ]
+    },
+    {
+      "id": "c_1xeoxjyhrp",
+      "videoId": "nyc23-session-4",
+      "start": 4784,
+      "end": 5068,
+      "title": "Dancing on the Waves by We The Kingdom",
+      "description": "With dancers",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_a0qrednsj4",
+      "videoId": "nyc23-session-4",
+      "start": 5232,
+      "end": 5518,
+      "title": "Lord Send Revival by Hillsong Young & Free With Great Are You Lord by All Sons & Daughters",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_yb2re91kgt",
+      "videoId": "nyc23-session-4",
+      "start": 5539,
+      "end": 5703,
+      "title": "Closer by Brandon Lake",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_11mq8xhd8g",
+      "videoId": "nyc23-session-4",
+      "start": 5704,
+      "end": 5827,
+      "title": "Call Me (I’m Yours) by Royal Company",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_184clyql8d",
+      "videoId": "nyc23-session-4",
+      "start": 5840,
+      "end": 5981,
+      "title": "Sinking Deep by Hillsong Young & Free",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_1qr47op19b",
+      "videoId": "nyc23-session-4",
+      "start": 6265,
+      "end": 6495,
+      "title": "Here It Is (I Worship You) by Passion",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_1tbh03kync",
+      "videoId": "nyc23-session-4",
+      "start": 6497,
+      "end": 6744,
+      "title": "King of Kings by Hillsong Worship",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_lfqpyh1atg",
+      "videoId": "nyc23-session-4",
+      "start": 6785,
+      "end": 7217,
+      "title": "House of Miracles by Brandon Lake",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_1cfsoi2jr5",
+      "videoId": "nyc23-session-5",
+      "start": 1507,
+      "end": 1901,
+      "title": "Mighty to Save with Spanish by Hillsong Worship",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_1a5jbv145u",
+      "videoId": "nyc23-session-5",
+      "start": 1917,
+      "end": 2327,
+      "title": "See a Victory by Elevation Worship",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_1obt0kn40d",
+      "videoId": "nyc23-session-5",
+      "start": 2787,
+      "end": 3465,
+      "title": "Same God by Elevation Worship",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_hh7c6d14v8",
+      "videoId": "nyc23-session-5",
+      "start": 3481,
+      "end": 3767,
+      "title": "Rest on Us by Maverick City Music and UPPERROOM",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_1qnq93jwzq",
+      "videoId": "nyc23-session-5",
+      "start": 3807,
+      "end": 4097,
+      "title": "Take You at Your word by Cody Carnes",
+      "description": "",
+      "tags": [
+        "song"
+      ]
+    },
+    {
+      "id": "c_ugsylx1mvr",
+      "videoId": "nyc23-session-5",
+      "start": 6352,
+      "end": 6739,
+      "title": "Lord Send Revival by Hillsong Young & Free",
+      "description": "",
+      "tags": [
+        "song"
+      ]
     }
   ],
   "collections": [
@@ -291,7 +445,21 @@
         "c_1ajdlxw15n",
         "c_1vi9d7mtwb",
         "c_k5yrec12ri",
-        "c_1vyrqvhugu"
+        "c_1vyrqvhugu",
+        "c_1xeoxjyhrp",
+        "c_a0qrednsj4",
+        "c_yb2re91kgt",
+        "c_11mq8xhd8g",
+        "c_184clyql8d",
+        "c_1qr47op19b",
+        "c_1tbh03kync",
+        "c_lfqpyh1atg",
+        "c_1cfsoi2jr5",
+        "c_1a5jbv145u",
+        "c_1obt0kn40d",
+        "c_hh7c6d14v8",
+        "c_1qnq93jwzq",
+        "c_ugsylx1mvr"
       ],
       "shuffle": true
     }
@@ -325,7 +493,21 @@
         "c_1ajdlxw15n",
         "c_1vi9d7mtwb",
         "c_k5yrec12ri",
-        "c_1vyrqvhugu"
+        "c_1vyrqvhugu",
+        "c_1xeoxjyhrp",
+        "c_a0qrednsj4",
+        "c_yb2re91kgt",
+        "c_11mq8xhd8g",
+        "c_184clyql8d",
+        "c_1qr47op19b",
+        "c_1tbh03kync",
+        "c_lfqpyh1atg",
+        "c_1cfsoi2jr5",
+        "c_1a5jbv145u",
+        "c_1obt0kn40d",
+        "c_hh7c6d14v8",
+        "c_1qnq93jwzq",
+        "c_ugsylx1mvr"
       ]
     }
   ]
