@@ -11,6 +11,49 @@
   },
   "duration": 8120.1,
   "createdAt": "2026-10-08T22:22:26Z",
-  "updatedAt": "2026-10-08T22:27:11Z",
-  "notes": []
+  "updatedAt": "2026-10-24T03:14:58Z",
+  "notes": [
+    {
+      "id": "n_15yl88i102",
+      "type": "timestamp",
+      "timestamp": 338,
+      "title": "NYC live",
+      "content": "Interviews Dr Johnson (Guy had been to every NYC other than NYC19) and Mark who talked about NYI",
+      "tags": [
+        "nyc-live"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-24T03:01:41Z",
+      "updatedAt": "2026-10-24T03:01:41Z"
+    },
+    {
+      "id": "n_zpnanddtiv",
+      "type": "timestamp",
+      "timestamp": 1251.3,
+      "title": "Intro video",
+      "content": "",
+      "tags": [
+        "intro-video"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-24T03:02:19Z",
+      "updatedAt": "2026-10-24T03:02:19Z"
+    },
+    {
+      "id": "n_154g3u01s6",
+      "type": "timestamp",
+      "timestamp": 1280.1,
+      "title": "Stephanie Lobdell walks on stage talks about preparing for the sermon. Also reads Psalm 25:2-10",
+      "content": "^^@24:23^^O my God, In you I trust; do not let me be shame; do not let my enemies exult over me. Do not let those who wait for you be put to shame; let them be ashamed who are wantonly treacherous. Make me to know your ways, O Lord; teach me your paths. Lead me in your truth, and teach me, for you are the God of my salvations; for you I wait all day long. Be mindful of your mercy, O Lord, and of your steadfast love, for they have been from of old. Do not remember the sins of my youth or my transgressions; according to your steadfast love remember me, for your goodness' sake, O Lord! Good and upright is the Lord; therefore he instructs sinners in the way. He leads the humble in what is right, and teachers the humble his way. All the paths of the Lord are steadfast love and faithfulness, for those who keep his covenant and his decrees.",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-24T03:14:58Z",
+      "updatedAt": "2026-10-24T03:14:58Z"
+    }
+  ]
 }
