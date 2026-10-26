@@ -11,7 +11,7 @@
   },
   "duration": 8120.1,
   "createdAt": "2026-10-08T22:22:26Z",
-  "updatedAt": "2026-10-24T03:14:58Z",
+  "updatedAt": "2026-10-26T17:03:25Z",
   "notes": [
     {
       "id": "n_15yl88i102",
@@ -54,6 +54,131 @@
       "visibility": "public",
       "createdAt": "2026-10-24T03:14:58Z",
       "updatedAt": "2026-10-24T03:14:58Z"
+    },
+    {
+      "id": "n_1ex67t09i3",
+      "type": "timestamp",
+      "timestamp": 1613.3,
+      "title": "Intro video",
+      "content": "",
+      "tags": [
+        "intro-video"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-26T15:41:44Z",
+      "updatedAt": "2026-10-26T15:41:44Z"
+    },
+    {
+      "id": "n_1w11q7r1p7",
+      "type": "timestamp",
+      "timestamp": 1756.7,
+      "title": "Graves into Gardens by Elevation Worship",
+      "content": "",
+      "tags": [
+        "song",
+        "start-of-worship"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-26T15:44:47Z",
+      "updatedAt": "2026-10-26T15:44:59Z"
+    },
+    {
+      "id": "n_196jryawmz",
+      "type": "timestamp",
+      "timestamp": 2010,
+      "title": "Fake Love by Elevation Rhythm",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-26T15:48:40Z",
+      "updatedAt": "2026-10-26T15:48:40Z"
+    },
+    {
+      "id": "n_18he5t7k1o",
+      "type": "timestamp",
+      "timestamp": 2235.3,
+      "title": "NYI announcement",
+      "content": "",
+      "tags": [],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-26T15:52:53Z",
+      "updatedAt": "2026-10-26T16:25:53Z"
+    },
+    {
+      "id": "n_165569h22m",
+      "type": "timestamp",
+      "timestamp": 2810.6,
+      "title": "Dr. Carla Sunberg walks on stage",
+      "content": "",
+      "tags": [
+        "start-of-sermon"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-26T16:31:49Z",
+      "updatedAt": "2026-10-26T16:31:49Z"
+    },
+    {
+      "id": "n_3vtfcpngjn",
+      "type": "generic",
+      "timestamp": null,
+      "title": "Sermon notes",
+      "content": "@52:18 The tent of meeting was a place that Moses and God would meet face to face. Some of the women kept mirrors from Egypt. They were a symbol of pagan worship and a symbol of self centeredness.\n\nMe may not have mirrors but our phones are exactly the same thing, The women realized that if they wanted to serve God faithfully they would have to give up the mirrors",
+      "tags": [
+        "sermon-notes"
+      ],
+      "markers": [
+        "rewatch-october-26"
+      ],
+      "visibility": "public",
+      "createdAt": "2026-10-26T16:36:53Z",
+      "updatedAt": "2026-10-26T17:03:19Z"
+    },
+    {
+      "id": "n_jz0sp1sjp6",
+      "type": "timestamp",
+      "timestamp": 3138,
+      "title": "Exodus 38:8",
+      "content": "They made the bronze basin and its bronze stand from the mirrors of the women who served the entrance to the tent of meeting.",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-26T16:38:19Z",
+      "updatedAt": "2026-10-26T16:44:09Z"
+    },
+    {
+      "id": "n_1xp1opvjt3",
+      "type": "timestamp",
+      "timestamp": 3423.7,
+      "title": "Exodus 38:8",
+      "content": "They made the bronze basin and its bronze stand from the mirrors of the women who served the entrance to the tent of meeting.",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-26T16:44:03Z",
+      "updatedAt": "2026-10-26T16:44:13Z"
+    },
+    {
+      "id": "n_1vm7kv6tke",
+      "type": "timestamp",
+      "timestamp": 3651.8,
+      "title": "Left up",
+      "content": "",
+      "tags": [],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-26T17:03:25Z",
+      "updatedAt": "2026-10-26T17:03:25Z"
     }
   ]
 }
