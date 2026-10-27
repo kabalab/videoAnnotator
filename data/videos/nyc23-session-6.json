@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "nyc23-session-6",
   "title": "NYC23 SESSION 6 WATERFALL",
-  "description": "",
+  "description": "**Preacher:** Dr. Carla D. Sunberg\n\n**Speaker background:** Dr. Carla Sunberg is the 43rd General Superintendent of the Church of the Nazarene (elected 2017). A missionary kid born in Germany, she and her husband Chuck served 13 years as pioneer missionaries in the former Soviet Union, later pastored in Fort Wayne, served as East Ohio co-district superintendents, and she previously served as president of Nazarene Theological Seminary. She holds nursing and theological degrees including a Ph.D. in historical theology.\n\n**Message focus:** From Exodus 38:8 (the bronze basin made from mirrors of women serving at the tent of meeting), Sunberg compared ancient mirrors to today's phones as tools of self-projection and called students to surrender self-focus. She taught standing under the Spirit's \"waterfall\" / overflow so they are cleansed and empowered for life and calling, not merely momentarily inspired.",
   "visibility": "public",
   "sources": {
     "local": "videos/NYC23 SESSION 6 OVERFLOW.mp4",
@@ -11,7 +11,7 @@
   },
   "duration": 8120.1,
   "createdAt": "2026-10-08T22:22:26Z",
-  "updatedAt": "2026-10-26T17:03:25Z",
+  "updatedAt": "2026-10-27T19:10:04Z",
   "notes": [
     {
       "id": "n_15yl88i102",
@@ -138,7 +138,7 @@
       ],
       "visibility": "public",
       "createdAt": "2026-10-26T16:36:53Z",
-      "updatedAt": "2026-10-26T17:03:19Z"
+      "updatedAt": "2026-10-27T16:07:52Z"
     },
     {
       "id": "n_jz0sp1sjp6",
@@ -169,16 +169,166 @@
       "updatedAt": "2026-10-26T16:44:13Z"
     },
     {
-      "id": "n_1vm7kv6tke",
+      "id": "n_5nezqain7u",
       "type": "timestamp",
-      "timestamp": 3651.8,
-      "title": "Left up",
+      "timestamp": 4962.1,
+      "title": "Brady Braaz walks on stage and leads response",
+      "content": "^^@1:24:15^^What are your \"mirrors\" in your life?\n^^@1:24:43^^What would it honestly look like to put that thing down?\n^^@1:25:34^^What is keeping you from remaining under the waterfall of God's provision God's plan God's mercy?",
+      "tags": [
+        "response"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-27T16:19:04Z",
+      "updatedAt": "2026-10-27T16:19:04Z"
+    },
+    {
+      "id": "n_eag6yt161x",
+      "type": "timestamp",
+      "timestamp": 5291,
+      "title": "Call me (I'm yours) with Spanish by Royal company",
+      "content": "",
+      "tags": [
+        "song",
+        "start-of-worship"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-27T16:23:13Z",
+      "updatedAt": "2026-10-27T16:23:13Z"
+    },
+    {
+      "id": "n_1oa4oxh1j3",
+      "type": "timestamp",
+      "timestamp": 5587,
+      "title": "Living God by Red Rocks Worship",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-27T16:31:13Z",
+      "updatedAt": "2026-10-27T16:31:13Z"
+    },
+    {
+      "id": "n_92kq4i1gxh",
+      "type": "timestamp",
+      "timestamp": 5886.5,
+      "title": "Firm Foundation (He Won’t) by Cody Carnes",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-27T16:35:06Z",
+      "updatedAt": "2026-10-27T16:35:06Z"
+    },
+    {
+      "id": "n_141jgd114q",
+      "type": "timestamp",
+      "timestamp": 6248.8,
+      "title": "Left off",
       "content": "",
       "tags": [],
       "markers": [],
       "visibility": "public",
-      "createdAt": "2026-10-26T17:03:25Z",
-      "updatedAt": "2026-10-26T17:03:25Z"
+      "createdAt": "2026-10-27T16:40:13Z",
+      "updatedAt": "2026-10-27T16:40:41Z"
+    },
+    {
+      "id": "n_b9myn3ay7j",
+      "type": "timestamp",
+      "timestamp": 6257.5,
+      "title": "Take You at Your Word by Cody Carnes and Benjamin William Hastings",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-27T18:08:57Z",
+      "updatedAt": "2026-10-27T18:08:57Z"
+    },
+    {
+      "id": "n_hd4iqj13xs",
+      "type": "timestamp",
+      "timestamp": 6568.6,
+      "title": "Phenomena (Da Da) by Hillsong Young & Free",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-27T18:14:01Z",
+      "updatedAt": "2026-10-27T18:14:01Z"
+    },
+    {
+      "id": "n_19po7t817w",
+      "type": "timestamp",
+      "timestamp": 6747,
+      "title": "Shane Lima and a student walks on stage to do the benediction",
+      "content": "^^@1:56:14^^Romans 15:13 \"May the God of hope fill you with all joy and peace as you trust in him, so that you may **overflow with hope** by the power of the Holy Spirit.\"",
+      "tags": [
+        "benediction",
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-27T18:23:36Z",
+      "updatedAt": "2026-10-27T18:23:36Z"
+    },
+    {
+      "id": "n_fa9o3r17px",
+      "type": "timestamp",
+      "timestamp": 7059,
+      "title": "NYC 26 location reveal",
+      "content": "",
+      "tags": [],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-27T18:24:54Z",
+      "updatedAt": "2026-10-27T18:24:54Z"
+    },
+    {
+      "id": "n_lgl9avcvp6",
+      "type": "timestamp",
+      "timestamp": 7075.3,
+      "title": "NYC live",
+      "content": "Interviews Dr. Carla Sunberg",
+      "tags": [
+        "nyc-live"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-27T18:26:44Z",
+      "updatedAt": "2026-10-27T18:26:44Z"
+    },
+    {
+      "id": "n_1exgg8h10s",
+      "type": "timestamp",
+      "timestamp": 7852.9,
+      "title": "Behind the scenes video",
+      "content": "",
+      "tags": [],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-27T18:27:37Z",
+      "updatedAt": "2026-10-27T18:27:37Z"
+    },
+    {
+      "id": "n_7u3uqo1c32",
+      "type": "timestamp",
+      "timestamp": 8026.8,
+      "title": "Video ends",
+      "content": "",
+      "tags": [],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-27T18:28:38Z",
+      "updatedAt": "2026-10-27T18:28:38Z"
     }
   ]
 }

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "nyc23-session-7",
   "title": "NYC23 SESSION 7 OVERFLOW",
-  "description": "",
+  "description": "**Preacher:** Eric Samuel Timm\n\n**Speaker background:** See Sermon 7 (NYC19). At NYC23 he again identified himself as a pastor in Saint Paul, Minnesota, and returned as a closing voice for Overflow.\n\n**Message focus:** Timm warned against believing \"the story's over\" when hope leaks out, using a cracked vase illustration and Luke 6:45 (mouth speaking from the overflow of the heart). He insisted living water is not for hoarding: from Acts 1:8, students are witnesses from near to far (\"it ain't over because the Overflow is just beginning\"). The charge was to carry overflow home into every part of life.",
   "visibility": "public",
   "sources": {
     "local": "videos/NYC23 SESSION 7 OVERFLOW.mp4",
@@ -11,6 +11,78 @@
   },
   "duration": 8240,
   "createdAt": "2026-10-08T22:22:45Z",
-  "updatedAt": "2026-10-08T22:27:23Z",
-  "notes": []
+  "updatedAt": "2026-10-27T19:10:16Z",
+  "notes": [
+    {
+      "id": "n_1dwsizdfoe",
+      "type": "timestamp",
+      "timestamp": 1211.9,
+      "title": "NYC live",
+      "content": "Interviews Ashton Underwood (works behind the scenes)\n\n@23:27 Video about the experience\n\n@25:15 Interviews Reverend Stretch Dean (Leads the experience)",
+      "tags": [
+        "nyc-live"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-27T18:30:01Z",
+      "updatedAt": "2026-10-27T19:07:12Z"
+    },
+    {
+      "id": "n_5hornz5aqs",
+      "type": "timestamp",
+      "timestamp": 2020.6,
+      "title": "Recap video",
+      "content": "",
+      "tags": [
+        "recap-video"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-27T18:36:01Z",
+      "updatedAt": "2026-10-27T18:36:01Z"
+    },
+    {
+      "id": "n_hc1z2r1kwv",
+      "type": "timestamp",
+      "timestamp": 2148,
+      "title": "Intro video",
+      "content": "",
+      "tags": [
+        "intro-video"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-27T18:37:15Z",
+      "updatedAt": "2026-10-27T18:37:15Z"
+    },
+    {
+      "id": "n_1wtzi4zct1",
+      "type": "timestamp",
+      "timestamp": 2190,
+      "title": "Phenomena (Da Da) by Hillsong Young & Free",
+      "content": "",
+      "tags": [
+        "song",
+        "start-of-worship"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-27T18:38:07Z",
+      "updatedAt": "2026-10-27T18:38:07Z"
+    },
+    {
+      "id": "n_1697nngkvs",
+      "type": "timestamp",
+      "timestamp": 2498.8,
+      "title": "Rest on Us by Maverick City Music and UPPERROOM",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-27T18:41:18Z",
+      "updatedAt": "2026-10-27T18:41:18Z"
+    }
+  ]
 }
