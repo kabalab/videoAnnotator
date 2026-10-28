@@ -11,21 +11,21 @@
   },
   "duration": 8240,
   "createdAt": "2026-10-08T22:22:45Z",
-  "updatedAt": "2026-10-27T19:10:16Z",
+  "updatedAt": "2026-10-28T16:37:01Z",
   "notes": [
     {
       "id": "n_1dwsizdfoe",
       "type": "timestamp",
       "timestamp": 1211.9,
       "title": "NYC live",
-      "content": "Interviews Ashton Underwood (works behind the scenes)\n\n@23:27 Video about the experience\n\n@25:15 Interviews Reverend Stretch Dean (Leads the experience)",
+      "content": "Interviews Ashton Underwood (works behind the scenes)\n\n@23:27 Video about the experience\n\n@25:15 Interviews Reverend Sketch Dean (Leads the experience)",
       "tags": [
         "nyc-live"
       ],
       "markers": [],
       "visibility": "public",
       "createdAt": "2026-10-27T18:30:01Z",
-      "updatedAt": "2026-10-27T19:07:12Z"
+      "updatedAt": "2026-10-27T18:35:06Z"
     },
     {
       "id": "n_5hornz5aqs",
@@ -83,6 +83,106 @@
       "visibility": "public",
       "createdAt": "2026-10-27T18:41:18Z",
       "updatedAt": "2026-10-27T18:41:18Z"
+    },
+    {
+      "id": "n_zwy9a017wj",
+      "type": "timestamp",
+      "timestamp": 2834,
+      "title": "Living God by Red Rocks worship",
+      "content": "",
+      "tags": [
+        "song"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-28T15:59:16Z",
+      "updatedAt": "2026-10-28T15:59:16Z"
+    },
+    {
+      "id": "n_5ju6l71on0",
+      "type": "timestamp",
+      "timestamp": 3131,
+      "title": "Shane Lima walks on stage",
+      "content": "^^@54:51^^1 Thessalonians 3:12-13 May the Lord make your love increase and overflow for each other and for each other and for everyone else, just as ours does for you. May he strengthen your hearts so that you will be blameless and holy in the presence of our God and  Father when our Lord Jesus comes with all his holy ones.",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-28T16:10:43Z",
+      "updatedAt": "2026-10-28T16:10:43Z"
+    },
+    {
+      "id": "n_zicznz1bcr",
+      "type": "timestamp",
+      "timestamp": 3383.5,
+      "title": "Intro video",
+      "content": "",
+      "tags": [
+        "intro-video"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-28T16:11:21Z",
+      "updatedAt": "2026-10-28T16:11:21Z"
+    },
+    {
+      "id": "n_1s9fobl3m9",
+      "type": "timestamp",
+      "timestamp": 3504.8,
+      "title": "Eric Samuel Timm walks on stage",
+      "content": "",
+      "tags": [
+        "start-of-sermon"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-28T16:14:48Z",
+      "updatedAt": "2026-10-28T16:14:48Z"
+    },
+    {
+      "id": "n_57ebdk1htl",
+      "type": "generic",
+      "timestamp": null,
+      "title": "Sermon notes",
+      "content": "1. God is like water. \n\tHe is power, he is community, he is life",
+      "tags": [
+        "sermon-notes"
+      ],
+      "markers": [
+        "rewatch-october-26"
+      ],
+      "visibility": "public",
+      "createdAt": "2026-10-28T16:21:18Z",
+      "updatedAt": "2026-10-28T16:33:57Z"
+    },
+    {
+      "id": "n_1pwwo4ny3l",
+      "type": "timestamp",
+      "timestamp": 3937.4,
+      "title": "Genesis 1:2",
+      "content": "The earth was without form and void, and darkness was over the face of the deep. And the Spirit of God was hovering over the face of the waters.",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-28T16:22:39Z",
+      "updatedAt": "2026-10-28T16:22:39Z"
+    },
+    {
+      "id": "n_yzg0ug5q52",
+      "type": "timestamp",
+      "timestamp": 4200,
+      "title": "Mark 1:9-11",
+      "content": "In those days Jesus came from Nazareth of Galilee and was baptized by John in the Jordan. And when he came up out of the water, immediately he saw the heavens being torn open and the Spirit descending on him like a dove. And a voice came from heaven, \"You are my beloved Son; with you I am well pleased.\"",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-28T16:37:01Z",
+      "updatedAt": "2026-10-28T16:37:01Z"
     }
   ]
 }
