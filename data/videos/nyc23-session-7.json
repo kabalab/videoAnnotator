@@ -11,7 +11,7 @@
   },
   "duration": 8240,
   "createdAt": "2026-10-08T22:22:45Z",
-  "updatedAt": "2026-10-28T16:37:01Z",
+  "updatedAt": "2026-10-29T16:03:12Z",
   "notes": [
     {
       "id": "n_1dwsizdfoe",
@@ -154,7 +154,7 @@
       ],
       "visibility": "public",
       "createdAt": "2026-10-28T16:21:18Z",
-      "updatedAt": "2026-10-28T16:33:57Z"
+      "updatedAt": "2026-10-29T15:46:35Z"
     },
     {
       "id": "n_1pwwo4ny3l",
@@ -183,6 +183,90 @@
       "visibility": "public",
       "createdAt": "2026-10-28T16:37:01Z",
       "updatedAt": "2026-10-28T16:37:01Z"
+    },
+    {
+      "id": "n_yqthy2tivo",
+      "type": "timestamp",
+      "timestamp": 4259.8,
+      "title": "1 Chronicles 29:11",
+      "content": "Yours, O Lord, is the greatness and the power and the glory and the victory and the majesty, for all that is in the heavens and in the earth is yours.",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-29T15:48:21Z",
+      "updatedAt": "2026-10-29T15:48:21Z"
+    },
+    {
+      "id": "n_1jkcyi5znd",
+      "type": "timestamp",
+      "timestamp": 4270,
+      "title": "Psalm 139:7, 9",
+      "content": "Where shall I go from your Spirit Or where shall I flee from your presence?",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-29T15:50:48Z",
+      "updatedAt": "2026-10-29T15:50:48Z"
+    },
+    {
+      "id": "n_9jwm4my9wo",
+      "type": "timestamp",
+      "timestamp": 4277,
+      "title": "1 Corinthians 2:10",
+      "content": "These things God has revealed to us through the Spirit For the Spirit searches everything, even the depths of God.",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-29T15:54:38Z",
+      "updatedAt": "2026-10-29T15:54:38Z"
+    },
+    {
+      "id": "n_pqw531a4px",
+      "type": "timestamp",
+      "timestamp": 4287,
+      "title": "Romans 1:4",
+      "content": "Jesus Christ our Lord was declared to be the Son of God in power according to the Spirit of holiness by his resurrection from the dead",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-29T15:56:15Z",
+      "updatedAt": "2026-10-29T15:56:15Z"
+    },
+    {
+      "id": "n_ud8tvm1ooe",
+      "type": "timestamp",
+      "timestamp": 4297.9,
+      "title": "John 14:16",
+      "content": "And I will ask the Father, and he will give you another Helper, to be with you forever.",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-29T15:57:35Z",
+      "updatedAt": "2026-10-29T15:57:35Z"
+    },
+    {
+      "id": "n_1dn9nvr1f7",
+      "type": "timestamp",
+      "timestamp": 4305.5,
+      "title": "John 1:1",
+      "content": "In the beginning was the Word, and the Word was with God, and the Word was God.",
+      "tags": [
+        "verse"
+      ],
+      "markers": [],
+      "visibility": "public",
+      "createdAt": "2026-10-29T16:02:45Z",
+      "updatedAt": "2026-10-29T16:03:12Z"
     }
   ]
 }
